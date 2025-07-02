@@ -1,0 +1,1 @@
+# GerenciadorFinanceiro_Mobile_2025_1
