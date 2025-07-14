@@ -16,12 +16,31 @@
 
 <h2>Descrição:</h2>
 
-<h4>O projeto proposto consiste em uma aplicação de gerenciamento financeiro pessoal desenvolvida para atender às necessidades de usuários individuais. Diferente das soluções existentes no mercado, que frequentemente visam empresas ou exigem integrações bancárias automáticas com custos adicionais, esta aplicação se destaca pela sua abordagem 100% manual. Isso significa que o usuário terá total controle sobre a inserção de seus dados financeiros, eliminando a dependência de assinaturas ou versões "Pro" para funcionalidades essenciais. A ferramenta permitirá o registro detalhado de cartões de crédito, gastos e rendas fixas, despesas inesperadas (seja no crédito ou débito/Pix/TED), e a criação de objetivos de poupança com um "cofrinho" virtual.</h4>
+<h4>O projeto FinBuddy surge da necessidade de uma ferramenta gratuita, manual e acessível para que os indivíduos possam controlar melhor suas finanças pessoais. Segundo levantamento da CNC, mais de 77% das famílias brasileiras estão endividadas, e muitas ferramentas digitais atuais são voltadas para empresas ou exigem pagamentos para funções essenciais como integração bancária.
+A ausência de uma ferramenta acessível e completa pode resultar em dificuldades para o controle de gastos, planejamento financeiro e alcance de metas de economia, impactando negativamente o bem-estar financeiro dos usuários.
+O projeto se propõe a oferecer uma alternativa segura e privativa, sem necessidade de sincronização com contas bancárias, promovendo educação financeira e autonomia.
+</h4>
    
 <h2>Objetivo:</h2>
 
-<h4> O objetivo principal do projeto é democratizar o acesso a um gerenciador financeiro eficiente e intuitivo para pessoas físicas, oferecendo uma ferramenta gratuita e completa que promova a educação e o controle financeiro. Através de uma interface clara, o aplicativo visa ajudar os usuários a visualizar seus hábitos de consumo, identificar padrões de gastos e alcançar metas de economia. Com recursos como calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos), e notificações proativas, a aplicação busca capacitar os usuários a tomar decisões financeiras mais conscientes, evitar endividamentos e planejar seu futuro financeiro de forma eficaz e autônoma.</h4>
-   
+<h4>
+<p>Objetivo Geral</p>
+    <p>O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, promovendo a educação e o controle financeiro pessoal.".</p>
+
+<p>Objetivos Específicos</p>
+    <ul>
+        <li>Identificar padrões de consumo;</li>
+        <li>Alcançar metas de economia;</li>
+        <li>Apoiar decisões financeiras mais conscientes;</li>
+        <li>Evitar endividamentos;</li>
+        <li>Planejar o futuro financeiro de forma eficaz e autônoma;</li>
+        <li>Oferecer recursos visuais e notificativos para controle (Calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos) e notificações proativas).</li>
+    </ul>
+</h4>
+
+<h1> Prototipo de Média Fidelidade</h1>
+<h3><a href = "https://www.figma.com/proto/rigBzs5uKKdDOERVPQ0gUl/Prot%C3%B3tipo-Mobile?node-id=1-5&p=f&t=6rjFtckSInneH0F9-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=15%3A2017">Fin_Buddy</a></h3>
+
 <h1>Tecnologias Usadas:</h1>
 
 <h3><a href = "https://developer.android.com/studio?hl=pt-br">Android Studio</a></h3>
