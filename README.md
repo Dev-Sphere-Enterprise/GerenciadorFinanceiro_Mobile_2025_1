@@ -1,59 +1,40 @@
+# FinBuddy - Gerenciador Financeiro para Pessoaa Física
+## :octocat: Integrantes
+[José Daniel](https://github.com/JoseDanielF) | [David L. Flayban](https://github.com/Flayban) 
+## :page_with_curl: Sobre o Projeto
+Projeto para a disciplina de __Desenvolvimento de Aplicações Móveis__ ministrado pela Professora Dra. [Thais Burity](https://github.com/taburity) da UFAPE, referente ao período de 2025.1 com intuito de avaliação para a 1ª e 2ª Verificação de Aprendizagem.
 
-<h1>Gerenciador Financeiro para Pessoaa Fisica</h1>
-
-</div>
-
-<h4>Equipe:   
-   <a href = "https://github.com/Flayban"> David L. Flayban</a> |
-   <a href = "https://github.com/VictorW-dev">Victor Winicius</a>
-</h4>
-
-<h2>URL do Projeto</h2>
-<h4>
-   <a href = "https://drive.google.com/drive/folders/1BDYb_pvn6g7q761QtnoIvFlAilXBlSeC?usp=drive_link">Documentação Gerenciador Financeiro</a>
-   <a href = "google.com.br">Download APK</a>
-</h4>
-
-<h2>Descrição:</h2>
-
-<h4>O projeto FinBuddy surge da necessidade de uma ferramenta gratuita, manual e acessível para que os indivíduos possam controlar melhor suas finanças pessoais. Segundo levantamento da CNC, mais de 77% das famílias brasileiras estão endividadas, e muitas ferramentas digitais atuais são voltadas para empresas ou exigem pagamentos para funções essenciais como integração bancária.
+## :round_pushpin: Motivação
+O projeto FinBuddy surge da necessidade de uma ferramenta gratuita, manual e acessível para que os indivíduos possam controlar melhor suas finanças pessoais. Segundo levantamento da CNC, mais de 77% das famílias brasileiras estão endividadas, e muitas ferramentas digitais atuais são voltadas para empresas ou exigem pagamentos para funções essenciais como integração bancária.
 A ausência de uma ferramenta acessível e completa pode resultar em dificuldades para o controle de gastos, planejamento financeiro e alcance de metas de economia, impactando negativamente o bem-estar financeiro dos usuários.
 O projeto se propõe a oferecer uma alternativa segura e privativa, sem necessidade de sincronização com contas bancárias, promovendo educação financeira e autonomia.
-</h4>
-   
-<h2>Objetivo:</h2>
 
-<h4>
-<p>Objetivo Geral</p>
-    <p>O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, promovendo a educação e o controle financeiro pessoal.".</p>
+## :round_pushpin: Objetivo Geral 
+O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, promovendo a educação e o controle financeiro pessoal.".
 
-<p>Objetivos Específicos</p>
-    <ul>
-        <li>Identificar padrões de consumo;</li>
-        <li>Alcançar metas de economia;</li>
-        <li>Apoiar decisões financeiras mais conscientes;</li>
-        <li>Evitar endividamentos;</li>
-        <li>Planejar o futuro financeiro de forma eficaz e autônoma;</li>
-        <li>Oferecer recursos visuais e notificativos para controle (Calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos) e notificações proativas).</li>
-    </ul>
-</h4>
+## :round_pushpin: Objetivos Específicos
+  1. Identificar padrões de consumo;
+  2. Alcançar metas de economia;
+  3. Apoiar decisões financeiras mais conscientes;
+  4. Evitar endividamentos;
+  5. Planejar o futuro financeiro de forma eficaz e autônoma;
+  6. Oferecer recursos visuais e notificativos para controle. Como calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos) e notificações proativas.
 
-<h1> Prototipo de Média Fidelidade</h1>
-<h3><a href = "https://www.figma.com/proto/rigBzs5uKKdDOERVPQ0gUl/Prot%C3%B3tipo-Mobile?node-id=1-5&p=f&t=6rjFtckSInneH0F9-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=15%3A2017">Fin_Buddy</a></h3>
+## :round_pushpin: Documentação
+### [Documentação](https://drive.google.com/drive/folders/1BDYb_pvn6g7q761QtnoIvFlAilXBlSeC?usp=drive_link)
+### [Backlog](https://github.com/orgs/Dev-Sphere-Enterprise/projects/1/views/1)
+### [MER]()
+### [Protótipo Fin_Buddy](https://www.figma.com/proto/rigBzs5uKKdDOERVPQ0gUl/Prot%C3%B3tipo-Mobile?node-id=1-5&p=f&t=6rjFtckSInneH0F9-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=15%3A2017)
+### [APK](google.com.br)
 
-<h1>Tecnologias Usadas:</h1>
-
-<h3><a href = "https://developer.android.com/studio?hl=pt-br">Android Studio</a></h3>
-<ul>
-   <li>Versão: 2024.3.2.15</li>
-</ul>
-
-<h3><a href = "https://flutter.dev/">Flutter</a></h3>
-<ul>
-   <li>Versão: 3.32.0</li>
-</ul>
-
-<h2>Status do projeto:</h2>
-<h3><a href = "https://github.com/orgs/Dev-Sphere-Enterprise/projects/1/views/1">GitHub Project</a></h3>
+## :hammer_and_wrench: Tecnologias Usadas
+### [Android Studio](https://developer.android.com/studio?hl=pt-br)
+*   Versão 2024.3.2.15
+### [Flutter](https://flutter.dev/)
+*   Versão 3.32.5
 
 
+## :construction: Status do Projeto
+Em andamento
+## :keyboard: Acessando o sistema
+Para uso do sistema de maneira local, é necessário de antemão rodar o comando "flutter pub get" para que seja instalado todas as dependências necessárias. 
