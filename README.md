@@ -1,4 +1,4 @@
-# FinBuddy - Gerenciador Financeiro para Pessoaa Física
+# FinBuddy - Gerenciador Financeiro para Pessoa Física
 ## :octocat: Integrantes
 [José Daniel](https://github.com/JoseDanielF) | [David L. Flayban](https://github.com/Flayban) 
 ## :page_with_curl: Sobre o Projeto
