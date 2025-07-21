@@ -38,5 +38,3 @@ O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerencia
 
 ## :construction: Status do Projeto
 Em andamento
-## :keyboard: Acessando o sistema
-Para uso do sistema de maneira local, é necessário de antemão rodar o comando "flutter pub get" para que seja instalado todas as dependências necessárias. 
