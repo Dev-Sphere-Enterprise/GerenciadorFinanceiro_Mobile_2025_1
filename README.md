@@ -10,15 +10,13 @@ A ausência de uma ferramenta acessível e completa pode resultar em dificuldade
 O projeto se propõe a oferecer uma alternativa segura e privativa, sem necessidade de sincronização com contas bancárias, promovendo educação financeira e autonomia.
 
 ## :round_pushpin: Objetivo Geral 
-O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, promovendo a educação e o controle financeiro pessoal.".
+Oferecer o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, promovendo a educação e o controle financeiro pessoal.
 
 ## :round_pushpin: Objetivos Específicos
   1. Identificar padrões de consumo;
-  2. Alcançar metas de economia;
-  3. Apoiar decisões financeiras mais conscientes;
-  4. Evitar endividamentos;
-  5. Planejar o futuro financeiro de forma eficaz e autônoma;
-  6. Oferecer recursos visuais e notificativos para controle. Como calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos) e notificações proativas.
+  2. Auxiliar em decisões financeiras mais conscientes;
+  3. Auxiliar no planejamento do futuro financeiro de forma eficaz e autônoma;
+  4. Oferecer recursos visuais e notificativos para controle. (Calendários interativos, gráficos de desempenho (incluindo o monitoramento do teto de gastos) e notificações proativas.
 
 ## :round_pushpin: Documentação
 ### [Documentação](https://drive.google.com/drive/folders/1BDYb_pvn6g7q761QtnoIvFlAilXBlSeC?usp=drive_link)
