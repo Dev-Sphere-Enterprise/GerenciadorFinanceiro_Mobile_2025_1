@@ -23,7 +23,7 @@ O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerencia
 ## :round_pushpin: Documentação
 ### [Documentação](https://drive.google.com/drive/folders/1BDYb_pvn6g7q761QtnoIvFlAilXBlSeC?usp=drive_link)
 ### [Backlog](https://github.com/orgs/Dev-Sphere-Enterprise/projects/1/views/1)
-### [MER]()
+### [MER](https://docs.google.com/document/d/1kokUXbemNmx6zhpN7YFtU9qcu4vgtK8VKb_nUdexH5k/edit?tab=t.0)
 ### [Protótipo FinBuddy](https://www.figma.com/proto/rigBzs5uKKdDOERVPQ0gUl/Prot%C3%B3tipo-Mobile?node-id=1-5&p=f&t=6rjFtckSInneH0F9-1&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=15%3A2017)
 ### [APK]()
 
