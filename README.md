@@ -30,9 +30,11 @@ O objetivo principal do projeto FinBuddy é "Democratizar o acesso a um gerencia
 ## :hammer_and_wrench: Tecnologias Usadas
 ### [Android Studio](https://developer.android.com/studio?hl=pt-br)
 *   Versão 2024.3.2.15
+### [Dart](https://dart.dev/)
+*   Versão 12.409.230
 ### [Flutter](https://flutter.dev/)
 *   Versão 3.32.5
-
+### [Firebase](https://firebase.google.com/?hl=pt-br)
 
 ## :construction: Status do Projeto
 Em andamento
