@@ -24,7 +24,7 @@ Oferecer o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, p
 ### [MER](https://docs.google.com/document/d/1kokUXbemNmx6zhpN7YFtU9qcu4vgtK8VKb_nUdexH5k/edit?tab=t.0)
 ### [Protótipo FinBuddy](https://www.figma.com/proto/rigBzs5uKKdDOERVPQ0gUl/Prot%C3%B3tipo-Mobile?node-id=1-5&p=f&t=OclfwwYsgEOZi8gQ-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A5)
 ### [APK]()
-### [Apresentação]()
+### [Apresentação](https://youtu.be/b-vILmdQqhE)
 
 ## :hammer_and_wrench: Tecnologias Usadas
 ### [Android Studio](https://developer.android.com/studio?hl=pt-br)
