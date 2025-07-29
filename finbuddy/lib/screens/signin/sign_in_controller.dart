@@ -32,6 +32,7 @@ class SignInController with ChangeNotifier {
 
   Future signInAnonimously() async {
     status = SignInStatus.loading;
+    // ignore: body_might_complete_normally_catch_error
     FirebaseAuth.instance.signInAnonymously().then((value) => navigatorKey.currentState!.pushReplacementNamed(Screens.home)).catchError((e) {
       setErrorMessage(e);
     });
@@ -39,6 +40,7 @@ class SignInController with ChangeNotifier {
   }
 
   Future<UserCredential> signInWithGoogle() async {
+    // ignore: body_might_complete_normally_catch_error
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn().catchError((e) {
       log('Bad: $e');
     });

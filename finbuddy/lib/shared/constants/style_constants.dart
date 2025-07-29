@@ -1,3 +1,4 @@
+// ignore: dangling_library_doc_comments
 ///This file should contain all the constants style used in the app
 ///like texts, fonts, colors, etc.
 ///you should use the standard naming convention for constants like the following:

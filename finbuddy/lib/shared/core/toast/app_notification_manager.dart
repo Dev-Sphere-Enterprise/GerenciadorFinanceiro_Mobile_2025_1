@@ -23,10 +23,7 @@ class AppSnackbarManager {
         notificationTitle = 'Ei, isso não está certo';
 
         break;
-      default:
-        typeColor = kSuccessColor;
-        notificationTitle = 'Sucesso!';
-    }
+      }
     BotToast.showSimpleNotification(titleStyle: kCaption2.copyWith(color: Colors.white), hideCloseButton: true, title: title ?? notificationTitle, backgroundColor: typeColor);
   }
 }

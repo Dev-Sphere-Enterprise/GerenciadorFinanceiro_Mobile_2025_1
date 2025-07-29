@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:finbuddy/components/utils/vertical_spacer_box.dart';
+// ignore: unused_import
 import 'package:finbuddy/screens/screens_index.dart';
 import 'package:finbuddy/screens/splash/splash_screen_controller.dart';
 import 'package:finbuddy/shared/constants/app_enums.dart';
 
 import 'package:finbuddy/shared/constants/app_number_constants.dart';
 import 'package:finbuddy/shared/constants/style_constants.dart';
+// ignore: unused_import
 import 'package:finbuddy/shared/core/navigator.dart';
 
 import '../../shared/core/assets_index.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();

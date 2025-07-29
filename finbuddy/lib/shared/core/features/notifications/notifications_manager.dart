@@ -53,6 +53,7 @@ class NotificationManager {
       body,
       tz.TZDateTime.from(scheduleDate, tz.local),
       await _notificationDetails(),
+      // ignore: deprecated_member_use
       androidAllowWhileIdle: true,
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
     )
