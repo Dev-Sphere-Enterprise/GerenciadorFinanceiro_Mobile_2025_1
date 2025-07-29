@@ -3,4 +3,5 @@ class Screens {
   static const String splash = '/splash';
   static const String signin = '/sign_in';
   static const String signup = '/signup';
+  static const String eggTimer = '/eggTimer';
 }

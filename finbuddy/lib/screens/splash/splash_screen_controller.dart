@@ -40,7 +40,7 @@ class SplashScreenController {
     final bool? isFirstTime = prefs.getBool(loadedKey);
     if (isFirstTime != null && isFirstTime) {
       log('First time user in: carrosel');
-      navigatorKey.currentState!.pushNamed(Screens.carrousel);
+      navigatorKey.currentState!.pushNamed(Screens.splash);
     } else {
       log('User already open app: sign in or home');
       FirebaseAuth.instance.authStateChanges().listen((User? user) {

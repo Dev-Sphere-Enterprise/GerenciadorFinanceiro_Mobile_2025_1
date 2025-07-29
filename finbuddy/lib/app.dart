@@ -7,9 +7,10 @@ import 'package:finbuddy/screens/screens_index.dart';
 import 'package:finbuddy/screens/signin/sign_in_screen.dart';
 import 'package:finbuddy/shared/constants/app_theme.dart';
 import 'package:finbuddy/shared/core/navigator.dart';
-import 'screens/signin/sign_in_screen.dart';
 import 'screens/splash/splash_screen.dart';
 import 'shared/core/features/notifications/notifications_manager.dart';
+import 'package:finbuddy/screens/home/home_screen.dart';
+
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
