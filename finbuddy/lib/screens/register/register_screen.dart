@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';  // Novo import para Firestore
+import 'package:cloud_firestore/cloud_firestore.dart'; 
 import 'package:google_sign_in/google_sign_in.dart';
-import 'login_screen.dart';
-import 'home_screen.dart';
+import '../signin/login_screen.dart';
+import '../home_screen.dart';
 import 'package:intl/intl.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController dobController = TextEditingController(); // Data de nascimento (string simples)
+  final TextEditingController dobController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
