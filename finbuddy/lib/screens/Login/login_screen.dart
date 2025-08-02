@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../Register/register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../home_screen.dart';
+import '../Home/home_screen.dart';
+import 'helpers/login_with_email.dart';
+import 'helpers/login_with_google.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,45 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-  }
-
-
-  Future<void> loginWithEmail() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-    });
-    try {
-      await _auth.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-
-    } on FirebaseAuthException catch (e) {
-      setState(() => errorMessage = e.message);
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> loginWithGoogle() async {
-    try {
-      final googleUser = await GoogleSignIn.instance.authenticate();
-      if (googleUser == null) return;
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
-    } catch (e) {
-      setState(() => errorMessage = 'Erro ao logar com Google: $e');
-    }
   }
 
   @override
@@ -89,12 +52,20 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-              onPressed: loginWithEmail,
+              onPressed: () =>loginWithEmail(
+                context: context,
+                emailController: emailController,
+                passwordController: passwordController,
+                setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                setLoading: (value) => setState(() => isLoading = value),
+              ),
               child: const Text('Entrar'),
             ),
             const SizedBox(height: 10),
             ElevatedButton.icon(
-              onPressed: loginWithGoogle,
+              onPressed: () => loginWithGoogle(
+                setErrorMessage: (msg) => setState(() => errorMessage = msg),
+              ),
               icon: const Icon(Icons.login),
               label: const Text('Entrar com Google'),
             ),
