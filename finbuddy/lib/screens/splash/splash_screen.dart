@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:finbuddy/components/utils/vertical_spacer_box.dart';
 import 'package:finbuddy/screens/screens_index.dart';
-import 'package:finbuddy/screens/splash/splash_screen_controller.dart';
+import 'package:finbuddy/screens/Splash/splash_screen_controller.dart';
 import 'package:finbuddy/shared/constants/app_enums.dart';
 import 'package:finbuddy/shared/constants/app_number_constants.dart';
 import 'package:finbuddy/shared/constants/style_constants.dart';

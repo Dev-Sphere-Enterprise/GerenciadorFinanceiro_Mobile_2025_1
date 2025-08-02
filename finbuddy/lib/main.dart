@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/signin/login_screen.dart';
-import 'screens/register/register_screen.dart';
+import 'screens/Register/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/home_screen.dart';
 
