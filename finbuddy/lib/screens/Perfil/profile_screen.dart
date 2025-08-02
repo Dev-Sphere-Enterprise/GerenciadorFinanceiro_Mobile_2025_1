@@ -6,7 +6,7 @@ import '../signin/login_screen.dart';
 // import 'metas_screen.dart';
 // import 'ganhos_fixos_screen.dart';
 // import 'gastos_fixos_screen.dart';
-import '../card/cartoes_screen.dart';
+import '../Cartoes/cartoes_screen.dart';
 // import 'tipos_pagamentos_screen.dart';
 // import 'categorias_screen.dart';
 
