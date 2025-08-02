@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "752699470468-9kba24c7ham4tuukdr320tr4h1f74v1i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.finbuddy",
+            "certificate_hash": "679cb044c5d2450a43f9ce419e2dc66723651213"
+          }
+        },
+        {
           "client_id": "752699470468-f6ahdagsqq5tpo4etvee8ncrkfoqnh1j.apps.googleusercontent.com",
           "client_type": 3
         }
