@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; 
+import 'package:cloud_firestore/cloud_firestore.dart';  // Novo import para Firestore
 import 'package:google_sign_in/google_sign_in.dart';
-import '../signin/login_screen.dart';
-import '../home_screen.dart';
+import '../Login/login_screen.dart';
+import '../Home/home_screen.dart';
 import 'package:intl/intl.dart';
+import 'helpers/register_with_email.dart';
+import 'helpers/register_with_google.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,7 +17,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController dobController = TextEditingController();
+  final TextEditingController dobController = TextEditingController(); // Data de nascimento (string simples)
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
@@ -25,74 +27,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool isLoading = false;
   String? errorMessage;
-
-  Future<void> register() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = null;
-    });
-
-    // Validação simples de senha
-    if (passwordController.text != confirmPasswordController.text) {
-      setState(() {
-        errorMessage = 'As senhas não coincidem';
-        isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      // Criar usuário no Firebase Auth
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-
-      // Salvar dados adicionais no Firestore, na coleção 'users'
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'name': nameController.text.trim(),
-        'dob': Timestamp.fromDate(DateFormat('dd/MM/yyyy').parse(dobController.text)),
-        'email': emailController.text.trim(),
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      // Navegar para Home
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      setState(() => errorMessage = e.message);
-    } catch (e) {
-      setState(() => errorMessage = 'Erro inesperado: $e');
-    } finally {
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> registerWithGoogle() async {
-    try {
-      await GoogleSignIn.instance.initialize();
-      final googleUser = await GoogleSignIn.instance.authenticate();
-      if (googleUser == null) return;
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken!,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } on GoogleSignInException catch (e) {
-      setState(() =>
-      errorMessage = 'GoogleSignInException: ${e.code} - ${e.description}');
-    } catch (e) {
-      setState(() => errorMessage = 'Erro ao registrar com Google: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,12 +80,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
             isLoading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-              onPressed: register,
+              onPressed: () {
+                registerWithEmail(
+                  context: context,
+                  nameController: nameController,
+                  dobController: dobController,
+                  emailController: emailController,
+                  passwordController: passwordController,
+                  confirmPasswordController: confirmPasswordController,
+                  setLoading: (value) => setState(() => isLoading = value),
+                  setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                );
+              },
               child: const Text('Criar Conta'),
             ),
             const SizedBox(height: 10),
             ElevatedButton.icon(
-              onPressed: registerWithGoogle,
+              onPressed: () {
+                registerWithGoogle(
+                  context: context,
+                  setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                );
+              },
               icon: const Icon(Icons.login),
               label: const Text('Registrar com Google'),
             ),
