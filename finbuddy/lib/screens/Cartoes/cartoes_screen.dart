@@ -3,159 +3,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class CartoesScreen extends StatefulWidget {
+import 'helpers/add_edit_cartao_dialog.dart';
+import 'helpers/delete_cartao.dart';
+
+class CartoesScreen extends StatelessWidget {
   const CartoesScreen({super.key});
 
   @override
-  State<CartoesScreen> createState() => _CartoesScreenState();
-}
-
-class _CartoesScreenState extends State<CartoesScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  User? get currentUser => _auth.currentUser;
-
-  /// Adicionar ou Editar Cartão
-  Future<void> _addOrEditCartao({
-    String? id,
-    String? nome,
-    double? valorFatura,
-    double? limiteCredito,
-    // ignore: unused_element_parameter
-    double? creditoDisponivel,
-    DateTime? dataFechamento,
-    DateTime? dataVencimento,
-  }) async {
-    final nomeController = TextEditingController(text: nome ?? '');
-    final valorFaturaController = TextEditingController(text: valorFatura?.toString() ?? '');
-    final limiteController = TextEditingController(text: limiteCredito?.toString() ?? '');
-
-    DateTime selectedFechamento = dataFechamento ?? DateTime.now();
-    DateTime selectedVencimento = dataVencimento ?? DateTime.now();
-
-    await showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(builder: (context, setModalState) {
-          return AlertDialog(
-            title: Text(id == null ? 'Adicionar Cartão' : 'Editar Cartão'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nomeController,
-                    decoration: const InputDecoration(labelText: 'Nome do Cartão'),
-                  ),
-                  TextField(
-                    controller: valorFaturaController,
-                    decoration: const InputDecoration(labelText: 'Valor Fatura Atual (R\$)'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  TextField(
-                    controller: limiteController,
-                    decoration: const InputDecoration(labelText: 'Limite de Crédito (R\$)'),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () async {
-                      DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedFechamento,
-                        firstDate: DateTime(1925),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) {
-                        setModalState(() => selectedFechamento = picked);
-                      }
-                    },
-                    child: Text("Data Fechamento: ${DateFormat('dd/MM/yyyy').format(selectedFechamento)}"),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedVencimento,
-                        firstDate: DateTime(1925),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) {
-                        setModalState(() => selectedVencimento = picked);
-                      }
-                    },
-                    child: Text("Data Vencimento: ${DateFormat('dd/MM/yyyy').format(selectedVencimento)}"),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (nomeController.text.trim().isEmpty ||
-                      valorFaturaController.text.trim().isEmpty ||
-                      limiteController.text.trim().isEmpty) {
-                    return;
-                  }
-
-                  final valorFatura = double.tryParse(valorFaturaController.text.trim()) ?? 0.0;
-                  final limite = double.tryParse(limiteController.text.trim()) ?? 0.0;
-
-                  final dataMap = {
-                    'Nome': nomeController.text.trim(),
-                    'Valor_Fatura_Atual': valorFatura,
-                    'Limite_Credito': limite,
-                    'Credito_Disponivel': limite - valorFatura,
-                    'Data_Fechamento': Timestamp.fromDate(selectedFechamento),
-                    'Data_Vencimento': Timestamp.fromDate(selectedVencimento),
-                    'Deletado': false,
-                    'Data_Atualizacao': Timestamp.now(),
-                  };
-
-                  final cartoesRef = _firestore
-                      .collection('users')
-                      .doc(currentUser!.uid)
-                      .collection('cartoes');
-
-                  if (id == null) {
-                    dataMap['Data_Criacao'] = Timestamp.now();
-                    await cartoesRef.add(dataMap);
-                  } else {
-                    await cartoesRef.doc(id).update(dataMap);
-                  }
-
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context);
-                },
-                child: const Text('Salvar'),
-              ),
-            ],
-          );
-        });
-      },
-    );
-  }
-
-  /// Marcar como deletado
-  Future<void> _deleteCartao(String id) async {
-    final cartoesRef = _firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('cartoes');
-
-    await cartoesRef.doc(id).update({
-      'Deletado': true,
-      'Data_Atualizacao': Timestamp.now(),
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final firestore = FirebaseFirestore.instance;
+
     if (currentUser == null) {
       return const Scaffold(
         body: Center(child: Text('Usuário não autenticado')),
@@ -171,9 +29,9 @@ class _CartoesScreenState extends State<CartoesScreen> {
         ),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: _firestore
+        stream: firestore
             .collection('users')
-            .doc(currentUser!.uid)
+            .doc(currentUser.uid)
             .collection('cartoes')
             .where('Deletado', isEqualTo: false)
             .snapshots(),
@@ -196,42 +54,42 @@ class _CartoesScreenState extends State<CartoesScreen> {
               final nome = cartao['Nome'] ?? '';
               final valorFatura = cartao['Valor_Fatura_Atual'] ?? 0.0;
               final limite = cartao['Limite_Credito'] ?? 0.0;
-
-              final dataFechamento = cartao['Data_Fechamento'] != null
-                  ? (cartao['Data_Fechamento'] as Timestamp).toDate()
-                  : null;
-
-              final dataVencimento = cartao['Data_Vencimento'] != null
-                  ? (cartao['Data_Vencimento'] as Timestamp).toDate()
-                  : null;
               final creditoDisponivel = cartao['Credito_Disponivel'] ?? 0.0;
+
+              final dataFechamento = (cartao['Data_Fechamento'] as Timestamp?)?.toDate();
+              final dataVencimento = (cartao['Data_Vencimento'] as Timestamp?)?.toDate();
+
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
                   title: Text(nome),
                   subtitle: Text(
-                    'Fatura: R\$${valorFatura.toStringAsFixed(2)} \nCrédito Total: R\$${limite.toStringAsFixed(2)}'
-                        '\nCrédito Disponível: R\$${creditoDisponivel.toStringAsFixed(2)}'
-                        '\nFechamento: ${dataFechamento != null ? DateFormat('dd/MM').format(dataFechamento) : '-'}'
-                        '\nVencimento: ${dataVencimento != null ? DateFormat('dd/MM').format(dataVencimento) : '-'}',
+                    'Fatura: R\$${valorFatura.toStringAsFixed(2)}\n'
+                        'Crédito Total: R\$${limite.toStringAsFixed(2)}\n'
+                        'Crédito Disponível: R\$${creditoDisponivel.toStringAsFixed(2)}\n'
+                        'Fechamento: ${dataFechamento != null ? DateFormat('dd/MM').format(dataFechamento) : '-'}\n'
+                        'Vencimento: ${dataVencimento != null ? DateFormat('dd/MM').format(dataVencimento) : '-'}',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _addOrEditCartao(
-                          id: id,
-                          nome: nome,
-                          valorFatura: valorFatura.toDouble(),
-                          limiteCredito: limite.toDouble(),
-                          dataFechamento: dataFechamento ?? DateTime.now(),
-                          dataVencimento: dataVencimento ?? DateTime.now(),
-                        ),
+                        onPressed: () {
+                          showAddEditCartaoDialog(
+                            context: context,
+                            id: id,
+                            nome: nome,
+                            valorFatura: valorFatura.toDouble(),
+                            limiteCredito: limite.toDouble(),
+                            dataFechamento: dataFechamento,
+                            dataVencimento: dataVencimento,
+                          );
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteCartao(id),
+                        onPressed: () => deleteCartao(context, id),
                       ),
                     ],
                   ),
@@ -242,7 +100,7 @@ class _CartoesScreenState extends State<CartoesScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addOrEditCartao(),
+        onPressed: () => showAddEditCartaoDialog(context: context),
         label: const Text('Adicionar Cartão'),
         icon: const Icon(Icons.add),
       ),
