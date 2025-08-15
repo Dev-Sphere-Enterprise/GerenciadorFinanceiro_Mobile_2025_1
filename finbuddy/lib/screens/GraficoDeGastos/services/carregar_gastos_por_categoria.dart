@@ -2,12 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'categoria_expense_data.dart';
 
-Future<Map<String, CategoriaExpenseData>> carregarGastosPorCategoria(int ano, int mes) async {
+Future<Map<String, CategoriaExpenseData>> carregarGastosPorCategoria(
+  int ano,
+  int mes,
+) async {
   final uid = FirebaseAuth.instance.currentUser?.uid;
   if (uid == null) return {};
 
   final inicioMes = DateTime(ano, mes, 1);
-  final fimMes = DateTime(ano, mes + 1, 1).subtract(const Duration(milliseconds: 1));
+  final fimMes = DateTime(
+    ano,
+    mes + 1,
+    1,
+  ).subtract(const Duration(milliseconds: 1));
 
   final snapshot = await FirebaseFirestore.instance
       .collection('users')
@@ -30,12 +37,10 @@ Future<Map<String, CategoriaExpenseData>> carregarGastosPorCategoria(int ano, in
     final categoriaId = data['ID_Categoria'] ?? 'sem_categoria';
     final valor = (data['Valor'] ?? 0).toDouble();
 
-    // Se a categoria já existe, atualiza o valor e a contagem
     if (contagem.containsKey(categoriaId)) {
       contagem[categoriaId]!.count++;
       contagem[categoriaId]!.totalValue += valor;
     } else {
-      // Se não, cria uma nova entrada
       contagem[categoriaId] = CategoriaExpenseData(count: 1, totalValue: valor);
     }
   }
