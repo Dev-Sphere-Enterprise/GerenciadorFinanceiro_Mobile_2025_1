@@ -109,9 +109,6 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
           (sum, item) => sum + item.count,
         );
 
-        // Define a contagem de itens para a ListView.
-        // Se `limiteCategorias` for nulo, exibe todas as categorias.
-        // Caso contrário, exibe no máximo `limiteCategorias` categorias.
         final itemCount = widget.limiteCategorias != null
             ? (categorias.length > widget.limiteCategorias!
                   ? widget.limiteCategorias!
@@ -323,7 +320,6 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                 );
               },
             ),
-            // 🟢 Adiciona o botão "Ver Mais" apenas se houver mais categorias e o limite for definido
             if (widget.limiteCategorias != null &&
                 categorias.length > widget.limiteCategorias!)
               Padding(
