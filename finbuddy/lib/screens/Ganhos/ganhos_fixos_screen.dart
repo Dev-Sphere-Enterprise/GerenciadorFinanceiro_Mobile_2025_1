@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 import 'helpers/ganhos_fixos_dialog.dart';
@@ -72,7 +73,7 @@ class _GanhosFixosScreenState extends State<GanhosFixosScreen> {
                   title: Text(nome),
                   subtitle: Text(
                     'Valor: R\$${valor.toStringAsFixed(2)}'
-                        '${dataRecebimento != null ? "\nRecebimento: ${DateFormat('dd/MM').format(dataRecebimento)}" : ""}',
+                    '${dataRecebimento != null ? "\nRecebimento: ${DateFormat('dd/MM').format(dataRecebimento)}" : ""}',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
