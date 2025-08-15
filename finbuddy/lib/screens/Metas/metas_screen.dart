@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 import '../Aportes/aportes_screen.dart';
 import 'helpers/metas_helper.dart';
@@ -44,7 +45,6 @@ class _MetasScreenState extends State<MetasScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            print('Erro no snapshot: ${snapshot.error}');
             return const Center(child: Text('Erro ao carregar metas.'));
           }
 
@@ -70,16 +70,17 @@ class _MetasScreenState extends State<MetasScreen> {
               final valorAtual = doc['Valor_Atual'] ?? 0.0;
               final valorObjetivo = doc['Valor_Objetivo'] ?? 0.0;
               final dataCriacao = (doc['Data_Criacao'] as Timestamp).toDate();
-              final dataLimite = (doc['Data_limite_meta'] as Timestamp).toDate();
+              final dataLimite = (doc['Data_limite_meta'] as Timestamp)
+                  .toDate();
 
               return Card(
                 child: ListTile(
                   title: Text(nome),
                   subtitle: Text(
                     'Atual: R\$${valorAtual.toStringAsFixed(2)}\n'
-                        'Objetivo: R\$${valorObjetivo.toStringAsFixed(2)}\n'
-                        'Criado em: ${DateFormat('dd/MM/yyyy').format(dataCriacao)}\n'
-                        'Limite: ${DateFormat('dd/MM/yyyy').format(dataLimite)}',
+                    'Objetivo: R\$${valorObjetivo.toStringAsFixed(2)}\n'
+                    'Criado em: ${DateFormat('dd/MM/yyyy').format(dataCriacao)}\n'
+                    'Limite: ${DateFormat('dd/MM/yyyy').format(dataLimite)}',
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -99,7 +100,10 @@ class _MetasScreenState extends State<MetasScreen> {
                         onPressed: () => deleteMeta(doc.id),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.attach_money, color: Colors.green),
+                        icon: const Icon(
+                          Icons.attach_money,
+                          color: Colors.green,
+                        ),
                         onPressed: () {
                           Navigator.push(
                             context,
