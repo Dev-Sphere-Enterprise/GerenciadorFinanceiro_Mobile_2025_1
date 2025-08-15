@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:async/async.dart';
 import '../../Categorias/helpers/get_categorias_gerais.dart';
 import '../../Categorias/helpers/get_categorias_usuario.dart';
@@ -9,15 +10,13 @@ import '../helpers/graficos/construir_grafico_pizza.dart';
 import '../helpers/graficos/construir_grafico_coluna.dart';
 import '../helpers/periodo/gerar_anos.dart';
 import '../grafico_de_gastos_screen.dart';
+
 enum TipoGrafico { pizza, coluna }
 
 class GraficoDeGastosWidget extends StatefulWidget {
   final int? limiteCategorias;
 
-  const GraficoDeGastosWidget({
-    super.key,
-    this.limiteCategorias,
-  });
+  const GraficoDeGastosWidget({super.key, this.limiteCategorias});
 
   @override
   State<GraficoDeGastosWidget> createState() => _GraficoDeGastosWidgetState();
@@ -43,7 +42,8 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final keyParaMesAtual = _mesKeys[_mesSelecionado - 1];
       if (keyParaMesAtual.currentContext != null) {
-        final renderBox = keyParaMesAtual.currentContext!.findRenderObject() as RenderBox;
+        final renderBox =
+            keyParaMesAtual.currentContext!.findRenderObject() as RenderBox;
         final offset = renderBox.localToGlobal(Offset.zero).dx - 16;
         _scrollController.animateTo(
           offset,
@@ -63,7 +63,10 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
   }
 
   Future<void> _carregarGastos() async {
-    final gastos = await carregarGastosPorCategoria(_anoSelecionado, _mesSelecionado);
+    final gastos = await carregarGastosPorCategoria(
+      _anoSelecionado,
+      _mesSelecionado,
+    );
     setState(() {
       _gastosPorCategoria = gastos;
     });
@@ -92,22 +95,27 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
         }
 
         final categorias = snapshot.data!;
-        _nomesCategorias = {
-          for (var c in categorias) c['id']: c['Nome'],
-        };
+        _nomesCategorias = {for (var c in categorias) c['id']: c['Nome']};
 
         final categoriasComGasto = _gastosPorCategoria.entries
-            .where((e) => e.value.count > 0 && _nomesCategorias.containsKey(e.key))
+            .where(
+              (e) => e.value.count > 0 && _nomesCategorias.containsKey(e.key),
+            )
             .map((e) => MapEntry(e.key, e.value.count))
             .toList();
 
-        final totalGastos = _gastosPorCategoria.values.fold<int>(0, (sum, item) => sum + item.count);
+        final totalGastos = _gastosPorCategoria.values.fold<int>(
+          0,
+          (sum, item) => sum + item.count,
+        );
 
         // Define a contagem de itens para a ListView.
         // Se `limiteCategorias` for nulo, exibe todas as categorias.
         // Caso contrário, exibe no máximo `limiteCategorias` categorias.
         final itemCount = widget.limiteCategorias != null
-            ? (categorias.length > widget.limiteCategorias! ? widget.limiteCategorias! : categorias.length)
+            ? (categorias.length > widget.limiteCategorias!
+                  ? widget.limiteCategorias!
+                  : categorias.length)
             : categorias.length;
 
         return Column(
@@ -125,8 +133,18 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                       children: List.generate(12, (index) {
                         final mes = index + 1;
                         final nomeMes = [
-                          'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-                          'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'
+                          'Jan',
+                          'Fev',
+                          'Mar',
+                          'Abr',
+                          'Mai',
+                          'Jun',
+                          'Jul',
+                          'Ago',
+                          'Set',
+                          'Out',
+                          'Nov',
+                          'Dez',
                         ][index];
                         final selecionado = mes == _mesSelecionado;
                         return Padding(
@@ -142,9 +160,15 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                               _carregarGastos();
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 final keyParaMesSelecionado = _mesKeys[mes - 1];
-                                if (keyParaMesSelecionado.currentContext != null) {
-                                  final renderBox = keyParaMesSelecionado.currentContext!.findRenderObject() as RenderBox;
-                                  final offset = renderBox.localToGlobal(Offset.zero).dx;
+                                if (keyParaMesSelecionado.currentContext !=
+                                    null) {
+                                  final renderBox =
+                                      keyParaMesSelecionado.currentContext!
+                                              .findRenderObject()
+                                          as RenderBox;
+                                  final offset = renderBox
+                                      .localToGlobal(Offset.zero)
+                                      .dx;
                                   _scrollController.animateTo(
                                     offset - 16,
                                     duration: const Duration(milliseconds: 300),
@@ -162,7 +186,10 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Text('Ano: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Ano: ',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       DropdownButton<int>(
                         value: _anoSelecionado,
                         items: gerarAnos().map((ano) {
@@ -184,7 +211,9 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                   if (categoriasComGasto.isEmpty)
                     const Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: Center(child: Text('Nenhum gasto registrado este mês.')),
+                      child: Center(
+                        child: Text('Nenhum gasto registrado este mês.'),
+                      ),
                     )
                   else
                     Column(
@@ -192,20 +221,31 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                       children: [
                         Row(
                           children: [
-                            const Text('Tipo de Gráfico:', style: TextStyle(fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Tipo de Gráfico:',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             const Spacer(),
                             IconButton(
                               icon: const Icon(Icons.pie_chart),
-                              color: _tipoSelecionado == TipoGrafico.pizza ? Colors.blueGrey : Colors.grey,
+                              color: _tipoSelecionado == TipoGrafico.pizza
+                                  ? Colors.blueGrey
+                                  : Colors.grey,
                               onPressed: () {
-                                setState(() => _tipoSelecionado = TipoGrafico.pizza);
+                                setState(
+                                  () => _tipoSelecionado = TipoGrafico.pizza,
+                                );
                               },
                             ),
                             IconButton(
                               icon: const Icon(Icons.bar_chart),
-                              color: _tipoSelecionado == TipoGrafico.coluna ? Colors.blueGrey : Colors.grey,
+                              color: _tipoSelecionado == TipoGrafico.coluna
+                                  ? Colors.blueGrey
+                                  : Colors.grey,
                               onPressed: () {
-                                setState(() => _tipoSelecionado = TipoGrafico.coluna);
+                                setState(
+                                  () => _tipoSelecionado = TipoGrafico.coluna,
+                                );
                               },
                             ),
                           ],
@@ -214,23 +254,26 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                           height: 250,
                           child: _tipoSelecionado == TipoGrafico.pizza
                               ? construirGraficoPizza(
-                            categoriasComGasto,
-                            _indiceSelecionado,
-                            _atualizarIndiceSelecionado,
-                          )
+                                  categoriasComGasto,
+                                  _indiceSelecionado,
+                                  _atualizarIndiceSelecionado,
+                                )
                               : construirGraficoColuna(
-                            categoriasComGasto,
-                            _nomesCategorias,
-                          ),
+                                  categoriasComGasto,
+                                  _nomesCategorias,
+                                ),
                         ),
                         const SizedBox(height: 16),
                         Wrap(
                           spacing: 12,
                           runSpacing: 6,
-                          children: List.generate(categoriasComGasto.length, (index) {
+                          children: List.generate(categoriasComGasto.length, (
+                            index,
+                          ) {
                             final categoriaId = categoriasComGasto[index].key;
                             final nome = _nomesCategorias[categoriaId]!;
-                            final cor = Colors.primaries[index % Colors.primaries.length];
+                            final cor = Colors
+                                .primaries[index % Colors.primaries.length];
                             return Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -258,7 +301,9 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                 final dadosGasto = _gastosPorCategoria[id];
                 final contagem = dadosGasto?.count ?? 0;
                 final valorTotal = dadosGasto?.totalValue ?? 0.0;
-                final porcentagem = totalGastos > 0 ? (contagem / totalGastos) * 100 : 0.0;
+                final porcentagem = totalGastos > 0
+                    ? (contagem / totalGastos) * 100
+                    : 0.0;
 
                 return ListTile(
                   title: Row(
@@ -279,7 +324,8 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
               },
             ),
             // 🟢 Adiciona o botão "Ver Mais" apenas se houver mais categorias e o limite for definido
-            if (widget.limiteCategorias != null && categorias.length > widget.limiteCategorias!)
+            if (widget.limiteCategorias != null &&
+                categorias.length > widget.limiteCategorias!)
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Center(
@@ -287,7 +333,9 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const GraficoDeGastosScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const GraficoDeGastosScreen(),
+                        ),
                       );
                     },
                     child: const Text('Ver mais'),
@@ -298,4 +346,5 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
         );
       },
     );
-  }}
+  }
+}
