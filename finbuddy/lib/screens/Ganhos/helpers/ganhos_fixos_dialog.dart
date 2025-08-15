@@ -64,8 +64,9 @@ Future<void> showAddOrEditGanhoDialog({
               ElevatedButton(
                 onPressed: () async {
                   if (nomeController.text.trim().isEmpty ||
-                      valorController.text.trim().isEmpty)
+                      valorController.text.trim().isEmpty) {
                     return;
+                  }
 
                   final valor =
                       double.tryParse(valorController.text.trim()) ?? 0.0;
@@ -90,6 +91,7 @@ Future<void> showAddOrEditGanhoDialog({
                     await ganhosRef.doc(id).update(dataMap);
                   }
 
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 },
                 child: const Text('Salvar'),
