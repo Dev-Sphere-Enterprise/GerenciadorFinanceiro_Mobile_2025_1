@@ -29,11 +29,13 @@ Widget construirGraficoLinha(
       lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+          tooltipStyle: TooltipStyle(
+            backgroundColor: Colors.blueGrey.withOpacity(0.8),
+          ),
           getTooltipItems: (List<LineBarSpot> touchedSpots) {
             return touchedSpots.map((spot) {
               return LineTooltipItem(
-                'R\$ ${spot.y.toStringAsFixed(2)}', 
+                'R\$ ${spot.y.toStringAsFixed(2)}',
                 const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -43,21 +45,31 @@ Widget construirGraficoLinha(
           },
         ),
       ),
-
       minY: 0,
-      maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro, 
-
+      maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro,
       lineBarsData: [
         LineChartBarData(
           spots: spots,
           isCurved: true,
-          color: Colors.blue,
+          gradient: const LinearGradient(
+            colors: [
+              Colors.blueAccent,
+              Colors.cyanAccent,
+            ],
+          ),
           barWidth: 4,
           isStrokeCapRound: true,
           dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
             show: true,
-            color: Colors.blue.withOpacity(0.3),
+            gradient: LinearGradient(
+              colors: [
+                Colors.blueAccent.withOpacity(0.3),
+                Colors.cyanAccent.withOpacity(0.0),
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
         ),
       ],
@@ -65,14 +77,14 @@ Widget construirGraficoLinha(
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 45, 
-            interval: maxYComRespiro > 0 ? maxYComRespiro / 4 : 25, 
+            reservedSize: 45,
+            interval: maxYComRespiro > 0 ? maxYComRespiro / 4 : 25,
           ),
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30, 
+            reservedSize: 30,
             interval: 1,
             getTitlesWidget: (value, meta) {
               if (value.toInt() >= categoriasComGasto.length) {
