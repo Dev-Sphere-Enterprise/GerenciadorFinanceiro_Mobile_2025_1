@@ -8,10 +8,11 @@ import '../services/carregar_gastos_por_categoria.dart';
 import '../services/categoria_expense_data.dart';
 import '../helpers/graficos/construir_grafico_pizza.dart';
 import '../helpers/graficos/construir_grafico_coluna.dart';
+import '../helpers/graficos/construir_grafico_linha.dart';
 import '../helpers/periodo/gerar_anos.dart';
 import '../grafico_de_gastos_screen.dart';
 
-enum TipoGrafico { pizza, coluna }
+enum TipoGrafico { pizza, coluna, linha }
 
 class GraficoDeGastosWidget extends StatefulWidget {
   final int? limiteCategorias;
@@ -245,6 +246,17 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                                 );
                               },
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.show_chart),
+                              color: _tipoSelecionado == TipoGrafico.linha
+                                  ? Colors.blueGrey
+                                  : Colors.grey,
+                              onPressed: () {
+                                setState(
+                                  () => _tipoSelecionado = TipoGrafico.linha,
+                                );
+                              },
+                            ),
                           ],
                         ),
                         SizedBox(
@@ -255,10 +267,15 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
                                   _indiceSelecionado,
                                   _atualizarIndiceSelecionado,
                                 )
-                              : construirGraficoColuna(
-                                  categoriasComGasto,
-                                  _nomesCategorias,
-                                ),
+                              : _tipoSelecionado == TipoGrafico.coluna
+                                  ? construirGraficoColuna(
+                                      categoriasComGasto,
+                                      _nomesCategorias,
+                                    )
+                                  : construirGraficoLinha(
+                                      categoriasComGasto,
+                                      _nomesCategorias,
+                                    ),
                         ),
                         const SizedBox(height: 16),
                         Wrap(
@@ -290,7 +307,7 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: itemCount, // 🟢 Usando a variável `itemCount`
+              itemCount: itemCount,
               itemBuilder: (context, index) {
                 final categoria = categorias[index];
                 final id = categoria['id'];
