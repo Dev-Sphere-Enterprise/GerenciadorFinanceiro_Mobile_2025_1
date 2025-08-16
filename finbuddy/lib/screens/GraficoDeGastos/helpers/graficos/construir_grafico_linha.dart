@@ -15,88 +15,72 @@ Widget construirGraficoLinha(
     );
   }
 
-  final spots = List.generate(categoriasComGasto.length, (index) {
-    final valor = categoriasComGasto[index].value;
-    return FlSpot(index.toDouble(), valor.toDouble());
-  });
-
   final double valorMaximo =
-      spots.isEmpty ? 0 : spots.map((spot) => spot.y).reduce(max);
-  final double maxYComRespiro = valorMaximo * 1.2;
+      categoriasComGasto.map((e) => e.value).reduce(max).toDouble();
 
-  return LineChart(
-    LineChartData(
-      lineTouchData: LineTouchData(
-        handleBuiltInTouches: true,
-        touchTooltipData: LineTouchTooltipData(
-          getTooltipColor: (LineBarSpot touchedSpot) =>
-              Colors.blueGrey.withOpacity(0.8),
-          getTooltipItems: (List<LineBarSpot> touchedSpots) {
-            return touchedSpots.map((spot) {
-              return LineTooltipItem(
-                'R\$ ${spot.y.toStringAsFixed(2)}',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              );
-            }).toList();
+  const corMinima = Colors.greenAccent;
+  const corMaxima = Colors.redAccent;
+
+  return BarChart(
+    BarChartData(
+      barTouchData: BarTouchData(
+        touchTooltipData: BarTouchTooltipData(
+          getTooltipColor: (group) => Colors.blueGrey.withOpacity(0.8),
+          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+            final valor = rod.toY;
+            return BarTooltipItem(
+              'R\$ ${valor.toStringAsFixed(2)}',
+              const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            );
           },
         ),
       ),
-      minY: 0,
-      maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro,
-      lineBarsData: [
-        LineChartBarData(
-          spots: spots,
-          isCurved: true,
-          gradient: const LinearGradient(
-            colors: [
-              Colors.blueAccent,
-              Colors.cyanAccent,
-            ],
-          ),
-          barWidth: 4,
-          isStrokeCapRound: true,
-          dotData: FlDotData(show: false),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              colors: [
-                Colors.blueAccent.withOpacity(0.3),
-                Colors.cyanAccent.withOpacity(0.0),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+
+      barGroups: List.generate(categoriasComGasto.length, (index) {
+        final item = categoriasComGasto[index];
+        final valor = item.value.toDouble();
+
+        final double t = valorMaximo > 0 ? (valor / valorMaximo) : 0.0;
+        final corBarra = Color.lerp(corMinima, corMaxima, t);
+
+        return BarChartGroupData(
+          x: index,
+          barRods: [
+            BarChartRodData(
+              toY: valor,
+              color: corBarra, 
+              width: 22,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(6),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      }),
+
       titlesData: FlTitlesData(
+        show: true,
         leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 45,
-            interval: maxYComRespiro > 0 ? maxYComRespiro / 4 : 25,
-          ),
+          sideTitles: SideTitles(showTitles: true, reservedSize: 40),
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
             reservedSize: 30,
-            interval: 1,
             getTitlesWidget: (value, meta) {
-              if (value.toInt() >= categoriasComGasto.length) {
-                return const SizedBox.shrink();
-              }
-              final categoriaId = categoriasComGasto[value.toInt()].key;
+              final index = value.toInt();
+              if (index >= categoriasComGasto.length) return const SizedBox.shrink();
+              final categoriaId = categoriasComGasto[index].key;
               final nome = nomesCategorias[categoriaId] ?? '';
               return Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: 6.0),
                 child: Text(
                   nome.length > 5 ? '${nome.substring(0, 5)}…' : nome,
                   style: const TextStyle(fontSize: 10),
-                  overflow: TextOverflow.ellipsis,
                 ),
               );
             },
@@ -105,16 +89,8 @@ Widget construirGraficoLinha(
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
-      gridData: FlGridData(
-        show: true,
-        drawVerticalLine: false,
-        getDrawingHorizontalLine: (value) {
-          return FlLine(
-            color: Colors.grey.withOpacity(0.2),
-            strokeWidth: 1,
-          );
-        },
-      ),
+      
+      gridData: FlGridData(show: false),
       borderData: FlBorderData(show: false),
     ),
   );
