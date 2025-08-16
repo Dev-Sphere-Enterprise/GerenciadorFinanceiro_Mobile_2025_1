@@ -15,7 +15,6 @@ class GraficoDeGastosScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      // Use um SingleChildScrollView para permitir que o conteúdo role
       body: const SingleChildScrollView(
         child: GraficoDeGastosWidget(),
       ),
