@@ -21,7 +21,7 @@ Widget construirGraficoLinha(
   });
 
   final double valorMaximo =
-      spots.map((spot) => spot.y).reduce(max);
+      spots.isEmpty ? 0 : spots.map((spot) => spot.y).reduce(max);
   final double maxYComRespiro = valorMaximo * 1.2;
 
   return LineChart(
@@ -29,9 +29,8 @@ Widget construirGraficoLinha(
       lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          tooltipStyle: TooltipStyle(
-            backgroundColor: Colors.blueGrey.withOpacity(0.8),
-          ),
+          getTooltipColor: (LineBarSpot touchedSpot) =>
+              Colors.blueGrey.withOpacity(0.8),
           getTooltipItems: (List<LineBarSpot> touchedSpots) {
             return touchedSpots.map((spot) {
               return LineTooltipItem(
