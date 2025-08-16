@@ -1,5 +1,6 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:finbuddy/screens/Register/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
@@ -67,8 +68,8 @@ class _AppState extends State<App> {
             routes: {
               Screens.splash: (BuildContext context) => const SplashScreen(),
               Screens.home: (BuildContext context) => const HomeScreen(),
-              Screens.signin: (BuildContext context) => const SignInScreen(),
-              Screens.signup: (_) => const SignUpScreen(),
+              Screens.login: (BuildContext context) => const LoginScreen(),
+              Screens.register: (_) => const RegisterScreen(),
             },
           )),
     );

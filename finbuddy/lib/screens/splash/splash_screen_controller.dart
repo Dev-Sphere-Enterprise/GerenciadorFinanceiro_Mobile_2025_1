@@ -46,7 +46,7 @@ class SplashScreenController {
         log('Alright, checking firebase auth user');
         if (user == null) {
           log('User is $user');
-          navigatorKey.currentState!.pushReplacementNamed(Screens.signin);
+          navigatorKey.currentState!.pushReplacementNamed(Screens.login);
         } else {
           navigatorKey.currentState!.pushReplacementNamed(Screens.home);
         }
