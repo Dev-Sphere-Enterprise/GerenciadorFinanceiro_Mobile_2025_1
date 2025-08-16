@@ -1,27 +1,62 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 Widget construirGraficoLinha(
   List<MapEntry<String, int>> categoriasComGasto,
   Map<String, String> nomesCategorias,
 ) {
+  if (categoriasComGasto.isEmpty) {
+    return const Center(
+      child: Text(
+        'Sem dados para exibir no período.',
+        style: TextStyle(color: Colors.grey, fontSize: 16),
+      ),
+    );
+  }
+
   final spots = List.generate(categoriasComGasto.length, (index) {
     final valor = categoriasComGasto[index].value;
     return FlSpot(index.toDouble(), valor.toDouble());
   });
 
+  final double valorMaximo =
+      spots.map((spot) => spot.y).reduce(max);
+  final double maxYComRespiro = valorMaximo * 1.2;
+
   return LineChart(
     LineChartData(
+      lineTouchData: LineTouchData(
+        handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+            return touchedSpots.map((spot) {
+              return LineTooltipItem(
+                'R\$ ${spot.y.toStringAsFixed(2)}', 
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }).toList();
+          },
+        ),
+      ),
+
+      minY: 0,
+      maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro, 
+
       lineBarsData: [
         LineChartBarData(
           spots: spots,
-          isCurved: true, 
-          color: Colors.blue, 
+          isCurved: true,
+          color: Colors.blue,
           barWidth: 4,
           isStrokeCapRound: true,
-          dotData: FlDotData(show: false), 
+          dotData: FlDotData(show: false),
           belowBarData: BarAreaData(
-            show: true, 
+            show: true,
             color: Colors.blue.withOpacity(0.3),
           ),
         ),
@@ -30,16 +65,18 @@ Widget construirGraficoLinha(
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 40, 
+            reservedSize: 45, 
+            interval: maxYComRespiro > 0 ? maxYComRespiro / 4 : 25, 
           ),
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 22,
+            reservedSize: 30, 
+            interval: 1,
             getTitlesWidget: (value, meta) {
-              if (value < 0 || value >= categoriasComGasto.length) {
-                return const SizedBox.shrink(); 
+              if (value.toInt() >= categoriasComGasto.length) {
+                return const SizedBox.shrink();
               }
               final categoriaId = categoriasComGasto[value.toInt()].key;
               final nome = nomesCategorias[categoriaId] ?? '';
@@ -48,6 +85,7 @@ Widget construirGraficoLinha(
                 child: Text(
                   nome.length > 5 ? '${nome.substring(0, 5)}…' : nome,
                   style: const TextStyle(fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
                 ),
               );
             },
@@ -58,7 +96,7 @@ Widget construirGraficoLinha(
       ),
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: false, 
+        drawVerticalLine: false,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: Colors.grey.withOpacity(0.2),
@@ -66,15 +104,7 @@ Widget construirGraficoLinha(
           );
         },
       ),
-      borderData: FlBorderData(
-        show: true,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1.5),
-          left: BorderSide(color: Colors.grey.withOpacity(0.5), width: 1.5),
-          right: BorderSide.none,
-          top: BorderSide.none,
-        ),
-      ),
+      borderData: FlBorderData(show: false),
     ),
   );
 }
