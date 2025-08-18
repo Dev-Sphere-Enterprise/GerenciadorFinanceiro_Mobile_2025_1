@@ -23,17 +23,46 @@ Future<void> addOrEditTipo({
       return StatefulBuilder(
         builder: (context, setModalState) {
           return AlertDialog(
-            title: Text(id == null ? 'Adicionar Tipo de Pagamento' : 'Editar Tipo de Pagamento'),
+            backgroundColor: Color(0xFFF5F0ED),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: Text(
+              id == null ? 'Adicionar Tipo de Pagamento' : 'Editar Tipo de Pagamento',
+              style: const TextStyle(
+                color: Color(0xff3a86e0),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Campo de texto estilizado
                 TextField(
                   controller: nomeController,
-                  decoration: const InputDecoration(labelText: 'Nome do Tipo de Pagamento'),
+                  decoration: InputDecoration(
+                    labelText: 'Nome do Tipo de Pagamento',
+                    labelStyle: const TextStyle(color: Color(0xff3a86e0)),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Color(0xff3a86e0)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Color(0xff3a86e0), width: 2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
+
+                // Switch Parcelável
                 SwitchListTile(
-                  title: const Text('É Parcelável?'),
+                  activeColor: const Color(0xFFC4E03B),
+                  title: const Text(
+                    'É Parcelável?',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                   value: isParcelavel,
                   onChanged: (value) {
                     setModalState(() {
@@ -41,8 +70,14 @@ Future<void> addOrEditTipo({
                     });
                   },
                 ),
+
+                // Switch Usa Cartão
                 SwitchListTile(
-                  title: const Text("Usa Cartão?"),
+                  activeColor: const Color(0xFFC4E03B),
+                  title: const Text(
+                    "Usa Cartão?",
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                   value: isUsaCartao,
                   onChanged: (value) {
                     setModalState(() {
@@ -52,12 +87,31 @@ Future<void> addOrEditTipo({
                 ),
               ],
             ),
+            actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
             actions: [
+              // Botão Cancelar
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
+
+              // Botão Salvar
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC4E03B),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
                 onPressed: () async {
                   if (nomeController.text.trim().isEmpty || currentUser == null) return;
 
@@ -83,7 +137,10 @@ Future<void> addOrEditTipo({
 
                   Navigator.pop(context);
                 },
-                child: const Text('Salvar'),
+                child: const Text(
+                  'Salvar',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           );
@@ -92,3 +149,4 @@ Future<void> addOrEditTipo({
     },
   );
 }
+
