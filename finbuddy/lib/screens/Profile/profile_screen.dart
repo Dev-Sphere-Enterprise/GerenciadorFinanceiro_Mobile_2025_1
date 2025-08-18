@@ -59,21 +59,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Color(0xFFF5F0ED),
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        backgroundColor: const Color(0xFFC4E03B), // verde neon
+        backgroundColor: const Color(0xFFC4E03B),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: const Color(0xff3a86e0)),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text(
           "Fin_Buddy",
           style: TextStyle(
-            color: Colors.black87,
+            color: const Color(0xff3a86e0),
             fontWeight: FontWeight.bold,
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black87),
+            icon: const Icon(Icons.logout, color: const Color(0xff3a86e0)),
             onPressed: () => logoutUser(context),
           ),
         ],
