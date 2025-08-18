@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../Login/login_screen.dart';
 import '../Metas/metas_screen.dart';
 import '../Ganhos/ganhos_fixos_screen.dart';
@@ -41,83 +40,132 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
-  Widget _buildNavButton(
-      BuildContext context, String title, Widget screen) {
-    return ElevatedButton(
-      onPressed: () {
+  Widget _buildNavItem(String title, Widget screen) {
+    return ListTile(
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => screen),
         );
       },
-      child: Text(title),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text('Perfil do Usuário'),
+        automaticallyImplyLeading: true,
+        backgroundColor: const Color(0xFFC4E03B), // verde neon
+        elevation: 0,
+        title: const Text(
+          "Fin_Buddy",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.black87),
             onPressed: () => logoutUser(context),
           ),
         ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(16),
+          : SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Email: ${user?.email ?? "Desconhecido"}',
-              style: const TextStyle(fontSize: 16),
-            ),
             const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Nome: ${name ?? ""}',
-                  style: const TextStyle(fontSize: 16),
+
+            // Card do usuário
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    const Icon(Icons.account_circle,
+                        size: 80, color: Colors.blue),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name ?? "Nome Usuário",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit, size: 18),
+                          onPressed: () {
+                            editNameAndDob(
+                              context: context,
+                              firestore: _firestore,
+                              auth: FirebaseAuth.instance,
+                              currentName: name,
+                              currentDob: dob,
+                              onUpdated: (newName, newDob) => setState(() {
+                                name = newName;
+                                dob = newDob;
+                              }),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      dob ?? "dd/mm/aaaa",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    editNameAndDob(
-                      context: context,
-                      firestore: _firestore,
-                      auth: FirebaseAuth.instance,
-                      currentName: name,
-                      currentDob: dob,
-                      onUpdated: (newName, newDob) => setState(() {
-                        name = newName;
-                        dob = newDob;
-                      }),
-                    );
-                  },
-                  tooltip: 'Editar Nome e Data de Nascimento',
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Data de Nascimento: ${dob ?? ""}',
-              style: const TextStyle(fontSize: 16),
-            ),
+
             const SizedBox(height: 20),
-            _buildNavButton(context, 'Minhas Metas', const MetasScreen()),
-            _buildNavButton(context, 'Ganhos Fixos', const GanhosFixosScreen()),
-            _buildNavButton(context, 'Gastos Fixos', const GastosFixosScreen()),
-            _buildNavButton(context, 'Meus Cartões', const CartoesScreen()),
-            _buildNavButton(context, 'Tipos de Pagamentos', const TiposPagamentosScreen()),
-            _buildNavButton(context, 'Categorias', const CategoriasScreen()),
+
+            // Lista de navegação
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildNavItem("Minhas Metas", const MetasScreen()),
+                  _buildNavItem("Ganhos Fixos", const GanhosFixosScreen()),
+                  _buildNavItem("Gastos Fixos", const GastosFixosScreen()),
+                  _buildNavItem("Meus Cartões", const CartoesScreen()),
+                  _buildNavItem("Tipos de Pagamento",
+                      const TiposPagamentosScreen()),
+                  _buildNavItem("Categorias", const CategoriasScreen()),
+                ],
+              ),
+            ),
           ],
         ),
       ),
