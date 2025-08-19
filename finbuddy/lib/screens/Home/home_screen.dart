@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import '../Profile/profile_screen.dart';
 import '../Calendar/calendar_screen.dart';
 import 'helpers/notification_service.dart';
@@ -40,25 +38,42 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   bool _isBalanceVisible = false;
 
+  late Future<Map<String, double>> _balanceData;
+
+  final List<Widget> _pages = const [
+    SingleChildScrollView(
+      child: GraficoDeGastosWidget(limiteCategorias: 3),
+    ),
+    SingleChildScrollView(
+      child: Center(
+        child: Text('Placeholder para Gráfico de Linhas', style: estiloFonteMonospace),
+      ),
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
+    _balanceData = _fetchBalanceData();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkPendingAction();
     });
     _initAndCheckServices();
-
-    _pageController.addListener(() {
-      setState(() {
-        _currentPage = _pageController.page?.round() ?? 0;
-      });
-    });
   }
   
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<Map<String, double>> _fetchBalanceData() async {
+    await Future.delayed(const Duration(seconds: 2)); 
+    return {
+      'saldo': 1500.00,
+      'gastos': 50.00,
+    };
   }
 
   Future<void> _checkPendingAction() async {
@@ -79,10 +94,32 @@ class _HomeScreenState extends State<HomeScreen> {
     await _notificationService.checkNotifications();
   }
 
+  void _showAddOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.trending_up, color: Colors.green),
+              title: const Text('Adicionar Ganho'),
+              onTap: () { Navigator.of(ctx).pop(); showAddGainDialog(context); },
+            ),
+            ListTile(
+              leading: const Icon(Icons.trending_down, color: Colors.red),
+              title: const Text('Adicionar Gasto'),
+              onTap: () { Navigator.of(ctx).pop(); showAddExpenseDialog(context); },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildHeader() {
     return Container(
       color: finBuddyLime,
-      padding: const EdgeInsets.only(top: 40, bottom: 10, left: 16, right: 16),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 10, left: 16, right: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -104,82 +141,69 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBalanceCard() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: corCardSaldo,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<Map<String, double>>(
+      future: _balanceData,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: SizedBox(height: 60, child: CircularProgressIndicator()));
+        }
+        if (snapshot.hasError) {
+          return const Center(child: Text('Erro ao carregar saldo', style: estiloFonteMonospace));
+        }
+        
+        final saldo = snapshot.data?['saldo'] ?? 0.0;
+        final gastos = snapshot.data?['gastos'] ?? 0.0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: corCardSaldo,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Saldo atual: ${_isBalanceVisible ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(_isBalanceVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
+                    onPressed: () => setState(() => _isBalanceVisible = !_isBalanceVisible),
+                  )
+                ],
+              ),
+              const SizedBox(height: 4),
               Text(
-                'Saldo atual: ${_isBalanceVisible ? "R\$ 1.500,00" : "R\$ ---"}',
+                'Gastos do mês: R\$ ${gastos.toStringAsFixed(2)}',
                 style: estiloFonteMonospace.copyWith(fontSize: 16),
               ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: Icon(_isBalanceVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
-                onPressed: () => setState(() => _isBalanceVisible = !_isBalanceVisible),
-              )
             ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Gastos do mês: R\$ 50,00',
-            style: estiloFonteMonospace.copyWith(fontSize: 16),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(2, (index) {
+      children: List.generate(_pages.length, (index) {
         return Container(
           width: 8,
           height: 8,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: _currentPage == index ? finBuddyDark : Colors.grey,
+            color: _currentPage == index ? finBuddyDark : Colors.grey.shade400,
           ),
         );
       }),
-    );
-  }
-
-  void _showAddOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) {
-        return Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.trending_up, color: Colors.green),
-              title: const Text('Adicionar Ganho'),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                showAddGainDialog(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.trending_down, color: Colors.red),
-              title: const Text('Adicionar Gasto'),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                showAddExpenseDialog(context);
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -187,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: corFundoScaffold,
+      resizeToAvoidBottomInset: false, 
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddOptions(context),
         backgroundColor: finBuddyBlue,
@@ -213,11 +238,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: PageView(
                         controller: _pageController,
-                        children: [
-                          const GraficoDeGastosWidget(limiteCategorias: 3),
-
-                          const Center(child: Text('Placeholder para Gráfico de Linhas', style: estiloFonteMonospace)),
-                        ],
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentPage = index;
+                          });
+                        },
+                        children: _pages,
                       ),
                     ),
                     const SizedBox(height: 10),
