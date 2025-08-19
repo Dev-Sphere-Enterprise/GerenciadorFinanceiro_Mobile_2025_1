@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import '/../services/firestore_helpers.dart';
+import '/../services/firestore_helpers.dart'; 
 
 const Color finBuddyLime = Color(0xFFC4E03B);
 const Color finBuddyBlue = Color(0xFF3A86E0);
@@ -92,6 +92,13 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     _selectedParcelas = widget.parcelas;
   }
 
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _valorController.dispose();
+    super.dispose();
+  }
+
   Widget _buildDialogRow(String label, Widget child) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -109,6 +116,21 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     );
   }
 
+  void _onTipoPagamentoChanged(String? value) {
+    setState(() {
+      _selectedTipo = value;
+      if (value != null) {
+        final tipo = widget.tiposPagamento.firstWhere((t) => t['id'] == value, orElse: () => {});
+        if (tipo['Parcelavel'] != true) {
+          _selectedParcelas = 1;
+        }
+        if (tipo['UsaCartao'] != true) {
+          _selectedCartao = null;
+        }
+      }
+    });
+  }
+
   Future<void> _salvarGasto() async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -119,7 +141,11 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
       if (currentUser == null) throw Exception("Usuário não autenticado.");
 
       final valorFinal = double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
-      final tipoSelecionado = widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo);
+      
+      final tipoSelecionado = widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo, orElse: () => {});
+      if (tipoSelecionado.isEmpty) {
+        throw Exception("Tipo de pagamento inválido.");
+      }
 
       final gastoMap = {
         'Nome': _nomeController.text.trim(),
@@ -192,7 +218,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
 
                 _buildDialogRow('Título', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
                 _buildDialogRow('Valor', TextFormField(controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedTipo, items: widget.tiposPagamento.map((t) => DropdownMenuItem<String>(value: t['id'], child: Text(t['Nome']))).toList(), onChanged: (v){ setState(() { _selectedTipo = v; if (v != null) { final tipo = widget.tiposPagamento.firstWhere((t) => t['id'] == v, orElse: () => {}); if (tipo['Parcelavel'] != true) _selectedParcelas = 1; if (tipo['UsaCartao'] != true) _selectedCartao = null; } });}, validator: (v) => v == null ? 'Obrigatório' : null)),
+                _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedTipo, items: widget.tiposPagamento.map((t) => DropdownMenuItem<String>(value: t['id'], child: Text(t['Nome']))).toList(), onChanged: _onTipoPagamentoChanged, validator: (v) => v == null ? 'Obrigatório' : null)),
                 if (exigeCartao) _buildDialogRow('Selecione o cartão', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCartao, items: widget.cartoes.map((c) => DropdownMenuItem<String>(value: c['id'], child: Text(c['Nome']))).toList(), onChanged: (v) => setState(() => _selectedCartao = v), validator: (v) => v == null ? 'Obrigatório' : null)),
                 if (isParcelavel) _buildDialogRow('Número de parcelas', DropdownButtonFormField<int>(decoration: inputDecoration, value: _selectedParcelas, items: List.generate(24, (i) => i + 1).map((p) => DropdownMenuItem(value: p, child: Text('$p x'))).toList(), onChanged: (v) => setState(() => _selectedParcelas = v))),
                 _buildDialogRow('Categoria', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCategoria, items: widget.categorias.map((c) => DropdownMenuItem<String>(value: c['id'], child: Text(c['Nome']))).toList(), onChanged: (v) => setState(() => _selectedCategoria = v), validator: (v) => v == null ? 'Obrigatório' : null)),
