@@ -34,22 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final NotificationService _notificationService = NotificationService();
   final TransactionService _transactionService = TransactionService();
 
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
   bool _isBalanceVisible = false;
-
   late Future<Map<String, double>> _balanceData;
-
-  final List<Widget> _pages = const [
-    SingleChildScrollView(
-      child: GraficoDeGastosWidget(limiteCategorias: 3),
-    ),
-    SingleChildScrollView(
-      child: Center(
-        child: Text('Placeholder para Gráfico de Linhas', style: estiloFonteMonospace),
-      ),
-    ),
-  ];
 
   @override
   void initState() {
@@ -64,7 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
   
   @override
   void dispose() {
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -190,23 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPageIndicator() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_pages.length, (index) {
-        return Container(
-          width: 8,
-          height: 8,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _currentPage == index ? finBuddyDark : Colors.grey.shade400,
-          ),
-        );
-      }),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -233,22 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: corCardPrincipal,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          setState(() {
-                            _currentPage = index;
-                          });
-                        },
-                        children: _pages,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildPageIndicator(),
-                  ],
+                child: const SingleChildScrollView(
+                  child: GraficoDeGastosWidget(limiteCategorias: 3),
                 ),
               ),
             ),
