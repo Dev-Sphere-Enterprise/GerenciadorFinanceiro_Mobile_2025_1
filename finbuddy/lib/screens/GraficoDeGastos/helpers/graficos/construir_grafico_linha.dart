@@ -1,43 +1,89 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:math';
 
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
+
 Widget construirGraficoLinha(
-  List<MapEntry<String, int>> categoriasComGasto,
-  Map<String, String> nomesCategorias,
+  List<FlSpot> gastosSpots,
+  List<FlSpot> tetoSpots,
 ) {
-  if (categoriasComGasto.isEmpty) {
-    return const Center(
+  final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: '');
+
+  final double maxGastos = gastosSpots.isEmpty ? 0 : gastosSpots.map((spot) => spot.y).reduce(max);
+  final double maxTeto = tetoSpots.isEmpty ? 0 : tetoSpots.map((spot) => spot.y).reduce(max);
+  final double valorMaximo = max(maxGastos, maxTeto);
+  final double maxYComRespiro = valorMaximo * 1.2; 
+
+  Widget EixoY(double value, TitleMeta meta) {
+    if (value == meta.max) return Container(); 
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 8,
       child: Text(
-        'Sem dados para exibir no período.',
-        style: TextStyle(color: Colors.grey, fontSize: 16),
+        formatadorMoeda.format(value),
+        style: estiloFonteMonospace.copyWith(fontSize: 10, fontWeight: FontWeight.normal),
       ),
     );
   }
 
-  final spots = List.generate(categoriasComGasto.length, (index) {
-    final valor = categoriasComGasto[index].value;
-    return FlSpot(index.toDouble(), valor.toDouble());
-  });
-
-  final double valorMaximo =
-      spots.isEmpty ? 0 : spots.map((spot) => spot.y).reduce(max);
-  final double maxYComRespiro = valorMaximo * 1.2;
+  Widget EixoX(double value, TitleMeta meta) {
+    if (value % 5 != 0) return Container();
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 8,
+      child: Text(
+        value.toInt().toString(),
+        style: estiloFonteMonospace.copyWith(fontSize: 10, fontWeight: FontWeight.normal),
+      ),
+    );
+  }
 
   return LineChart(
     LineChartData(
+      lineBarsData: [
+        LineChartBarData(
+          spots: gastosSpots,
+          isCurved: false,
+          color: Colors.redAccent,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: true),
+          belowBarData: BarAreaData(show: false),
+        ),
+        LineChartBarData(
+          spots: tetoSpots,
+          isCurved: false,
+          color: finBuddyBlue,
+          barWidth: 3,
+          isStrokeCapRound: true,
+          dotData: FlDotData(show: true),
+          belowBarData: BarAreaData(show: false),
+        ),
+      ],
       lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          getTooltipColor: (touchedSpot) => Colors.blueGrey.withOpacity(0.8),
-          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+          getTooltipColor: (_) => finBuddyDark,
+          getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
+              final label = spot.barIndex == 0 ? 'Gasto:' : 'Teto:';
               return LineTooltipItem(
-                'R\$ ${spot.y.toStringAsFixed(2)}',
-                const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                '$label R\$ ${spot.y.toStringAsFixed(2)}\n',
+                estiloFonteMonospace.copyWith(color: Colors.white, fontSize: 12),
+                children: [
+                   TextSpan(
+                    text: 'Dia ${spot.x.toInt()}',
+                    style: estiloFonteMonospace.copyWith(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.normal),
+                  ),
+                ]
               );
             }).toList();
           },
@@ -46,69 +92,29 @@ Widget construirGraficoLinha(
 
       minY: 0,
       maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro,
+      minX: 1, 
+      maxX: 30,
 
-      lineBarsData: [
-        LineChartBarData(
-          spots: spots,
-          isCurved: true, 
-          barWidth: 4,
-          isStrokeCapRound: true,
-          dotData: FlDotData(show: false), 
-          gradient: const LinearGradient(
-            colors: [
-              Colors.greenAccent,
-              Colors.orangeAccent,
-              Colors.redAccent,
-            ],
-            stops: [0.0, 0.5, 1.0], 
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              colors: [
-                Colors.greenAccent.withOpacity(0.3),
-                Colors.redAccent.withOpacity(0.0),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-        ),
-      ],
-
-      titlesData: FlTitlesData(
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true, reservedSize: 45),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 30,
-            interval: 1,
-            getTitlesWidget: (value, meta) {
-              final index = value.toInt();
-              if (index >= categoriasComGasto.length) {
-                return const SizedBox.shrink();
-              }
-              final categoriaId = categoriasComGasto[index].key;
-              final nome = nomesCategorias[categoriaId] ?? '';
-              return Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  nome.length > 5 ? '${nome.substring(0, 5)}…' : nome,
-                  style: const TextStyle(fontSize: 10),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            },
-          ),
-        ),
-        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: true,
+        drawHorizontalLine: true,
+        getDrawingHorizontalLine: (_) => FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
+        getDrawingVerticalLine: (_) => FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
       ),
-
-      gridData: FlGridData(show: false),
-      borderData: FlBorderData(show: false),
+      borderData: FlBorderData(
+        show: true,
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
+          left: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
+        ),
+      ),
+      titlesData: FlTitlesData(
+        leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 40, getTitlesWidget: EixoY)),
+        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: EixoX)),
+        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      ),
     ),
   );
 }
