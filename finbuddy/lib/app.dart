@@ -26,7 +26,6 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    // NotificationManager().init(context: context, key: navigatorKey);
   }
 
   @override

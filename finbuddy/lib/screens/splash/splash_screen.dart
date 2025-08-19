@@ -1,89 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
-import 'package:finbuddy/components/utils/vertical_spacer_box.dart';
-import 'package:finbuddy/screens/screens_index.dart';
-import 'package:finbuddy/screens/Splash/splash_screen_controller.dart';
-import 'package:finbuddy/shared/constants/app_enums.dart';
-import 'package:finbuddy/shared/constants/app_number_constants.dart';
-import 'package:finbuddy/shared/constants/style_constants.dart';
-import 'package:finbuddy/shared/core/navigator.dart';
-import '../../shared/core/assets_index.dart';
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late final SplashScreenController _controller;
-  late final AnimationController animController;
-  double opacity = 0;
+class _SplashScreenState extends State<SplashScreen> {
+  double _opacity = 0;
+
   @override
   void initState() {
     super.initState();
-    animController = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    _controller = SplashScreenController(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      setController();
-      stopController();
-      _controller.initApplication(() {});
-    });
-  }
+      setState(() => _opacity = 1);
 
-  void setController() async {
-    await animController.repeat();
-  }
-
-  void stopController() async {
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        opacity = 1;
+      Timer(const Duration(seconds: 4), () {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          Navigator.pushReplacementNamed(context, '/login');
+        } else {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
       });
-      animController.stop();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   actions: [
-      //     IconButton(
-      //         onPressed: () async {
-      //           animController.repeat();
-      //           stopController();
-      //         },
-      //         icon: Icon(Icons.add))
-      //   ],
-      // ),
-      body: Stack(
-        children: [
-          SizedBox(
-            width: size.width,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                AnimatedOpacity(duration: const Duration(milliseconds: 200), opacity: opacity, child: const Text('FinBuddy')),
-                const VerticalSpacerBox(size: SpacerSize.huge)
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(kDefaultPadding),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Text(
-                'From DevSphere',
-                style: kCaption2.copyWith(fontFamily: 'Roboto'),
+      backgroundColor: finBuddyLime,
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(),
+              const Icon(
+                Icons.calculate_rounded,
+                size: 100.0,
+                color: finBuddyDark,
               ),
-            ),
-          )
-        ],
+              const SizedBox(height: 24),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 1500),
+                opacity: _opacity,
+                child: const Text(
+                  'FinBuddy',
+                  style: TextStyle(
+                    fontFamily: 'JetBrainsMono',
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: finBuddyDark,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Text(
+                  'From DevSphere',
+                  style: TextStyle(
+                    fontFamily: 'JetBrainsMono',
+                    fontSize: 14,
+                    color: finBuddyDark.withOpacity(0.75),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
