@@ -83,7 +83,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.nome);
-    _valorController = TextEditingController(text: widget.valor?.toStringAsFixed(2));
+    _valorController =
+        TextEditingController(text: widget.valor?.toStringAsFixed(2));
     _selectedDate = widget.dataCompra ?? DateTime.now();
     _selectedTipo = widget.tipoPagamentoId;
     _selectedCartao = widget.cartaoId;
@@ -98,7 +99,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: 100,
+            width: 100, 
             child: Text('$label:', style: estiloFonteMonospace),
           ),
           const SizedBox(width: 10),
@@ -112,7 +113,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     setState(() {
       _selectedTipo = value;
       if (value != null) {
-        final tipo = widget.tiposPagamento.firstWhere((t) => t['id'] == value, orElse: () => {});
+        final tipo = widget.tiposPagamento
+            .firstWhere((t) => t['id'] == value, orElse: () => {});
         if (tipo['Parcelavel'] != true) _selectedParcelas = 1;
         if (tipo['UsaCartao'] != true) _selectedCartao = null;
       }
@@ -121,29 +123,37 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
 
   Future<void> _salvarGasto() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) throw Exception("Usuário não autenticado.");
 
-      final valorFinal = double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
-      final tipoSelecionado = widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo);
+      final valorFinal =
+          double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
+      final tipoSelecionado =
+          widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo);
 
       final gastoMap = {
         'Nome': _nomeController.text.trim(),
         'Valor': valorFinal,
         'ID_Tipo_Pagamento': _selectedTipo,
-        'ID_Cartao': tipoSelecionado['UsaCartao'] == true ? _selectedCartao : null,
+        'ID_Cartao':
+            tipoSelecionado['UsaCartao'] == true ? _selectedCartao : null,
         'ID_Categoria': _selectedCategoria,
-        'Parcelas': tipoSelecionado['Parcelavel'] == true ? _selectedParcelas : 1,
+        'Parcelas':
+            tipoSelecionado['Parcelavel'] == true ? _selectedParcelas : 1,
         'Data_Compra': Timestamp.fromDate(_selectedDate),
-        'Recorrencia': true, 'Deletado': false,
+        'Recorrencia': true,
+        'Deletado': false,
         'Data_Atualizacao': Timestamp.now(),
       };
 
-      final ref = FirebaseFirestore.instance.collection('users').doc(currentUser.uid).collection('gastos_fixos');
+      final ref = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('gastos_fixos');
       if (widget.gastoId == null) {
         gastoMap['Data_Criacao'] = Timestamp.now();
         await ref.add(gastoMap);
@@ -152,11 +162,12 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
       }
 
       if (mounted) Navigator.of(context).pop();
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Erro ao salvar: ${e.toString()}'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -167,10 +178,12 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   @override
   Widget build(BuildContext context) {
     final bool isEditing = widget.gastoId != null;
-    final tipoAtual = _selectedTipo != null ? widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo) : null;
+    final tipoAtual = _selectedTipo != null
+        ? widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo)
+        : null;
     final bool isParcelavel = tipoAtual?['Parcelavel'] == true;
     final bool exigeCartao = tipoAtual?['UsaCartao'] == true;
-    
+
     return Dialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
@@ -192,18 +205,94 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                   style: estiloFonteMonospace.copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 24),
-                _buildDialogRow('Título', TextFormField(controller: _nomeController, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Valor', TextFormField(controller: _valorController, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(value: _selectedTipo, items: widget.tiposPagamento.map((t) => DropdownMenuItem(value: t['id'], child: Text(t['Nome']))).toList(), onChanged: _onTipoPagamentoChanged, validator: (v) => v == null ? 'Obrigatório' : null)),
-                if (exigeCartao) _buildDialogRow('Selecione o cartão', DropdownButtonFormField<String>(value: _selectedCartao, items: widget.cartoes.map((c) => DropdownMenuItem(value: c['id'], child: Text(c['Nome']))).toList(), onChanged: (v) => setState(() => _selectedCartao = v), validator: (v) => v == null ? 'Obrigatório' : null)),
-                if (isParcelavel) _buildDialogRow('Número de parcelas', DropdownButtonFormField<int>(value: _selectedParcelas, items: List.generate(24, (i) => i + 1).map((p) => DropdownMenuItem(value: p, child: Text('$p x'))).toList(), onChanged: (v) => setState(() => _selectedParcelas = v))),
-                _buildDialogRow('Categoria', DropdownButtonFormField<String>(value: _selectedCategoria, items: widget.categorias.map((c) => DropdownMenuItem(value: c['id'], child: Text(c['Nome']))).toList(), onChanged: (v) => setState(() => _selectedCategoria = v), validator: (v) => v == null ? 'Obrigatório' : null)),
-                _buildDialogRow('Data do pgto.', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime(2000), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedDate = picked);}, child: Text(DateFormat('dd/MM/yyyy').format(_selectedDate)))),
+                _buildDialogRow(
+                    'Título',
+                    TextFormField(
+                        controller: _nomeController,
+                        validator: (v) =>
+                            v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow(
+                    'Valor',
+                    TextFormField(
+                        controller: _valorController,
+                        keyboardType: TextInputType.number,
+                        validator: (v) =>
+                            v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow(
+                    'Forma de pgto.',
+                    DropdownButtonFormField<String>(
+                        value: _selectedTipo,
+                        items: widget.tiposPagamento
+                            .map((t) => DropdownMenuItem<String>( 
+                                value: t['id'], child: Text(t['Nome'])))
+                            .toList(),
+                        onChanged: _onTipoPagamentoChanged,
+                        validator: (v) =>
+                            v == null ? 'Obrigatório' : null)),
+                if (exigeCartao)
+                  _buildDialogRow(
+                      'Selecione o cartão',
+                      DropdownButtonFormField<String>(
+                          value: _selectedCartao,
+                          items: widget.cartoes
+                              .map((c) => DropdownMenuItem<String>(
+                                  value: c['id'], child: Text(c['Nome'])))
+                              .toList(),
+                          onChanged: (v) => setState(() => _selectedCartao = v),
+                          validator: (v) =>
+                              v == null ? 'Obrigatório' : null)),
+                if (isParcelavel)
+                  _buildDialogRow(
+                      'Número de parcelas',
+                      DropdownButtonFormField<int>(
+                          value: _selectedParcelas,
+                          items: List.generate(24, (i) => i + 1)
+                              .map((p) => DropdownMenuItem(
+                                  value: p, child: Text('$p x')))
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _selectedParcelas = v))),
+                _buildDialogRow(
+                    'Categoria',
+                    DropdownButtonFormField<String>(
+                        value: _selectedCategoria,
+                        items: widget.categorias
+                            .map((c) => DropdownMenuItem<String>( 
+                                value: c['id'], child: Text(c['Nome'])))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedCategoria = v),
+                        validator: (v) =>
+                            v == null ? 'Obrigatório' : null)),
+                _buildDialogRow(
+                    'Data do pgto.',
+                    InkWell(
+                        onTap: () async {
+                          DateTime? picked = await showDatePicker(
+                              context: context,
+                              initialDate: _selectedDate,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100));
+                          if (picked != null)
+                            setState(() => _selectedDate = picked);
+                        },
+                        child: Text(
+                            DateFormat('dd/MM/yyyy').format(_selectedDate)))),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: finBuddyLime),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: finBuddyLime),
                   onPressed: _isLoading ? null : _salvarGasto,
-                  child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ))
+                      : Text('Salvar',
+                          style: estiloFonteMonospace.copyWith(fontSize: 16)),
                 ),
               ],
             ),
