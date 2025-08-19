@@ -31,6 +31,22 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? get currentUser => _auth.currentUser;
 
+  late Stream<QuerySnapshot> _gastosStream;
+
+  @override
+  void initState() {
+    super.initState();
+    if (currentUser != null) {
+      _gastosStream = _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('gastos_fixos')
+          .where('Deletado', isEqualTo: false)
+          .where('Recorrencia', isEqualTo: true)
+          .snapshots();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (currentUser == null) {
@@ -76,13 +92,7 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                    stream: _firestore
-                        .collection('users')
-                        .doc(currentUser!.uid)
-                        .collection('gastos_fixos')
-                        .where('Deletado', isEqualTo: false)
-                        .where('Recorrencia', isEqualTo: true)
-                        .snapshots(),
+                    stream: _gastosStream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
@@ -96,7 +106,8 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
                       return ListView.builder(
                         itemCount: gastos.length,
                         itemBuilder: (context, index) {
-                          final gasto = gastos[index].data() as Map<String, dynamic>;
+                          final gasto =
+                              gastos[index].data() as Map<String, dynamic>;
                           final id = gastos[index].id;
                           return _buildGastoItem(id, gasto);
                         },
@@ -113,8 +124,11 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  onPressed: () {
-                    showAddOrEditGastoDialog(context: context);
+                  onPressed: () async {
+                    await showAddOrEditGastoDialog(context: context);
+                    if (mounted) {
+                      setState(() {});
+                    }
                   },
                   child: Text(
                     'Adicionar',
@@ -134,7 +148,8 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
     final valor = gasto['Valor'] ?? 0.0;
     final dataCompra = (gasto['Data_Compra'] as Timestamp).toDate();
 
-    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final formatadorMoeda =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     final formatadorData = DateFormat('dd/MM/yyyy');
 
     return Padding(
@@ -145,23 +160,24 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
             child: Container(
               padding: const EdgeInsets.all(12.0),
               decoration: BoxDecoration(
-                color: corItemGasto, 
+                color: corItemGasto,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(nome, style: estiloFonteMonospace.copyWith(fontSize: 18)),
+                  Text(nome,
+                      style: estiloFonteMonospace.copyWith(fontSize: 18)),
                   const SizedBox(height: 8),
                   Text(
                     'Valor: ${formatadorMoeda.format(valor)}',
-                    style: estiloFonteMonospace.copyWith(
-                        fontWeight: FontWeight.normal),
+                    style:
+                        estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal),
                   ),
                   Text(
                     'Data: ${formatadorData.format(dataCompra)}',
-                    style: estiloFonteMonospace.copyWith(
-                        fontWeight: FontWeight.normal),
+                    style:
+                        estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal),
                   ),
                 ],
               ),
@@ -171,17 +187,22 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
-                onPressed: () => showAddOrEditGastoDialog(
-                  context: context,
-                  gastoId: id,
-                  nome: nome,
-                  valor: valor,
-                  dataCompra: dataCompra,
-                  parcelas: gasto['Parcelas'] ?? 1,
-                  tipoPagamentoId: gasto['ID_Tipo_Pagamento'],
-                  cartaoId: gasto['ID_Cartao'],
-                  categoriaId: gasto['ID_Categoria'],
-                ),
+                onPressed: () async {
+                  await showAddOrEditGastoDialog(
+                    context: context,
+                    gastoId: id,
+                    nome: nome,
+                    valor: valor,
+                    dataCompra: dataCompra,
+                    parcelas: gasto['Parcelas'] ?? 1,
+                    tipoPagamentoId: gasto['ID_Tipo_Pagamento'],
+                    cartaoId: gasto['ID_Cartao'],
+                    categoriaId: gasto['ID_Categoria'],
+                  );
+                   if (mounted) {
+                      setState(() {});
+                    }
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
