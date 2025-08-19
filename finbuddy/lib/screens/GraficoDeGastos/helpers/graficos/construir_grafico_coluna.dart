@@ -2,7 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-const Color finBuddyDark = Color(0xFF212121);
+const Color finBuddyDark = Color(0xFF212121); 
+
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
   fontWeight: FontWeight.bold,
@@ -53,7 +54,7 @@ Widget construirGraficoColuna(
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30, 
+            reservedSize: 30,
             getTitlesWidget: (value, meta) {
               final index = value.toInt();
               if (index < 0 || index >= categoriasComGasto.length) {
