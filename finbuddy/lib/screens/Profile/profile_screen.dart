@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../Login/login_screen.dart';
 import '../Metas/metas_screen.dart';
 import '../Ganhos/ganhos_fixos_screen.dart';
@@ -10,6 +9,19 @@ import '../Cartoes/cartoes_screen.dart';
 import '../TiposPagamentos/tipos_pagamentos_screen.dart';
 import '../Categorias/categorias_screen.dart';
 import 'helpers/profile_helpers.dart';
+
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+
+const Color corFundoScaffold = Color(0xFFF0F4F8);
+const Color corCardPrincipal = Color(0xFFFAF3DD);
+
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -40,137 +52,149 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNavItem(String title, Widget screen) {
-    return ListTile(
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+  Widget _buildNavItem(String title, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 8.0),
+            child: Text(
+              title,
+              style: estiloFonteMonospace.copyWith(fontSize: 18),
+            ),
+          ),
+          Divider(color: Colors.grey.shade300, height: 1),
+        ],
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => screen),
-        );
-      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F0ED),
+      backgroundColor: corFundoScaffold,
       appBar: AppBar(
-        automaticallyImplyLeading: true,
-        backgroundColor: const Color(0xFFC4E03B),
+        automaticallyImplyLeading: false,
+        backgroundColor: finBuddyLime,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: const Color(0xff3a86e0)),
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Fin_Buddy",
-          style: TextStyle(
-            color: const Color(0xff3a86e0),
-            fontWeight: FontWeight.bold,
+          style: estiloFonteMonospace.copyWith(
+            color: finBuddyBlue,
+            fontSize: 22,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: const Color(0xff3a86e0)),
-            onPressed: () => logoutUser(context),
-          ),
-        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            Card(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+          : SafeArea(
               child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    const Icon(Icons.account_circle,
-                        size: 80, color: Colors.blue),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                  decoration: BoxDecoration(
+                    color: corCardPrincipal,
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        Text(
-                          name ?? "Nome Usuário",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade400, width: 2),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 90,
+                            color: finBuddyBlue,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.edit, size: 18),
-                          onPressed: () {
-                            editNameAndDob(
-                              context: context,
-                              firestore: _firestore,
-                              auth: FirebaseAuth.instance,
-                              currentName: name,
-                              currentDob: dob,
-                              onUpdated: (newName, newDob) => setState(() {
-                                name = newName;
-                                dob = newDob;
-                              }),
-                            );
-                          },
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              name ?? "Nome Usuário",
+                              style: estiloFonteMonospace.copyWith(fontSize: 20),
+                            ),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () {
+                                editNameAndDob(
+                                  context: context,
+                                  firestore: _firestore,
+                                  auth: FirebaseAuth.instance,
+                                  currentName: name,
+                                  currentDob: dob,
+                                  onUpdated: (newName, newDob) => setState(() {
+                                    name = newName;
+                                    dob = newDob;
+                                  }),
+                                );
+                              },
+                              child: Icon(
+                                Icons.edit_outlined,
+                                size: 20,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          dob ?? "dd/mm/aaaa",
+                          style: estiloFonteMonospace.copyWith(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+
+                        _buildNavItem(
+                          "Minhas Metas",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MetasScreen())),
+                        ),
+                        _buildNavItem(
+                          "Ganhos Fixos",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GanhosFixosScreen())),
+                        ),
+                        _buildNavItem(
+                          "Gastos Fixos",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GastosFixosScreen())),
+                        ),
+                        _buildNavItem(
+                          "Meus Cartões",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartoesScreen())),
+                        ),
+                        _buildNavItem(
+                          "Tipos de Pagamento",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TiposPagamentosScreen())),
+                        ),
+                        _buildNavItem(
+                          "Categorias",
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasScreen())),
+                         ),
+                        _buildNavItem(
+                          "Sair",
+                          onTap: () => logoutUser(context),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      dob ?? "dd/mm/aaaa",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ],
-              ),
-              child: Column(
-                children: [
-                  _buildNavItem("Minhas Metas", const MetasScreen()),
-                  _buildNavItem("Ganhos Fixos", const GanhosFixosScreen()),
-                  _buildNavItem("Gastos Fixos", const GastosFixosScreen()),
-                  _buildNavItem("Meus Cartões", const CartoesScreen()),
-                  _buildNavItem("Tipos de Pagamento",
-                      const TiposPagamentosScreen()),
-                  _buildNavItem("Categorias", const CategoriasScreen()),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
