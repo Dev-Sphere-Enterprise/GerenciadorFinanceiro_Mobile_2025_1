@@ -15,7 +15,7 @@ const Color corCardPrincipal = Color(0xFFFAF3DD);
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
   fontWeight: FontWeight.bold,
-  color: finBuddyDark, 
+  color: finBuddyDark,
 );
 
 class CategoriasScreen extends StatefulWidget {
@@ -26,47 +26,22 @@ class CategoriasScreen extends StatefulWidget {
 }
 
 class _CategoriasScreenState extends State<CategoriasScreen> {
-  Future<void> _confirmDelete(String id, String nome) async {
-    final bool? confirm = await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar Exclusão'),
-        content: Text('Tem certeza que deseja remover a categoria "$nome"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remover'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await deleteCategoria(id);
-      setState(() {});
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: corFundoScaffold,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: finBuddyLime, 
+        backgroundColor: finBuddyLime,
         title: Text(
           'Fin_Buddy',
           style: estiloFonteMonospace.copyWith(
-            color: finBuddyBlue, 
+            color: finBuddyBlue,
             fontSize: 22,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue), 
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -87,7 +62,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
                   textAlign: TextAlign.center,
                   style: estiloFonteMonospace.copyWith(
                     fontSize: 24,
-                    color: finBuddyDark, 
+                    color: finBuddyDark,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -127,7 +102,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: finBuddyLime, 
+                    backgroundColor: finBuddyLime,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -150,6 +125,33 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
     );
   }
 
+  Future<void> _confirmDelete(String id, String nome) async {
+    final bool? confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: Text('Tem certeza que deseja remover a categoria "$nome"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remover'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await deleteCategoria(id);
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
   Widget _buildCategoriaItem(String id, String nome, bool isGeneral) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -159,7 +161,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: BoxDecoration(
-                color: finBuddyLime, 
+                color: finBuddyLime,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(
@@ -175,14 +177,14 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
               children: [
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined, color: finBuddyDark), 
+                  icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
                   onPressed: () async {
                     await showCategoriaDialog(context, id: id, nome: nome);
                     setState(() {});
                   },
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: finBuddyDark), 
+                  icon: const Icon(Icons.delete_outline, color: finBuddyDark),
                   onPressed: () => _confirmDelete(id, nome),
                 ),
               ],
