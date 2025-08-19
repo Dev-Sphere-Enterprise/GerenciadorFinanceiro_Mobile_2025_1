@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-const Color finBuddyDark = Color(0xFF212121); 
+const Color finBuddyDark = Color(0xFF212121);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -20,10 +20,10 @@ const List<Color> _barColors = [
 ];
 
 Widget construirGraficoColuna(
-  List<MapEntry<String, double>> categoriasComGasto,
-  Map<String, String> nomesCategorias,
-  Map<String, IconData> iconesCategorias,
-) {
+    List<MapEntry<String, double>> categoriasComGasto,
+    Map<String, String> nomesCategorias,
+    Map<String, IconData> iconesCategorias,
+    ) {
   final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
   return BarChart(
@@ -31,7 +31,7 @@ Widget construirGraficoColuna(
       alignment: BarChartAlignment.spaceAround,
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: finBuddyDark,
+          //tooltipBgColor: finBuddyDark,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             final valorFormatado = formatadorMoeda.format(rod.toY);
             return BarTooltipItem(
@@ -62,7 +62,7 @@ Widget construirGraficoColuna(
               }
               final categoriaId = categoriasComGasto[index].key;
               final iconData = iconesCategorias[categoriaId] ?? Icons.label_outline;
-              
+
               return Icon(iconData, color: finBuddyDark, size: 24);
             },
           ),

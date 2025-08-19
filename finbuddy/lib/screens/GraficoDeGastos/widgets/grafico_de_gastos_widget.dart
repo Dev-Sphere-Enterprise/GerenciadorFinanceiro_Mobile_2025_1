@@ -151,7 +151,7 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
           ..sort((a, b) => b.value.compareTo(a.value));
 
         final totalValorGastos = _gastosPorCategoria.values.fold<double>(0.0, (sum, item) => sum + item.totalValue);
-        final totalLancamentos = _gastosPorCategoria.values.fold<int>(0, (sum, item) => sum + count);
+        final totalLancamentos = _gastosPorCategoria.values.fold<int>(0, (sum, item) => sum + item.count);
 
         final itemCount = widget.limiteCategorias != null
             ? (categoriasComGasto.length > widget.limiteCategorias! ? widget.limiteCategorias! : categoriasComGasto.length)
