@@ -2,6 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
+
+
 Future<void> addOrEditTipo({
   required BuildContext context,
   String? id,
@@ -9,139 +20,184 @@ Future<void> addOrEditTipo({
   bool? parcelavel,
   bool? usaCartao,
 }) async {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  User? currentUser = _auth.currentUser;
-
-  final nomeController = TextEditingController(text: nome ?? '');
-  bool isParcelavel = parcelavel ?? false;
-  bool isUsaCartao = usaCartao ?? false;
-
   await showDialog(
     context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setModalState) {
-          return AlertDialog(
-            backgroundColor: Color(0xFFF5F0ED),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            title: Text(
-              id == null ? 'Adicionar Tipo de Pagamento' : 'Editar Tipo de Pagamento',
-              style: const TextStyle(
-                color: Color(0xff3a86e0),
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nomeController,
-                  decoration: InputDecoration(
-                    labelText: 'Nome do Tipo de Pagamento',
-                    labelStyle: const TextStyle(color: Color(0xff3a86e0)),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xff3a86e0)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color(0xff3a86e0), width: 2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                SwitchListTile(
-                  activeColor: const Color(0xFFC4E03B),
-                  title: const Text(
-                    'É Parcelável?',
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  value: isParcelavel,
-                  onChanged: (value) {
-                    setModalState(() {
-                      isParcelavel = value;
-                    });
-                  },
-                ),
-
-                SwitchListTile(
-                  activeColor: const Color(0xFFC4E03B),
-                  title: const Text(
-                    "Usa Cartão?",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  value: isUsaCartao,
-                  onChanged: (value) {
-                    setModalState(() {
-                      isUsaCartao = value;
-                    });
-                  },
-                ),
-              ],
-            ),
-            actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFC4E03B),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () async {
-                  if (nomeController.text.trim().isEmpty || currentUser == null) return;
-
-                  final dataMap = {
-                    'Nome': nomeController.text.trim(),
-                    'Parcelavel': isParcelavel,
-                    'UsaCartao': isUsaCartao,
-                    'Deletado': false,
-                    'Data_Atualizacao': Timestamp.now(),
-                  };
-
-                  final tiposRef = _firestore
-                      .collection('users')
-                      .doc(currentUser.uid)
-                      .collection('tipos_pagamentos');
-
-                  if (id == null) {
-                    dataMap['Data_Criacao'] = Timestamp.now();
-                    await tiposRef.add(dataMap);
-                  } else {
-                    await tiposRef.doc(id).update(dataMap);
-                  }
-
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Salvar',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          );
-        },
+    builder: (dialogContext) {
+      return _TipoDialogContent(
+        id: id,
+        nome: nome,
+        parcelavel: parcelavel,
+        usaCartao: usaCartao,
       );
     },
   );
 }
 
+class _TipoDialogContent extends StatefulWidget {
+  final String? id;
+  final String? nome;
+  final bool? parcelavel;
+  final bool? usaCartao;
+
+  const _TipoDialogContent({this.id, this.nome, this.parcelavel, this.usaCartao});
+
+  @override
+  _TipoDialogContentState createState() => _TipoDialogContentState();
+}
+
+class _TipoDialogContentState extends State<_TipoDialogContent> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nomeController;
+  late bool _isParcelavel;
+  late bool _isUsaCartao;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nomeController = TextEditingController(text: widget.nome ?? '');
+    _isParcelavel = widget.parcelavel ?? false;
+    _isUsaCartao = widget.usaCartao ?? false;
+  }
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _salvarTipo() async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    setState(() => _isLoading = true);
+
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) throw Exception("Usuário não autenticado.");
+
+      final dataMap = {
+        'Nome': _nomeController.text.trim(),
+        'Parcelavel': _isParcelavel,
+        'UsaCartao': _isUsaCartao,
+        'Deletado': false,
+        'Data_Atualizacao': Timestamp.now(),
+      };
+
+      final tiposRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid).collection('tipos_pagamentos');
+
+      if (widget.id == null) {
+        dataMap['Data_Criacao'] = Timestamp.now();
+        await tiposRef.add(dataMap);
+      } else {
+        await tiposRef.doc(widget.id).update(dataMap);
+      }
+
+      if (mounted) Navigator.of(context).pop();
+
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar: ${e.toString()}'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Widget _buildDialogRow(String label, Widget child) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Text(label, style: estiloFonteMonospace),
+          ),
+          Expanded(
+            flex: 2,
+            child: child
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isEditing = widget.id != null;
+    const inputDecoration = InputDecoration(
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        border: OutlineInputBorder(),
+        isDense: true,
+    );
+
+    return Dialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8.0),
+        side: const BorderSide(color: finBuddyBlue, width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                isEditing ? 'Editar Tipo' : 'Adicionar Tipo',
+                textAlign: TextAlign.center,
+                style: estiloFonteMonospace.copyWith(fontSize: 18),
+              ),
+              const SizedBox(height: 24),
+              _buildDialogRow(
+                'Nome:',
+                TextFormField(
+                  controller: _nomeController,
+                  decoration: inputDecoration,
+                  validator: (value) => value == null || value.trim().isEmpty ? 'Obrigatório' : null,
+                ),
+              ),
+              _buildDialogRow(
+                'É Parcelável?',
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Switch(
+                    value: _isParcelavel,
+                    onChanged: (value) => setState(() => _isParcelavel = value),
+                    activeColor: finBuddyLime,
+                  ),
+                ),
+              ),
+              _buildDialogRow(
+                'Usa Cartão?',
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Switch(
+                    value: _isUsaCartao,
+                    onChanged: (value) => setState(() => _isUsaCartao = value),
+                    activeColor: finBuddyLime,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: finBuddyLime,
+                  padding: const EdgeInsets.symmetric(vertical: 12)
+                ),
+                onPressed: _isLoading ? null : _salvarTipo,
+                child: _isLoading 
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) 
+                  : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
