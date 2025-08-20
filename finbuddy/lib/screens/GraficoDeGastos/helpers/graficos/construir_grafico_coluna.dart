@@ -31,7 +31,7 @@ Widget construirGraficoColuna(
       alignment: BarChartAlignment.spaceAround,
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: finBuddyDark,
+          //tooltipBgColor: finBuddyDark,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             final valorFormatado = formatadorMoeda.format(rod.toY);
             return BarTooltipItem(
