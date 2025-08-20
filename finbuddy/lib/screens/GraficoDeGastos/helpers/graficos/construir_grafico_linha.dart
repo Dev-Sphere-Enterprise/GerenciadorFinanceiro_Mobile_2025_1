@@ -12,41 +12,36 @@ const TextStyle estiloFonteMonospace = TextStyle(
 );
 
 Widget construirGraficoLinha(
-  List<FlSpot> gastosSpots,
-  List<FlSpot> tetoSpots,
-) {
+    List<FlSpot> gastosSpots,
+    List<FlSpot> tetoSpots,
+    ) {
   final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: '');
 
   final double maxGastos =
-      gastosSpots.isEmpty ? 0 : gastosSpots.map((spot) => spot.y).reduce(max);
+  gastosSpots.isEmpty ? 0 : gastosSpots.map((spot) => spot.y).reduce(max);
   final double maxTeto =
-      tetoSpots.isEmpty ? 0 : tetoSpots.map((spot) => spot.y).reduce(max);
+  tetoSpots.isEmpty ? 0 : tetoSpots.map((spot) => spot.y).reduce(max);
   final double valorMaximo = max(maxGastos, maxTeto);
   final double maxYComRespiro = valorMaximo * 1.2;
 
+  // MUDANÇA AQUI: A função agora retorna apenas o widget Text, sem SideTitleWidget.
   Widget EixoY(double value, TitleMeta meta) {
-    if (value == meta.max) return Container();
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 8,
-      child: Text(
-        formatadorMoeda.format(value),
-        style: estiloFonteMonospace.copyWith(
-            fontSize: 10, fontWeight: FontWeight.normal),
-      ),
+    if (value == meta.max || value == meta.min) return Container(); // Esconde o primeiro e último para não sobrepor
+    return Text(
+      formatadorMoeda.format(value),
+      style: estiloFonteMonospace.copyWith(
+          fontSize: 10, fontWeight: FontWeight.normal),
     );
   }
 
+  // MUDANÇA AQUI: A função agora retorna apenas o widget Text, sem SideTitleWidget.
   Widget EixoX(double value, TitleMeta meta) {
-    if (value.toInt() % 5 != 0) return Container();
-    return SideTitleWidget(
-      axisSide: meta.axisSide,
-      space: 8,
-      child: Text(
-        value.toInt().toString(),
-        style: estiloFonteMonospace.copyWith(
-            fontSize: 10, fontWeight: FontWeight.normal),
-      ),
+    // Mostra apenas os dias 1, 5, 10, 15, 20, 25, 30
+    if (value.toInt() == 1 || value.toInt() % 5 != 0) return Container();
+    return Text(
+      value.toInt().toString(),
+      style: estiloFonteMonospace.copyWith(
+          fontSize: 10, fontWeight: FontWeight.normal),
     );
   }
 
@@ -75,7 +70,7 @@ Widget construirGraficoLinha(
       lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          getTooltipColor: (touchedSpot) => finBuddyDark,
+          //tooltipBgColor: finBuddyDark,
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final label = spot.barIndex == 0 ? 'Gasto:' : 'Teto:';
@@ -117,12 +112,17 @@ Widget construirGraficoLinha(
         ),
       ),
       titlesData: FlTitlesData(
+        // MUDANÇA AQUI: A propriedade 'space' foi movida para dentro de SideTitles.
         leftTitles: AxisTitles(
-            sideTitles:
-                SideTitles(showTitles: true, reservedSize: 40, getTitlesWidget: EixoY)),
+            sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 40,
+                getTitlesWidget: EixoY)),
         bottomTitles: AxisTitles(
-            sideTitles:
-                SideTitles(showTitles: true, reservedSize: 30, getTitlesWidget: EixoX)),
+            sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                getTitlesWidget: EixoX)),
         topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
       ),
