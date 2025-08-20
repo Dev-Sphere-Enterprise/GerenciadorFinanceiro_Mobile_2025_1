@@ -20,10 +20,10 @@ const List<Color> _barColors = [
 ];
 
 Widget construirGraficoColuna(
-    List<MapEntry<String, double>> categoriasComGasto,
-    Map<String, String> nomesCategorias,
-    Map<String, IconData> iconesCategorias,
-    ) {
+  List<MapEntry<String, double>> categoriasComGasto,
+  Map<String, String> nomesCategorias,
+  Map<String, IconData> iconesCategorias,
+) {
   final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
   return BarChart(
@@ -31,7 +31,7 @@ Widget construirGraficoColuna(
       alignment: BarChartAlignment.spaceAround,
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-          //tooltipBgColor: finBuddyDark,
+          tooltipBgColor: finBuddyDark,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             final valorFormatado = formatadorMoeda.format(rod.toY);
             return BarTooltipItem(
@@ -61,7 +61,8 @@ Widget construirGraficoColuna(
                 return const SizedBox.shrink();
               }
               final categoriaId = categoriasComGasto[index].key;
-              final iconData = iconesCategorias[categoriaId] ?? Icons.label_outline;
+              final iconData =
+                  iconesCategorias[categoriaId] ?? Icons.label_outline;
 
               return Icon(iconData, color: finBuddyDark, size: 24);
             },
@@ -79,7 +80,8 @@ Widget construirGraficoColuna(
               toY: valor,
               color: cor,
               width: 22,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(6)),
             ),
           ],
         );
