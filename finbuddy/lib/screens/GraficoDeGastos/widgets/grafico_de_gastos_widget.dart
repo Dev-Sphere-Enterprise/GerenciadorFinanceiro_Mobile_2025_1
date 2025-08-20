@@ -71,7 +71,7 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
     _dadosDoGraficoFuture = _carregarDadosDoGrafico();
   }
 
-  Future<GraficoData> _carregarDadosDoGrafico() async {
+ Future<GraficoData> _carregarDadosDoGrafico() async {
     final futureGastos = carregarGastosPorCategoria(_anoSelecionado, _mesSelecionado);
     final futureCategorias = StreamZip([getCategoriasGerais(), getCategoriasUsuario()])
         .map((lists) => [...lists[0], ...lists[1]]).first;
@@ -80,7 +80,8 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
 
     final gastosPorCategoria = resultados[0] as Map<String, CategoriaExpenseData>;
     final categorias = resultados[1] as List<Map<String, dynamic>>;
-    final nomesCategorias = {for (var c in categorias) c['id']: c['Nome']};
+    
+    final nomesCategorias = <String, String>{for (var c in categorias) c['id']: c['Nome']};
     
     final categoriasComGasto = gastosPorCategoria.entries
         .where((e) => e.value.totalValue > 0 && nomesCategorias.containsKey(e.key))
