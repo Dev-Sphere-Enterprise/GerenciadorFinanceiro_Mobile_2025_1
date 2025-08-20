@@ -38,7 +38,6 @@ Future<void> addOrEditTipo({
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Campo de texto estilizado
                 TextField(
                   controller: nomeController,
                   decoration: InputDecoration(
@@ -56,7 +55,6 @@ Future<void> addOrEditTipo({
                 ),
                 const SizedBox(height: 16),
 
-                // Switch Parcelável
                 SwitchListTile(
                   activeColor: const Color(0xFFC4E03B),
                   title: const Text(
@@ -71,7 +69,6 @@ Future<void> addOrEditTipo({
                   },
                 ),
 
-                // Switch Usa Cartão
                 SwitchListTile(
                   activeColor: const Color(0xFFC4E03B),
                   title: const Text(
@@ -90,7 +87,6 @@ Future<void> addOrEditTipo({
             actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             actionsAlignment: MainAxisAlignment.spaceBetween,
             actions: [
-              // Botão Cancelar
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text(
@@ -102,7 +98,6 @@ Future<void> addOrEditTipo({
                 ),
               ),
 
-              // Botão Salvar
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFC4E03B),
