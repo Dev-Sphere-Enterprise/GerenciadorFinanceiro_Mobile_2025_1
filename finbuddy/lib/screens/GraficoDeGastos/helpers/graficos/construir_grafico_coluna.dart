@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 const Color finBuddyDark = Color(0xFF212121);
+
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
   fontWeight: FontWeight.bold,
@@ -30,7 +31,7 @@ Widget construirGraficoColuna(
       alignment: BarChartAlignment.spaceAround,
       barTouchData: BarTouchData(
         touchTooltipData: BarTouchTooltipData(
-          tooltipBgColor: finBuddyDark,
+          //tooltipBgColor: finBuddyDark,
           getTooltipItem: (group, groupIndex, rod, rodIndex) {
             final valorFormatado = formatadorMoeda.format(rod.toY);
             return BarTooltipItem(
@@ -53,15 +54,16 @@ Widget construirGraficoColuna(
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30, 
+            reservedSize: 30,
             getTitlesWidget: (value, meta) {
               final index = value.toInt();
               if (index < 0 || index >= categoriasComGasto.length) {
                 return const SizedBox.shrink();
               }
               final categoriaId = categoriasComGasto[index].key;
-              final iconData = iconesCategorias[categoriaId] ?? Icons.label_outline;
-              
+              final iconData =
+                  iconesCategorias[categoriaId] ?? Icons.label_outline;
+
               return Icon(iconData, color: finBuddyDark, size: 24);
             },
           ),
@@ -78,7 +80,8 @@ Widget construirGraficoColuna(
               toY: valor,
               color: cor,
               width: 22,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(6)),
             ),
           ],
         );

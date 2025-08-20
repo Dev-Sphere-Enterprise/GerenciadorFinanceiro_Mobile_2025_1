@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// Importe o novo widget
 import 'widgets/grafico_de_gastos_widget.dart';
 
 class GraficoDeGastosScreen extends StatelessWidget {
