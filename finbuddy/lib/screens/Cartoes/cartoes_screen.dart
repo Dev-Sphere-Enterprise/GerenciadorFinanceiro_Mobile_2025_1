@@ -246,7 +246,7 @@ class _CartoesScreenState extends State<CartoesScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                onPressed: () => deleteCartao(context, id, nome),
+                onPressed: () => deleteCartao(context, id),
               ),
             ],
           ),
