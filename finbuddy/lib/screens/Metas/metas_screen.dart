@@ -6,6 +6,19 @@ import '../Aportes/aportes_screen.dart';
 import 'helpers/metas_helper.dart';
 import 'helpers/metas_delete_helper.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+const Color corFundoScaffold = Color(0xFFF0F4F8);
+const Color corCardPrincipal = Color(0xFFFAF3DD);
+const Color corItemMeta = Color(0xFFE0D8B3);
+
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
+
 class MetasScreen extends StatefulWidget {
   const MetasScreen({super.key});
 
@@ -15,8 +28,22 @@ class MetasScreen extends StatefulWidget {
 
 class _MetasScreenState extends State<MetasScreen> {
   final MetasHelper _helper = MetasHelper();
-
   User? get currentUser => _helper.currentUser;
+  late Stream<QuerySnapshot> _metasStream;
+
+  @override
+  void initState() {
+    super.initState();
+    if (currentUser != null) {
+      _metasStream = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('metas')
+          .where('Deletado', isEqualTo: false)
+          .orderBy('Data_limite_meta')
+          .snapshots();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,104 +54,174 @@ class _MetasScreenState extends State<MetasScreen> {
     }
 
     return Scaffold(
+      backgroundColor: corFundoScaffold,
       appBar: AppBar(
-        title: const Text('Metas'),
+        elevation: 0,
+        backgroundColor: finBuddyLime,
+        title: Text(
+          'Fin_Buddy',
+          style: estiloFonteMonospace.copyWith(
+            color: finBuddyBlue,
+            fontSize: 22,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(currentUser!.uid)
-            .collection('metas')
-            .where('Deletado', isEqualTo: false)
-            .orderBy('Data_limite_meta')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(child: Text('Erro ao carregar metas.'));
-          }
-
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Nenhuma meta cadastrada.'));
-          }
-
-          final metas = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: metas.length,
-            itemBuilder: (context, index) {
-              final doc = metas[index];
-              final nome = doc['Nome'] ?? '';
-              final valorAtual = doc['Valor_Atual'] ?? 0.0;
-              final valorObjetivo = doc['Valor_Objetivo'] ?? 0.0;
-              final dataCriacao = (doc['Data_Criacao'] as Timestamp).toDate();
-              final dataLimite = (doc['Data_limite_meta'] as Timestamp).toDate();
-
-              return Card(
-                child: ListTile(
-                  title: Text(nome),
-                  subtitle: Text(
-                    'Atual: R\$${valorAtual.toStringAsFixed(2)}\n'
-                        'Objetivo: R\$${valorObjetivo.toStringAsFixed(2)}\n'
-                        'Criado em: ${DateFormat('dd/MM/yyyy').format(dataCriacao)}\n'
-                        'Limite: ${DateFormat('dd/MM/yyyy').format(dataLimite)}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _helper.addOrEditMeta(
-                          context: context,
-                          id: doc.id,
-                          nome: nome,
-                          valorObjetivo: valorObjetivo,
-                          dataLimite: dataLimite,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => deleteMeta(doc.id),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.attach_money, color: Colors.green),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TelaAportes(
-                                metaId: doc.id,
-                                valorAtual: valorAtual,
-                              ),
-                            ),
-                          );
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: corCardPrincipal,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Minhas Metas',
+                  textAlign: TextAlign.center,
+                  style: estiloFonteMonospace.copyWith(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _metasStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Erro ao carregar metas.'));
+                      }
+                      if (snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text('Nenhuma meta cadastrada.', style: estiloFonteMonospace));
+                      }
+                      final metas = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: metas.length,
+                        itemBuilder: (context, index) {
+                          return _buildMetaItem(metas[index]);
                         },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
-              );
-            },
-          );
-        },
+                const SizedBox(height: 20),
+                ElevatedButton(
+                   style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () async {
+                    await _helper.addOrEditMeta(context: context);
+                    if (mounted) setState(() {});
+                  },
+                  child: Text('Adicionar Meta', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _helper.addOrEditMeta(context: context),
-        label: const Text('Adicionar Meta'),
-        icon: const Icon(Icons.add),
+    );
+  }
+
+  Widget _buildMetaItem(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    final nome = data['Nome'] ?? '';
+    final valorAtual = (data['Valor_Atual'] ?? 0.0).toDouble();
+    final valorObjetivo = (data['Valor_Objetivo'] ?? 0.0).toDouble();
+    final dataLimite = (data['Data_limite_meta'] as Timestamp).toDate();
+    
+    final progresso = valorObjetivo > 0 ? (valorAtual / valorObjetivo).clamp(0.0, 1.0) : 0.0;
+    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final formatadorData = DateFormat('dd/MM/yyyy');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: corItemMeta,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(nome, style: estiloFonteMonospace.copyWith(fontSize: 18)),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${formatadorMoeda.format(valorAtual)} de ${formatadorMoeda.format(valorObjetivo)}',
+                    style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal, fontSize: 14),
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: progresso,
+                      minHeight: 10,
+                      backgroundColor: Colors.black12,
+                      color: finBuddyBlue,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${(progresso * 100).toStringAsFixed(0)}% Completo',
+                        style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal, fontSize: 12),
+                      ),
+                      Text(
+                        'Limite: ${formatadorData.format(dataLimite)}',
+                        style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal, fontSize: 12),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
+                onPressed: () async {
+                  await _helper.addOrEditMeta(
+                    context: context,
+                    id: doc.id,
+                    nome: nome,
+                    valorObjetivo: valorObjetivo,
+                    dataLimite: dataLimite,
+                  );
+                   if (mounted) setState(() {});
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: finBuddyDark),
+                onPressed: () => deleteMeta(context, doc.id, nome),
+              ),
+              IconButton(
+                icon: const Icon(Icons.attach_money, color: finBuddyDark),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => TelaAportes(metaId: doc.id, valorAtual: valorAtual),
+                )),
+              ),
+            ],
+          ),
+        ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
