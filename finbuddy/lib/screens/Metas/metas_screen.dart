@@ -210,7 +210,7 @@ class _MetasScreenState extends State<MetasScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                onPressed: () => deleteMeta(context, doc.id, nome),
+                onPressed: () => deleteMeta(doc.id),
               ),
               IconButton(
                 icon: const Icon(Icons.attach_money, color: finBuddyDark),
