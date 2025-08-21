@@ -1,11 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
 import 'package:intl/intl.dart';
 
 import 'helpers/ganhos_fixos_dialog.dart';
 import 'helpers/ganhos_fixos_service.dart';
+
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+const Color corFundoScaffold = Color(0xFFF0F4F8);
+const Color corCardPrincipal = Color(0xFFFAF3DD);
+const Color corItemGasto = Color(0xFFE0D8B3); 
+
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
 
 class GanhosFixosScreen extends StatefulWidget {
   const GanhosFixosScreen({super.key});
@@ -17,8 +29,23 @@ class GanhosFixosScreen extends StatefulWidget {
 class _GanhosFixosScreenState extends State<GanhosFixosScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   User? get currentUser => _auth.currentUser;
+
+  late Stream<QuerySnapshot> _ganhosStream;
+
+  @override
+  void initState() {
+    super.initState();
+    if (currentUser != null) {
+      _ganhosStream = _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('ganhos_fixos')
+          .where('Deletado', isEqualTo: false)
+          .where('Recorrencia', isEqualTo: true)
+          .snapshots();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,94 +55,163 @@ class _GanhosFixosScreenState extends State<GanhosFixosScreen> {
       );
     }
 
-    final ganhosRef = _firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('ganhos_fixos')
-        .where('Deletado', isEqualTo: false)
-        .where('Recorrencia', isEqualTo: true);
-
     return Scaffold(
+      backgroundColor: corFundoScaffold,
       appBar: AppBar(
-        title: const Text('Ganhos Fixos'),
+        elevation: 0,
+        backgroundColor: finBuddyLime,
+        title: Text(
+          'Fin_Buddy',
+          style: estiloFonteMonospace.copyWith(
+            color: finBuddyBlue,
+            fontSize: 22,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: ganhosRef.snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Nenhum ganho cadastrado.'));
-          }
-
-          final ganhos = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: ganhos.length,
-            itemBuilder: (context, index) {
-              final ganho = ganhos[index];
-              final id = ganho.id;
-              final nome = ganho['Nome'] ?? '';
-              final valor = ganho['Valor'] ?? 0.0;
-              final dataRecebimento = ganho['Data_Recebimento'] != null
-                  ? (ganho['Data_Recebimento'] as Timestamp).toDate()
-                  : null;
-
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                child: ListTile(
-                  title: Text(nome),
-                  subtitle: Text(
-                    'Valor: R\$${valor.toStringAsFixed(2)}'
-                    '${dataRecebimento != null ? "\nRecebimento: ${DateFormat('dd/MM').format(dataRecebimento)}" : ""}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => showAddOrEditGanhoDialog(
-                          context: context,
-                          id: id,
-                          nome: nome,
-                          valor: valor.toDouble(),
-                          data: dataRecebimento ?? DateTime.now(),
-                          currentUser: currentUser!,
-                          firestore: _firestore,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => deleteGanho(
-                          id: id,
-                          currentUser: currentUser!,
-                          firestore: _firestore,
-                        ),
-                      ),
-                    ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: corCardPrincipal,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Ganhos Fixos',
+                  textAlign: TextAlign.center,
+                  style: estiloFonteMonospace.copyWith(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: _ganhosStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                            child: Text('Nenhum ganho cadastrado.',
+                                style: estiloFonteMonospace));
+                      }
+                      final ganhos = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: ganhos.length,
+                        itemBuilder: (context, index) {
+                          return _buildGanhoItem(ganhos[index]);
+                        },
+                      );
+                    },
                   ),
                 ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showAddOrEditGanhoDialog(
-          context: context,
-          currentUser: currentUser!,
-          firestore: _firestore,
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () async {
+                    await showAddOrEditGanhoDialog(
+                      context: context,
+                      currentUser: currentUser!,
+                      firestore: _firestore,
+                    );
+                    if (mounted) setState(() {});
+                  },
+                  child: Text('Adicionar Ganho',
+                      style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                ),
+              ],
+            ),
+          ),
         ),
-        label: const Text('Adicionar Ganho'),
-        icon: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget _buildGanhoItem(DocumentSnapshot doc) {
+    final ganho = doc.data() as Map<String, dynamic>;
+    final id = doc.id;
+    final nome = ganho['Nome'] ?? '';
+    final valor = (ganho['Valor'] ?? 0.0).toDouble();
+    final dataRecebimento = ganho['Data_Recebimento'] != null
+        ? (ganho['Data_Recebimento'] as Timestamp).toDate()
+        : null;
+
+    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final formatadorData = DateFormat('dd/MM');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: corItemGasto,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(nome, style: estiloFonteMonospace.copyWith(fontSize: 18)),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Valor: ${formatadorMoeda.format(valor)}',
+                    style: estiloFonteMonospace.copyWith(
+                        fontWeight: FontWeight.normal),
+                  ),
+                  if (dataRecebimento != null)
+                    Text(
+                      'Recebimento: Dia ${formatadorData.format(dataRecebimento)}',
+                      style: estiloFonteMonospace.copyWith(
+                          fontWeight: FontWeight.normal),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
+                onPressed: () async {
+                  await showAddOrEditGanhoDialog(
+                    context: context,
+                    id: id,
+                    nome: nome,
+                    valor: valor,
+                    data: dataRecebimento ?? DateTime.now(),
+                    currentUser: currentUser!,
+                    firestore: _firestore,
+                  );
+                   if (mounted) setState(() {});
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: finBuddyDark),
+                onPressed: () => deleteGanho(
+                  id: id,
+                  currentUser: currentUser!,
+                  firestore: _firestore,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
