@@ -14,7 +14,7 @@ const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 const Color corFundoScaffold = Color(0xFFF0F4F8);
 const Color corCardPrincipal = Color(0xFFFAF3DD);
-const Color corCardSaldo = Color(0xFFE0D8B3);
+const Color corCardSaldo = Color(0x89B9CD67);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -34,7 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final NotificationService _notificationService = NotificationService();
   final TransactionService _transactionService = TransactionService();
 
-  bool _isBalanceVisible = false;
+  bool _isBalanceVisibleSaldo = false;
+  bool _isBalanceVisibleGasto = false;
   late Future<Map<String, double>> _balanceData;
 
   @override
@@ -152,21 +153,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Saldo atual: ${_isBalanceVisible ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
+                    'Saldo atual: ${_isBalanceVisibleSaldo ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
                     style: estiloFonteMonospace.copyWith(fontSize: 16),
                   ),
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: Icon(_isBalanceVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
-                    onPressed: () => setState(() => _isBalanceVisible = !_isBalanceVisible),
+                    icon: Icon(_isBalanceVisibleSaldo ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
+                    onPressed: () => setState(() => _isBalanceVisibleSaldo = !_isBalanceVisibleSaldo),
                   )
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                'Gastos do mês: R\$ ${gastos.toStringAsFixed(2)}',
-                style: estiloFonteMonospace.copyWith(fontSize: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Gastos do mês: ${_isBalanceVisibleGasto ? "R\$ ${gastos.toStringAsFixed(2)}" : "R\$ ---"}',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      _isBalanceVisibleGasto
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: finBuddyDark,
+                    ),
+                    onPressed: () => setState(
+                          () => _isBalanceVisibleGasto = !_isBalanceVisibleGasto,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
