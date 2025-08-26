@@ -56,13 +56,13 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
   int? _indiceSelecionado;
 
   final Map<String, IconData> _iconesCategorias = {
-    'saude': Icons.medical_services_outlined,
-    'alimentacao': Icons.restaurant_outlined,
-    'transporte': Icons.directions_car_outlined,
-    'casa': Icons.home_outlined,
-    'outros': Icons.more_horiz,
-    'despesas_pessoais': Icons.person_outline,
-    'comunicacao': Icons.phone_android,
+    'UEubVETcFQYF8fch2mNE': Icons.medical_services_outlined,
+    '7mTuYfsLvMt38WS2YfZ8': Icons.restaurant_outlined,
+    'GumHB6ONmWnCZxDe6KJY': Icons.directions_car_outlined,
+    'kXP1qi6ae5R8COEaLUB5': Icons.home_outlined,
+    'xAVCMGHV3Mb21fj17P5N': Icons.more_horiz,
+    '1fGFvMrPLgOaSuzZtvkN': Icons.person_outline,
+    'Oio3MSKNhfwTBc9Qw3v5': Icons.phone_android,
   };
 
   @override
@@ -258,8 +258,15 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
     );
   }
 
-  Widget _buildSummaryRow({ required IconData icon, required String title, required int count, required double value, required double percentage }) {
-    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+  Widget _buildSummaryRow({
+    required IconData icon,
+    required String title,
+    required int count,
+    required double value,
+    required double percentage,
+  }) {
+    final formatadorMoeda =
+    NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -272,7 +279,11 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: estiloFonteMonospace),
-                Text('$count lançamentos', style: estiloFonteMonospace.copyWith(fontSize: 12, fontWeight: FontWeight.normal)),
+                Text(
+                  '$count lançamentos',
+                  style: estiloFonteMonospace.copyWith(
+                      fontSize: 12, fontWeight: FontWeight.normal),
+                ),
               ],
             ),
           ),
@@ -282,8 +293,11 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(formatadorMoeda.format(value), style: estiloFonteMonospace),
-                Text('${percentage.toStringAsFixed(1)}%', style: estiloFonteMonospace.copyWith(fontSize: 12, fontWeight: FontWeight.normal)),
+                Text(formatadorMoeda.format(value),
+                    style: estiloFonteMonospace),
+                Text('${percentage.toStringAsFixed(1)}%',
+                    style: estiloFonteMonospace.copyWith(
+                        fontSize: 12, fontWeight: FontWeight.normal)),
               ],
             ),
           ),
@@ -291,4 +305,5 @@ class _GraficoDeGastosWidgetState extends State<GraficoDeGastosWidget> {
       ),
     );
   }
+
 }
