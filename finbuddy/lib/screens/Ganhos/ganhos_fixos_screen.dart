@@ -123,8 +123,6 @@ class _GanhosFixosScreenState extends State<GanhosFixosScreen> {
                   onPressed: () async {
                     await showAddOrEditGanhoDialog(
                       context: context,
-                      currentUser: currentUser!,
-                      firestore: _firestore,
                     );
                     if (mounted) setState(() {});
                   },
@@ -194,10 +192,8 @@ class _GanhosFixosScreenState extends State<GanhosFixosScreen> {
                     nome: nome,
                     valor: valor,
                     data: dataRecebimento ?? DateTime.now(),
-                    currentUser: currentUser!,
-                    firestore: _firestore,
                   );
-                   if (mounted) setState(() {});
+                  if (mounted) setState(() {});
                 },
               ),
               IconButton(
