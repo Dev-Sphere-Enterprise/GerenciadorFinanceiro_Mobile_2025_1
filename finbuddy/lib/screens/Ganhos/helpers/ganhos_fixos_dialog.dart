@@ -19,6 +19,8 @@ Future<void> showAddOrEditGanhoDialog({
   String? nome,
   double? valor,
   DateTime? data,
+  required User currentUser,
+  required FirebaseFirestore firestore,
 }) async {
   await showDialog(
     context: context,
