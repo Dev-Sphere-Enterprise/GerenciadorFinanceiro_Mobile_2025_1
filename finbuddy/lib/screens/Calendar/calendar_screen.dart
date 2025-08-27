@@ -52,7 +52,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   List<Map<String, dynamic>> _getEventosDoDia(DateTime dia) {
-    return _eventos[DateTime.utc(dia.year, dia.month, dia.day)] ?? [];
+    final date = DateTime(dia.year, dia.month, dia.day); // sem UTC
+    return _eventos[date] ?? [];
   }
 
   @override
