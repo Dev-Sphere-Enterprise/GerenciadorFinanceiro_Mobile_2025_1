@@ -15,7 +15,7 @@ const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -52,21 +52,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNavItem(String title, {VoidCallback? onTap}) {
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18.0, horizontal: 8.0),
-            child: Text(
-              title,
-              style: estiloFonteMonospace.copyWith(fontSize: 18),
-            ),
-          ),
-          Divider(color: Colors.grey.shade300, height: 1),
-        ],
+  Widget _buildNavItem({
+    required String title,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? color,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: color ?? finBuddyBlue, size: 28),
+        title: Text(
+          title,
+          style: estiloFonteMonospace.copyWith(fontSize: 16),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: finBuddyDark),
+        onTap: onTap,
       ),
     );
   }
@@ -162,33 +165,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 30),
 
                         _buildNavItem(
-                          "Minhas Metas",
+                          title: "Minhas Metas",
+                          icon: Icons.flag_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MetasScreen())),
                         ),
                         _buildNavItem(
-                          "Ganhos Fixos",
+                          title: "Ganhos Fixos",
+                          icon: Icons.attach_money_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GanhosFixosScreen())),
                         ),
                         _buildNavItem(
-                          "Gastos Fixos",
+                          title: "Gastos Fixos",
+                          icon: Icons.shopping_cart_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GastosFixosScreen())),
                         ),
                         _buildNavItem(
-                          "Meus Cartões",
+                          title: "Meus Cartões",
+                          icon: Icons.credit_card_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CartoesScreen())),
                         ),
                         _buildNavItem(
-                          "Tipos de Pagamento",
+                          title: "Tipos de Pagamento",
+                          icon: Icons.account_balance_wallet_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TiposPagamentosScreen())),
                         ),
                         _buildNavItem(
-                          "Categorias",
+                          title: "Categorias",
+                          icon: Icons.category_outlined,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasScreen())),
-                         ),
+                        ),
                         _buildNavItem(
-                          "Sair",
+                          title: "Sair",
+                          icon: Icons.logout,
+                          color: Colors.redAccent,
                           onTap: () => logoutUser(context),
                         ),
+
                       ],
                     ),
                   ),
