@@ -195,10 +195,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoriasScreen())),
                         ),
                         _buildNavItem(
-                          title: "Sair",
+                          title: "Logout",
                           icon: Icons.logout,
                           color: Colors.redAccent,
-                          onTap: () => logoutUser(context),
+                          onTap: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Confirmar Saída"),
+                                content: const Text("Você tem certeza que fazer Logout do aplicativo?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text("Cancelar"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      "Logout",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              logoutUser(context);
+                            }
+                          },
                         ),
 
                       ],
