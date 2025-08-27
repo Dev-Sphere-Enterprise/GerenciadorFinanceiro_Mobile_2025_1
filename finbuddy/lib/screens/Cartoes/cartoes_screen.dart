@@ -251,7 +251,7 @@ class _CartoesScreenState extends State<CartoesScreen> {
                     context: context,
                     builder: (context) => AlertDialog(
                       title: const Text("Confirmar exclusão"),
-                      content: const Text("Você tem certeza que deseja deletar este aporte?"),
+                      content: const Text("Você tem certeza que deseja deletar este Cartão?"),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
