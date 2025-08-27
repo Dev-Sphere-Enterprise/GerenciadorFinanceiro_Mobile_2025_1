@@ -202,12 +202,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                 ElevatedButton.icon(
                   style: _buttonStyle(backgroundColor: Colors.white),
-                  onPressed: () {
-                    registerWithGoogle(
-                      context: context,
-                      setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                    );
-                  },
+                  //onPressed: () {
+                  //  registerWithGoogle(
+                  //    context: context,
+                  //    setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                  //  );
+                  //},
+                  onPressed: null,
                   icon: SvgPicture.asset('assets/svg/google.svg', height: 20.0),
                   label: Text(
                     'Registrar com Google',

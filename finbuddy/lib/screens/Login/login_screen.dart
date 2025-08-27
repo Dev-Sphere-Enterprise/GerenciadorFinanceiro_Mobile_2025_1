@@ -141,9 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 12),
               ElevatedButton.icon(
                 style: _buttonStyle(backgroundColor: Colors.white),
-                onPressed: () => loginWithGoogle(
-                  setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                ),
+                //onPressed: () => loginWithGoogle(
+                //  setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                //),
+                onPressed: null,
                 icon: SvgPicture.asset(
                   'assets/svg/google.svg',
                   height: 20.0,
