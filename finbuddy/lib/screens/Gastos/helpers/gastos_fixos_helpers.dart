@@ -215,7 +215,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                 _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedTipo, 
                   items: widget.tiposPagamento.map((t) => DropdownMenuItem<String>(
                     value: t['id'], 
-                    child: Text(t['Nome'] ?? 'Sem nome')
+                    child:  Text(t['nome'] ?? t['Nome'] ?? 'Sem nome',
+                      style: estiloFonteMonospace.copyWith(fontSize: 14),),
                   )).toList(), 
                   onChanged: _onTipoPagamentoChanged, 
                   validator: (v) => v == null ? 'Obrigatório' : null)),
@@ -223,7 +224,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                 if (exigeCartao) _buildDialogRow('Selecione o cartão', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCartao, 
                   items: widget.cartoes.map((c) => DropdownMenuItem<String>(
                     value: c['id'], 
-                    child: Text(c['Nome'] ?? 'Sem nome')
+                    child: Text(c['nome'] ?? c['Nome'] ?? 'Sem nome',
+                      style: estiloFonteMonospace.copyWith(fontSize: 14),)
                   )).toList(), 
                   onChanged: (v) => setState(() => _selectedCartao = v), 
                   validator: (v) => v == null ? 'Obrigatório' : null)),
@@ -233,7 +235,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                 _buildDialogRow('Categoria', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCategoria, 
                   items: widget.categorias.map((c) => DropdownMenuItem<String>(
                     value: c['id'], 
-                    child: Text(c['Nome'] ?? 'Sem nome')
+                    child: Text(c['nome'] ?? c['Nome'] ?? 'Sem nome',
+                      style: estiloFonteMonospace.copyWith(fontSize: 14),),
                   )).toList(), 
                   onChanged: (v) => setState(() => _selectedCategoria = v), 
                   validator: (v) => v == null ? 'Obrigatório' : null)),
