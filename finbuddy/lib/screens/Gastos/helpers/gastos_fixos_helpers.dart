@@ -79,7 +79,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   String? _selectedTipo, _selectedCartao, _selectedCategoria;
   int? _selectedParcelas;
   bool _isLoading = false;
-
+  bool _isFormValid = false;
   @override
   void initState() {
     super.initState();
@@ -90,6 +90,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     _selectedCartao = widget.cartaoId;
     _selectedCategoria = widget.categoriaId;
     _selectedParcelas = widget.parcelas;
+
+    _validateForm();
   }
 
   @override
@@ -97,6 +99,26 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     _nomeController.dispose();
     _valorController.dispose();
     super.dispose();
+  }
+
+  void _validateForm() {
+    final tipoAtual = _selectedTipo != null
+        ? widget.tiposPagamento.firstWhere(
+          (t) => t['id'] == _selectedTipo,
+      orElse: () => {},
+    )
+        : null;
+
+    final exigeCartao = tipoAtual?['UsaCartao'] == true;
+
+    setState(() {
+      _isFormValid =
+          _nomeController.text.trim().isNotEmpty &&
+              _valorController.text.trim().isNotEmpty &&
+              _selectedTipo != null &&
+              _selectedCategoria != null &&
+              (!exigeCartao || _selectedCartao != null);
+    });
   }
 
   Widget _buildDialogRow(String label, Widget child) {
@@ -120,11 +142,15 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     setState(() {
       _selectedTipo = value;
       if (value != null) {
-        final tipo = widget.tiposPagamento.firstWhere((t) => t['id'] == value, orElse: () => {});
+        final tipo = widget.tiposPagamento.firstWhere(
+              (t) => t['id'] == value,
+          orElse: () => {},
+        );
         if (tipo['Parcelavel'] != true) _selectedParcelas = 1;
         if (tipo['UsaCartao'] != true) _selectedCartao = null;
       }
     });
+    _validateForm(); // 👈 garante validação
   }
 
   Future<void> _salvarGasto() async {
@@ -180,7 +206,8 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     final tipoAtual = _selectedTipo != null ? widget.tiposPagamento.firstWhere((t) => t['id'] == _selectedTipo, orElse: () => {}) : null;
     final bool isParcelavel = tipoAtual?['Parcelavel'] == true;
     final bool exigeCartao = tipoAtual?['UsaCartao'] == true;
-    
+
+
     const inputDecoration = InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: OutlineInputBorder(),
@@ -209,42 +236,157 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                 ),
                 const SizedBox(height: 24),
 
-                _buildDialogRow('Título', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Valor', TextFormField(controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                
-                _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedTipo, 
-                  items: widget.tiposPagamento.map((t) => DropdownMenuItem<String>(
-                    value: t['id'], 
-                    child: Text(t['Nome'] ?? 'Sem nome')
-                  )).toList(), 
-                  onChanged: _onTipoPagamentoChanged, 
-                  validator: (v) => v == null ? 'Obrigatório' : null)),
+                // Campo título
+                _buildDialogRow(
+                  'Título',
+                  TextFormField(
+                    controller: _nomeController,
+                    decoration: inputDecoration,
+                    validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                    onChanged: (_) => _validateForm(), // <-- chama validação
+                  ),
+                ),
 
-                if (exigeCartao) _buildDialogRow('Selecione o cartão', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCartao, 
-                  items: widget.cartoes.map((c) => DropdownMenuItem<String>(
-                    value: c['id'], 
-                    child: Text(c['Nome'] ?? 'Sem nome')
-                  )).toList(), 
-                  onChanged: (v) => setState(() => _selectedCartao = v), 
-                  validator: (v) => v == null ? 'Obrigatório' : null)),
+                // Campo valor
+                _buildDialogRow(
+                  'Valor',
+                  TextFormField(
+                    controller: _valorController,
+                    decoration: inputDecoration,
+                    keyboardType: TextInputType.number,
+                    validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                    onChanged: (_) => _validateForm(), // <-- chama validação
+                  ),
+                ),
 
-                if (isParcelavel) _buildDialogRow('Número de parcelas', DropdownButtonFormField<int>(decoration: inputDecoration, value: _selectedParcelas, items: List.generate(24, (i) => i + 1).map((p) => DropdownMenuItem(value: p, child: Text('$p x'))).toList(), onChanged: (v) => setState(() => _selectedParcelas = v))),
-                
-                _buildDialogRow('Categoria', DropdownButtonFormField<String>(decoration: inputDecoration, value: _selectedCategoria, 
-                  items: widget.categorias.map((c) => DropdownMenuItem<String>(
-                    value: c['id'], 
-                    child: Text(c['Nome'] ?? 'Sem nome')
-                  )).toList(), 
-                  onChanged: (v) => setState(() => _selectedCategoria = v), 
-                  validator: (v) => v == null ? 'Obrigatório' : null)),
+                // Tipo de pagamento
+                _buildDialogRow(
+                  'Forma de pgto.',
+                  DropdownButtonFormField<String>(
+                    decoration: inputDecoration,
+                    value: _selectedTipo,
+                    items: widget.tiposPagamento.map((t) {
+                      return DropdownMenuItem<String>(
+                        value: t['id'],
+                        child: Text(
+                          t['nome'] ?? t['Nome'] ?? 'Sem nome',
+                          style: estiloFonteMonospace.copyWith(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: _onTipoPagamentoChanged,
+                    validator: (v) => v == null ? 'Obrigatório' : null,
+                  ),
+                ),
 
-                _buildDialogRow('Data do pgto.', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime(2000), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedDate = picked);}, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedDate), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
-                
+                // Se exige cartão
+                if (exigeCartao)
+                  _buildDialogRow(
+                    'Selecione o cartão',
+                    DropdownButtonFormField<String>(
+                      decoration: inputDecoration,
+                      value: _selectedCartao,
+                      items: widget.cartoes.map((c) {
+                        return DropdownMenuItem<String>(
+                          value: c['id'],
+                          child: Text(
+                            c['nome'] ?? c['Nome'] ?? 'Sem nome',
+                            style: estiloFonteMonospace.copyWith(fontSize: 14),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (v) {
+                        setState(() => _selectedCartao = v);
+                        _validateForm(); // <-- chama validação
+                      },
+                      validator: (v) => v == null ? 'Obrigatório' : null,
+                    ),
+                  ),
+
+                // Se parcelável
+                if (isParcelavel)
+                  _buildDialogRow(
+                    'Número de parcelas',
+                    DropdownButtonFormField<int>(
+                      decoration: inputDecoration,
+                      value: _selectedParcelas,
+                      items: List.generate(
+                        24,
+                            (i) => DropdownMenuItem(value: i + 1, child: Text('${i + 1}x')),
+                      ),
+                      onChanged: (v) => setState(() => _selectedParcelas = v),
+                    ),
+                  ),
+
+                // Categoria
+                _buildDialogRow(
+                  'Categoria',
+                  DropdownButtonFormField<String>(
+                    decoration: inputDecoration,
+                    value: _selectedCategoria,
+                    items: widget.categorias.map((c) {
+                      return DropdownMenuItem<String>(
+                        value: c['id'],
+                        child: Text(
+                          c['nome'] ?? c['Nome'] ?? 'Sem nome',
+                          style: estiloFonteMonospace.copyWith(fontSize: 14),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      setState(() => _selectedCategoria = v);
+                      _validateForm(); // <-- chama validação
+                    },
+                    validator: (v) => v == null ? 'Obrigatório' : null,
+                  ),
+                ),
+
+                // Data
+                _buildDialogRow(
+                  'Data do pgto.',
+                  InkWell(
+                    onTap: () async {
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) {
+                        setState(() => _selectedDate = picked);
+                        _validateForm(); // <-- chama validação
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        DateFormat('dd/MM/yyyy').format(_selectedDate),
+                        style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal),
+                      ),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
+
+                // Botão SALVAR
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: finBuddyLime, padding: const EdgeInsets.symmetric(vertical: 12)),
-                  onPressed: _isLoading ? null : _salvarGasto,
-                  child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: (!_isFormValid || _isLoading) ? null : _salvarGasto,
+                  child: _isLoading
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                  )
+                      : Text(
+                    'Salvar',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
                 ),
               ],
             ),

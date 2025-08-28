@@ -10,8 +10,8 @@ const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
-const Color corItemGasto = Color(0xFFE0D8B3); 
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corItemGasto = Color(0x89B9CD67);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -206,8 +206,32 @@ class _GastosFixosScreenState extends State<GastosFixosScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                onPressed: () => deleteGasto(context, id),
-              ),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Confirmar exclusão"),
+                      content: const Text("Você tem certeza que deseja deletar este gasto?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false), // Cancela
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true), // Confirma
+                          child: const Text("Deletar", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  // Só deleta se o usuário confirmou
+                  if (confirm == true) {
+                    await deleteGasto(context, id);
+                    if (mounted) setState(() {});
+                  }
+                },
+              )
             ],
           ),
         ],

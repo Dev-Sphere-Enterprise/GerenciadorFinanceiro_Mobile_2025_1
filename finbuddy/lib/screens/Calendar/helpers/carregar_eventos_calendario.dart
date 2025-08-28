@@ -33,6 +33,7 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
       eventos.putIfAbsent(date, () => []).add({
         'tipo': 'cartao',
         'descricao': '${doc['Nome']} $label - Fatura: R\$ $valorFormatado',
+        'valor': valor,
       });
     }
 
@@ -58,6 +59,7 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     eventos.putIfAbsent(date, () => []).add({
       'tipo': 'gasto',
       'descricao': '${doc['Nome']} - R\$ $valorFormatado',
+      'valor': valor,
     });
   }
 
@@ -80,6 +82,7 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     eventos.putIfAbsent(date, () => []).add({
       'tipo': 'gasto',
       'descricao': '${doc['Nome']} - R\$ $valorFormatado - $horaFormatada',
+      'valor': valor,
     });
   }
 
@@ -101,6 +104,7 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     eventos.putIfAbsent(date, () => []).add({
       'tipo': 'ganho',
       'descricao': '${doc['Nome']} - R\$ $valorFormatado',
+      'valor': valor,
     });
   }
 
@@ -123,6 +127,7 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     eventos.putIfAbsent(date, () => []).add({
       'tipo': 'ganho',
       'descricao': '${doc['Nome']} - R\$ $valorFormatado - $horaFormatada',
+      'valor': valor,
     });
   }
 

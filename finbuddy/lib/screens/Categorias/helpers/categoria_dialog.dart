@@ -17,6 +17,8 @@ Future<void> showCategoriaDialog(BuildContext context, {String? id, String? nome
   final formKey = GlobalKey<FormState>();
   final nomeController = TextEditingController(text: nome ?? '');
   bool isEditing = id != null;
+  bool _isFormValid = false;
+
 
   await showDialog(
     context: context,
@@ -25,7 +27,12 @@ Future<void> showCategoriaDialog(BuildContext context, {String? id, String? nome
       return StatefulBuilder(
         builder: (context, setState) {
           bool isLoading = false;
-
+          void _validateForm() {
+            setState(() {
+              _isFormValid =
+                  nomeController.text.trim().isNotEmpty;
+            });
+          }
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -62,6 +69,7 @@ Future<void> showCategoriaDialog(BuildContext context, {String? id, String? nome
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
+                            onChanged: (_) => _validateForm(),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'O nome é obrigatório.';
@@ -80,7 +88,7 @@ Future<void> showCategoriaDialog(BuildContext context, {String? id, String? nome
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      onPressed: isLoading ? null : () async {
+                      onPressed: (!_isFormValid || isLoading) ? null  : () async {
                         if (formKey.currentState!.validate()) {
                           setState(() { isLoading = true; });
 

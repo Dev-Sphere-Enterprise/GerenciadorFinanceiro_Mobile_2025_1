@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 duration: const Duration(milliseconds: 1500),
                 opacity: _opacity,
                 child: const Text(
-                  'FinBuddy',
+                  'Fin_Buddy',
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
                     fontSize: 48,
@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  'From DevSphere',
+                  'From DevSphere v0.5.0_beta',
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
                     fontSize: 14,

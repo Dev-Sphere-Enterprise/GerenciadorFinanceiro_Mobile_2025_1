@@ -8,9 +8,10 @@ import 'helpers/util_cor_evento.dart';
 
 const Color finBuddyLime = Color(0xFFC4E03B);
 const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyBlueSelectedday = Color(0x5F3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -52,7 +53,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   List<Map<String, dynamic>> _getEventosDoDia(DateTime dia) {
-    return _eventos[DateTime.utc(dia.year, dia.month, dia.day)] ?? [];
+    final date = DateTime(dia.year, dia.month, dia.day); // sem UTC
+    return _eventos[date] ?? [];
   }
 
   @override
@@ -127,7 +129,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           shape: BoxShape.circle,
         ),
         selectedDecoration: const BoxDecoration(
-          color: finBuddyBlue,
+          color: finBuddyBlueSelectedday,
           shape: BoxShape.circle,
         ),
         todayTextStyle: estiloFonteMonospace.copyWith(color: finBuddyDark),

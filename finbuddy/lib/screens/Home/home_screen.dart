@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Profile/profile_screen.dart';
 import '../Calendar/calendar_screen.dart';
@@ -13,8 +14,8 @@ const Color finBuddyLime = Color(0xFFC4E03B);
 const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
-const Color corCardSaldo = Color(0xFFE0D8B3);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corCardSaldo = Color(0x89B9CD67);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -34,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final NotificationService _notificationService = NotificationService();
   final TransactionService _transactionService = TransactionService();
 
-  bool _isBalanceVisible = false;
+  bool _isBalanceVisibleSaldo = false;
+  bool _isBalanceVisibleGasto = false;
   late Future<Map<String, double>> _balanceData;
 
   @override
@@ -53,11 +55,88 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  Future<double> getGastosTotais() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return 0.0;
+    }
+
+    final gastosSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('gastos_fixos')
+        .where('Deletado', isEqualTo: false)
+        .get();
+
+    double totalGasto = 0.0;
+    for (var doc in gastosSnapshot.docs) {
+      // Correção: Converte o valor para double com segurança
+      totalGasto += (doc.data()['Valor'] as num).toDouble();
+    }
+
+    return totalGasto;
+  }
+
+  Future<double> getSaldo() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return 0.0;
+    }
+
+    final ganhosSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('ganhos_fixos')
+        .where('Deletado', isEqualTo: false)
+        .get();
+
+    double totalGanho = 0.0;
+    for (var doc in ganhosSnapshot.docs) {
+      // Correção: Converte o valor para double com segurança
+      totalGanho += (doc.data()['Valor'] as num).toDouble();
+    }
+
+    return totalGanho;
+  }
+
+  Future<double> getGasto() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return 0.0;
+    }
+
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
+
+    final gastosSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('gastos_fixos')
+        .where('Data_Compra', isGreaterThanOrEqualTo: startOfMonth)
+        .where('Data_Compra', isLessThanOrEqualTo: endOfMonth)
+        .where('Deletado', isEqualTo: false)
+        .get();
+
+    double totalGasto = 0.0;
+    for (var doc in gastosSnapshot.docs) {
+      // Correção: Converte o valor para double com segurança
+      totalGasto += (doc.data()['Valor'] as num).toDouble();
+    }
+
+    return totalGasto;
+  }
+
   Future<Map<String, double>> _fetchBalanceData() async {
-    await Future.delayed(const Duration(seconds: 2)); 
+    final totalGanho = await getSaldo();
+    final totalGasto = await getGasto();
+    final totalGastosTotais = await getGastosTotais();
+
+    final saldoFinal = totalGanho - totalGastosTotais;
+
     return {
-      'saldo': 1500.00,
-      'gastos': 50.00,
+      'saldo': saldoFinal,
+      'gastos': totalGasto,
     };
   }
 
@@ -152,21 +231,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Saldo atual: ${_isBalanceVisible ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
+                    'Saldo atual: ${_isBalanceVisibleSaldo ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
                     style: estiloFonteMonospace.copyWith(fontSize: 16),
                   ),
                   IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: Icon(_isBalanceVisible ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
-                    onPressed: () => setState(() => _isBalanceVisible = !_isBalanceVisible),
+                    icon: Icon(_isBalanceVisibleSaldo ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
+                    onPressed: () => setState(() => _isBalanceVisibleSaldo = !_isBalanceVisibleSaldo),
                   )
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                'Gastos do mês: R\$ ${gastos.toStringAsFixed(2)}',
-                style: estiloFonteMonospace.copyWith(fontSize: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Gastos do mês: ${_isBalanceVisibleGasto ? "R\$ ${gastos.toStringAsFixed(2)}" : "R\$ ---"}',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: Icon(
+                      _isBalanceVisibleGasto
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: finBuddyDark,
+                    ),
+                    onPressed: () => setState(
+                          () => _isBalanceVisibleGasto = !_isBalanceVisibleGasto,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

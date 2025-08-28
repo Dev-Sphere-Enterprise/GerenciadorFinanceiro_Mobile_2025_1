@@ -59,6 +59,7 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
   late DateTime _selectedFechamento;
   late DateTime _selectedVencimento;
   bool _isLoading = false;
+  bool _isFormValid = false;
 
   @override
   void initState() {
@@ -68,6 +69,7 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
     _limiteController = TextEditingController(text: widget.limiteCredito?.toStringAsFixed(2).replaceAll('.', ','));
     _selectedFechamento = widget.dataFechamento ?? DateTime.now();
     _selectedVencimento = widget.dataVencimento ?? DateTime.now();
+    _validateForm();
   }
 
   @override
@@ -76,6 +78,16 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
     _valorFaturaController.dispose();
     _limiteController.dispose();
     super.dispose();
+  }
+  void _validateForm() {
+    setState(() {
+      _isFormValid =
+          _nomeController.text.trim().isNotEmpty &&
+              _valorFaturaController.text.trim().isNotEmpty &&
+              _limiteController.text.trim().isNotEmpty &&
+              _selectedFechamento != null &&
+              _selectedVencimento != null;
+    });
   }
 
   Future<void> _salvarCartao() async {
@@ -171,17 +183,30 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
                 ),
                 const SizedBox(height: 24),
 
-                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Fatura (R\$):', TextFormField(controller: _valorFaturaController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Limite (R\$):', TextFormField(controller: _limiteController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Fechamento:', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedFechamento, firstDate: DateTime(2000), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedFechamento = picked);}, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedFechamento), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
-                _buildDialogRow('Vencimento:', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedVencimento, firstDate: DateTime(2000), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedVencimento = picked);}, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedVencimento), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
-                
+                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null, onChanged: (_) => _validateForm(),)),
+                _buildDialogRow('Fatura (R\$):', TextFormField(controller: _valorFaturaController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null,onChanged: (_) => _validateForm(),)),
+                _buildDialogRow('Limite (R\$):', TextFormField(controller: _limiteController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null, onChanged: (_) => _validateForm(),)),
+                _buildDialogRow('Fechamento:', InkWell(onTap: () async {
+                  DateTime? picked = await showDatePicker(context: context, initialDate: _selectedFechamento, firstDate: DateTime(2000), lastDate: DateTime(2100));
+                  if (picked != null) setState(() => _selectedFechamento = picked); _validateForm();},
+                  child: Container(padding: const EdgeInsets.symmetric(vertical: 8),
+                      alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedFechamento),
+                          style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal,))))),
+                _buildDialogRow('Vencimento:', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedVencimento, firstDate: DateTime(2000), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedVencimento = picked);_validateForm();}, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedVencimento), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
+
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: finBuddyLime, padding: const EdgeInsets.symmetric(vertical: 12)),
-                  onPressed: _isLoading ? null : _salvarCartao,
-                  child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: (!_isFormValid || _isLoading) ? null : _salvarCartao,
+                  child: _isLoading
+                      ? const SizedBox(
+                    height: 20, width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                  )
+                      : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
                 ),
               ],
             ),

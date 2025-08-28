@@ -10,8 +10,8 @@ const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
-
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corItem = Color(0x89B9CD67);
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
   fontWeight: FontWeight.bold,
@@ -161,7 +161,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
               decoration: BoxDecoration(
-                color: finBuddyLime,
+                color: corItem,
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Text(
@@ -171,11 +171,14 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
               ),
             ),
           ),
-          if (!isGeneral)
-            Row(
+          // Adiciona um SizedBox fixo para garantir a mesma largura para todos os itens
+          SizedBox(
+            width: 96, // Largura total dos botões ou do espaço vazio
+            child: !isGeneral
+                ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(width: 8),
+                const SizedBox(width: 8), // Pequeno espaçamento
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
                   onPressed: () async {
@@ -185,12 +188,34 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                  onPressed: () => _confirmDelete(id, nome),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text("Confirmar exclusão"),
+                        content: const Text("Você tem certeza que deseja deletar esta categoria?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text("Cancelar"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text("Deletar", style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      await _confirmDelete(id, nome);
+                      if (mounted) setState(() {});
+                    }
+                  },
                 ),
               ],
             )
-          else
-            const SizedBox(width: 96),
+                : const SizedBox.shrink(), // Usa um widget invisível que ocupa zero espaço
+          ),
         ],
       ),
     );

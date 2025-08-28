@@ -246,7 +246,30 @@ class _CartoesScreenState extends State<CartoesScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                onPressed: () => deleteCartao(context, id),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Confirmar exclusão"),
+                      content: const Text("Você tem certeza que deseja deletar este Cartão?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Deletar", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    await  deleteCartao(context, id);
+                    if (mounted) setState(() {});
+                  }
+                },
               ),
             ],
           ),

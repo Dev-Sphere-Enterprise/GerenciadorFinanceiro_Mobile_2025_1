@@ -10,8 +10,8 @@ const Color finBuddyLime = Color(0xFFC4E03B);
 const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
 const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0xFFFAF3DD);
-const Color corItemMeta = Color(0xFFE0D8B3);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corItemMeta = Color(0x89B9CD67);
 
 const TextStyle estiloFonteMonospace = TextStyle(
   fontFamily: 'monospace',
@@ -146,7 +146,7 @@ class _MetasScreenState extends State<MetasScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
             child: Container(
@@ -196,6 +196,12 @@ class _MetasScreenState extends State<MetasScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
+                icon: const Icon(Icons.attach_money, color: finBuddyDark),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => TelaAportes(metaId: doc.id, valorAtual: valorAtual),
+                )),
+              ),
+              IconButton(
                 icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
                 onPressed: () async {
                   await _helper.addOrEditMeta(
@@ -210,14 +216,35 @@ class _MetasScreenState extends State<MetasScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                onPressed: () => deleteMeta(doc.id),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Confirmar exclusão"),
+                      content: const Text("Você tem certeza que deseja deletar esta meta?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false), // cancela
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true), // confirma
+                          child: const Text(
+                            "Deletar",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    await deleteMeta(doc.id);
+                    if (mounted) setState(() {}); // caso precise atualizar a tela
+                  }
+                },
               ),
-              IconButton(
-                icon: const Icon(Icons.attach_money, color: finBuddyDark),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => TelaAportes(metaId: doc.id, valorAtual: valorAtual),
-                )),
-              ),
+
             ],
           ),
         ],

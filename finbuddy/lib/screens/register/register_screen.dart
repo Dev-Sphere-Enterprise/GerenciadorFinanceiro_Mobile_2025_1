@@ -24,10 +24,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool isLoading = false;
   String? errorMessage;
+  bool isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listeners extras para garantir revalidação a cada mudança
+    nameController.addListener(_validateForm);
+    dobController.addListener(_validateForm);
+    emailController.addListener(_validateForm);
+    passwordController.addListener(_validateForm);
+    confirmPasswordController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    final name = nameController.text.trim();
+    final dob = dobController.text.trim();
+    final email = emailController.text.trim();
+    final pass = passwordController.text.trim();
+    final confirm = confirmPasswordController.text.trim();
+
+    final allFilled = name.isNotEmpty && dob.isNotEmpty && email.isNotEmpty && pass.isNotEmpty && confirm.isNotEmpty;
+    final passwordsMatch = pass == confirm;
+
+    final nextValid = allFilled && passwordsMatch;
+
+    if (nextValid != isFormValid) {
+      setState(() => isFormValid = nextValid);
+    }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    dobController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     const textStyle = TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark);
+
+    final passwordsMismatch = passwordController.text.trim().isNotEmpty &&
+        confirmPasswordController.text.trim().isNotEmpty &&
+        passwordController.text.trim() != confirmPasswordController.text.trim();
 
     return Scaffold(
       backgroundColor: finBuddyLime,
@@ -55,8 +98,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: nameController,
                   decoration: _inputDecoration('Nome Completo'),
                   style: textStyle,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) => _validateForm(),
                 ),
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: dobController,
                   readOnly: true,
@@ -65,26 +111,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onTap: () => _selectDate(context),
                 ),
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: emailController,
                   decoration: _inputDecoration('Email'),
                   style: textStyle,
                   keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) => _validateForm(),
                 ),
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: passwordController,
                   decoration: _inputDecoration('Senha'),
                   obscureText: true,
                   style: textStyle,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (_) => _validateForm(),
                 ),
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: confirmPasswordController,
                   decoration: _inputDecoration('Confirmar Senha'),
                   obscureText: true,
                   style: textStyle,
+                  onChanged: (_) => _validateForm(),
                 ),
+
+                if (passwordsMismatch)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'As senhas não coincidem.',
+                      style: textStyle.copyWith(color: Colors.red[700], fontSize: 12),
+                    ),
+                  ),
+
                 const SizedBox(height: 8),
                 if (errorMessage != null)
                   Padding(
@@ -100,8 +164,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 isLoading
                     ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
                     : ElevatedButton(
-                  style: _buttonStyle(backgroundColor: finBuddyBlue),
-                  onPressed: () {
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (states) => states.contains(MaterialState.disabled)
+                          ? finBuddyBlue.withOpacity(0.5)
+                          : finBuddyBlue,
+                    ),
+                    padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  onPressed: isFormValid
+                      ? () {
                     registerWithEmail(
                       context: context,
                       nameController: nameController,
@@ -112,7 +187,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       setLoading: (value) => setState(() => isLoading = value),
                       setErrorMessage: (msg) => setState(() => errorMessage = msg),
                     );
-                  },
+                  }
+                      : null,
                   child: const Text(
                     'CRIAR CONTA',
                     style: TextStyle(
@@ -123,14 +199,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
                 ElevatedButton.icon(
                   style: _buttonStyle(backgroundColor: Colors.white),
-                  onPressed: () {
-                    registerWithGoogle(
-                      context: context,
-                      setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                    );
-                  },
+                  //onPressed: () {
+                  //  registerWithGoogle(
+                  //    context: context,
+                  //    setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                  //  );
+                  //},
+                  onPressed: null,
                   icon: SvgPicture.asset('assets/svg/google.svg', height: 20.0),
                   label: Text(
                     'Registrar com Google',
@@ -138,6 +216,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
                 TextButton(
                   onPressed: () {
                     Navigator.pushReplacement(
@@ -180,9 +259,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       },
     );
     if (picked != null) {
-      setState(() {
-        dobController.text = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-      });
+      dobController.text =
+      "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+      _validateForm(); // garante revalidação imediata após escolher a data
     }
   }
 
@@ -207,9 +286,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return ElevatedButton.styleFrom(
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 }

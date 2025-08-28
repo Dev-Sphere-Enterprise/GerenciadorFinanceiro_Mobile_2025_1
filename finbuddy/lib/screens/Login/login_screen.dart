@@ -21,10 +21,37 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   String? errorMessage;
+  bool isFormValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    emailController.addListener(_validateForm);
+    passwordController.addListener(_validateForm);
+  }
+
+  void _validateForm() {
+    setState(() {
+      isFormValid =
+          emailController.text.trim().isNotEmpty &&
+              passwordController.text.trim().isNotEmpty;
+    });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark);
+    const textStyle = TextStyle(
+      fontFamily: 'JetBrainsMono',
+      color: finBuddyDark,
+    );
 
     return Scaffold(
       backgroundColor: finBuddyLime,
@@ -67,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: textStyle,
               ),
               const SizedBox(height: 8),
+
               if (errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -79,16 +107,28 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
 
               isLoading
-                  ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
+                  ? const Center(
+                child: CircularProgressIndicator(color: finBuddyDark),
+              )
                   : ElevatedButton(
-                style: _buttonStyle(backgroundColor: finBuddyBlue),
-                onPressed: () => loginWithEmail(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: finBuddyBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: isFormValid
+                    ? () => loginWithEmail(
                   context: context,
                   emailController: emailController,
                   passwordController: passwordController,
-                  setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                  setLoading: (value) => setState(() => isLoading = value),
-                ),
+                  setErrorMessage: (msg) =>
+                      setState(() => errorMessage = msg),
+                  setLoading: (value) =>
+                      setState(() => isLoading = value),
+                )
+                    : null, // <-- aqui o botão fica desabilitado
                 child: const Text(
                   'ENTRAR',
                   style: TextStyle(
@@ -99,12 +139,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
               ElevatedButton.icon(
                 style: _buttonStyle(backgroundColor: Colors.white),
-                onPressed: () => loginWithGoogle(
-                  setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                ),
+                //onPressed: () => loginWithGoogle(
+                //  setErrorMessage: (msg) => setState(() => errorMessage = msg),
+                //),
+                onPressed: null,
                 icon: SvgPicture.asset(
                   'assets/svg/google.svg',
                   height: 20.0,
@@ -125,7 +165,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Text(
                   'Criar conta',
-                  style: textStyle.copyWith(decoration: TextDecoration.underline),
+                  style: textStyle.copyWith(
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ],
@@ -138,7 +180,10 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark),
+      labelStyle: const TextStyle(
+        fontFamily: 'JetBrainsMono',
+        color: finBuddyDark,
+      ),
       filled: true,
       fillColor: Colors.white.withOpacity(0.8),
       border: OutlineInputBorder(

@@ -7,6 +7,20 @@ import 'helpers/add_edit_aporte_dialog.dart';
 import 'helpers/delete_aporte.dart';
 import 'helpers/atualizar_valor_meta.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+const Color corFundoScaffold = Color(0xFFF0F4F8);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corItemGasto = Color(0x89B9CD67);
+
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
+);
+
+
 class TelaAportes extends StatefulWidget {
   final String metaId;
   final double valorAtual;
@@ -45,70 +59,180 @@ class _TelaAportesState extends State<TelaAportes> {
         .where('Deletado', isEqualTo: false);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Aportes da Meta')),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: aportesRef.snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+      backgroundColor: corFundoScaffold,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: finBuddyLime,
+        title: Text(
+          'Fin_Buddy',
+          style: estiloFonteMonospace.copyWith(
+            color: finBuddyBlue,
+            fontSize: 22,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: corCardPrincipal,
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Aportes da Meta',
+                  textAlign: TextAlign.center,
+                  style: estiloFonteMonospace.copyWith(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: aportesRef.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                          child: Text('Nenhum aporte cadastrado.', style: estiloFonteMonospace),
+                        );
+                      }
 
-          final docs = snapshot.data!.docs;
-          if (docs.isEmpty) return const Center(child: Text('Nenhum aporte cadastrado.'));
-
-          return ListView.builder(
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final aporte = docs[index];
-              final valor = aporte['Valor'] ?? 0.0;
-              final data = (aporte['Data_Aporte'] as Timestamp?)?.toDate();
-
-              return Card(
-                child: ListTile(
-                  title: Text("R\$ ${valor.toStringAsFixed(2)}"),
-                  subtitle: Text("Data: ${data != null ? DateFormat('dd/MM/yyyy').format(data) : '---'}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => showAddOrEditAporteDialog(
-                          context: context,
-                          firestore: _firestore,
-                          currentUser: currentUser!,
-                          metaId: widget.metaId,
-                          atualizarValorMeta: _atualizarMeta,
-                          id: aporte.id,
-                          valor: valor.toDouble(),
-                          data: data,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => deleteAporte(
-                          firestore: _firestore,
-                          currentUser: currentUser!,
-                          metaId: widget.metaId,
-                          aporteId: aporte.id,
-                          atualizarValorMeta: _atualizarMeta,
-                        ),
-                      )
-                    ],
+                      final docs = snapshot.data!.docs;
+                      return ListView.builder(
+                        itemCount: docs.length,
+                        itemBuilder: (context, index) {
+                          return _buildAporteItem(docs[index]);
+                        },
+                      );
+                    },
                   ),
                 ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showAddOrEditAporteDialog(
-          context: context,
-          firestore: _firestore,
-          currentUser: currentUser!,
-          metaId: widget.metaId,
-          atualizarValorMeta: _atualizarMeta,
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () => showAddOrEditAporteDialog(
+                    context: context,
+                    firestore: _firestore,
+                    currentUser: currentUser!,
+                    metaId: widget.metaId,
+                    atualizarValorMeta: _atualizarMeta,
+                  ),
+                  child: Text(
+                    'Adicionar Aporte',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        label: const Text('Novo Aporte'),
-        icon: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildAporteItem(DocumentSnapshot doc) {
+    final aporte = doc.data() as Map<String, dynamic>;
+    final id = doc.id;
+    final valor = (aporte['Valor'] ?? 0.0).toDouble();
+    final dataAporte = aporte['Data_Aporte'] != null
+        ? (aporte['Data_Aporte'] as Timestamp).toDate()
+        : null;
+
+    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final formatadorData = DateFormat('dd/MM/yyyy');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: corItemGasto,
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Valor: ${formatadorMoeda.format(valor)}',
+                    style: estiloFonteMonospace.copyWith(fontSize: 18),
+                  ),
+                  if (dataAporte != null)
+                    Text(
+                      'Data: ${formatadorData.format(dataAporte)}',
+                      style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
+                onPressed: () => showAddOrEditAporteDialog(
+                  context: context,
+                  firestore: _firestore,
+                  currentUser: currentUser!,
+                  metaId: widget.metaId,
+                  atualizarValorMeta: _atualizarMeta,
+                  id: id,
+                  valor: valor,
+                  data: dataAporte,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: finBuddyDark),
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Confirmar exclusão"),
+                      content: const Text("Você tem certeza que deseja deletar este aporte?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancelar"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Deletar", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    await deleteAporte(
+                      firestore: _firestore,
+                      currentUser: currentUser!,
+                      metaId: widget.metaId,
+                      aporteId: id,
+                      atualizarValorMeta: _atualizarMeta,
+                    );
+                    if (mounted) setState(() {});
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

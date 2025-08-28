@@ -56,13 +56,30 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
   late TextEditingController _valorObjetivoController;
   late DateTime _selectedDate;
   bool _isLoading = false;
+  bool _isFormValid = false;
 
   @override
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.nome);
-    _valorObjetivoController = TextEditingController(text: widget.valorObjetivo?.toStringAsFixed(2).replaceAll('.', ','));
+    _valorObjetivoController = TextEditingController(
+      text: widget.valorObjetivo?.toStringAsFixed(2).replaceAll('.', ','),
+    );
     _selectedDate = widget.dataLimite ?? DateTime.now();
+
+    // Adiciona listeners para validar formulário em tempo real
+    _nomeController.addListener(_validateForm);
+    _valorObjetivoController.addListener(_validateForm);
+
+    _validateForm();
+  }
+
+  void _validateForm() {
+    setState(() {
+      _isFormValid = _nomeController.text.trim().isNotEmpty &&
+          _valorObjetivoController.text.trim().isNotEmpty &&
+          _selectedDate != null;
+    });
   }
 
   @override
@@ -74,15 +91,18 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
 
   Future<void> _salvarMeta() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) throw Exception("Usuário não autenticado.");
 
-      final valor = double.tryParse(_valorObjetivoController.text.replaceAll(',', '.')) ?? 0.0;
-      
+      final valor = double.tryParse(
+        _valorObjetivoController.text.replaceAll(',', '.'),
+      ) ??
+          0.0;
+
       final dataMap = {
         'Nome': _nomeController.text.trim(),
         'Valor_Objetivo': valor,
@@ -91,7 +111,10 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
         'Data_Atualizacao': Timestamp.now(),
       };
 
-      final metasRef = FirebaseFirestore.instance.collection('users').doc(currentUser.uid).collection('metas');
+      final metasRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('metas');
 
       if (widget.id == null) {
         dataMap['Valor_Atual'] = 0.0;
@@ -102,11 +125,13 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
       }
 
       if (mounted) Navigator.of(context).pop();
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar meta: ${e.toString()}'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Erro ao salvar meta: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -122,7 +147,10 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label, style: estiloFonteMonospace.copyWith(fontSize: 14)),
+            child: Text(
+              label,
+              style: estiloFonteMonospace.copyWith(fontSize: 14),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(child: child),
@@ -135,9 +163,9 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
   Widget build(BuildContext context) {
     final bool isEditing = widget.id != null;
     const inputDecoration = InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        border: OutlineInputBorder(),
-        isDense: true,
+      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      border: OutlineInputBorder(),
+      isDense: true,
     );
 
     return Dialog(
@@ -161,15 +189,82 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
                   style: estiloFonteMonospace.copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 24),
-                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Objetivo (R\$):', TextFormField(controller: _valorObjetivoController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Data Limite:', InkWell(onTap: () async { DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime.now(), lastDate: DateTime(2100)); if (picked != null) setState(() => _selectedDate = picked);}, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedDate), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
-                
+
+                // Nome
+                _buildDialogRow(
+                  'Nome:',
+                  TextFormField(
+                    controller: _nomeController,
+                    decoration: inputDecoration,
+                    validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                  ),
+                ),
+
+                // Valor Objetivo
+                _buildDialogRow(
+                  'Objetivo (R\$):',
+                  TextFormField(
+                    controller: _valorObjetivoController,
+                    decoration: inputDecoration,
+                    keyboardType: TextInputType.number,
+                    validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                  ),
+                ),
+
+                // Data Limite
+                _buildDialogRow(
+                  'Data Limite:',
+                  InkWell(
+                    onTap: () async {
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _selectedDate = picked;
+                          _validateForm();
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        DateFormat('dd/MM/yyyy').format(_selectedDate),
+                        style: estiloFonteMonospace.copyWith(
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
+
+                // Botão Salvar
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: finBuddyLime, padding: const EdgeInsets.symmetric(vertical: 12)),
-                  onPressed: _isLoading ? null : _salvarMeta,
-                  child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: finBuddyLime,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed:
+                  (!_isFormValid || _isLoading) ? null : _salvarMeta,
+                  child: _isLoading
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                      : Text(
+                    'Salvar',
+                    style: estiloFonteMonospace.copyWith(fontSize: 16),
+                  ),
                 ),
               ],
             ),
