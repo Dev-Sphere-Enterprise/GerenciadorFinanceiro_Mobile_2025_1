@@ -24,7 +24,9 @@ Future<void> showAddOrEditAporteDialog({
   double? valor,
   DateTime? data,
 }) async {
-  final valorController = TextEditingController(text: valor?.toString().replaceAll('.', ',') ?? '');
+  final valorController = TextEditingController(
+    text: valor?.toString().replaceAll('.', ',') ?? '',
+  );
   DateTime selectedDate = data ?? DateTime.now();
   final isEditing = id != null;
   final formKey = GlobalKey<FormState>();
@@ -35,6 +37,16 @@ Future<void> showAddOrEditAporteDialog({
       return StatefulBuilder(
         builder: (context, setModalState) {
           bool isLoading = false;
+          bool isFormValid =
+              valorController.text.trim().isNotEmpty && selectedDate != null;
+
+          // Listener para atualizar a validade do formulário
+          valorController.addListener(() {
+            setModalState(() {
+              isFormValid =
+                  valorController.text.trim().isNotEmpty && selectedDate != null;
+            });
+          });
 
           const inputDecoration = InputDecoration(
             contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -48,7 +60,10 @@ Future<void> showAddOrEditAporteDialog({
               children: [
                 SizedBox(
                   width: 100,
-                  child: Text('$label:', style: estiloFonteMonospace.copyWith(fontSize: 14)),
+                  child: Text(
+                    '$label:',
+                    style: estiloFonteMonospace.copyWith(fontSize: 14),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(child: child),
@@ -77,16 +92,21 @@ Future<void> showAddOrEditAporteDialog({
                         style: estiloFonteMonospace.copyWith(fontSize: 18),
                       ),
                       const SizedBox(height: 24),
+
+                      // Campo Valor
                       buildDialogRow(
                         'Valor',
                         TextFormField(
                           controller: valorController,
                           decoration: inputDecoration,
                           keyboardType: TextInputType.number,
-                          validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                          validator: (v) =>
+                          v!.isEmpty ? 'Obrigatório' : null,
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Campo Data
                       buildDialogRow(
                         'Data',
                         InkWell(
@@ -98,7 +118,13 @@ Future<void> showAddOrEditAporteDialog({
                               lastDate: DateTime(2100),
                             );
                             if (picked != null) {
-                              setModalState(() => selectedDate = picked);
+                              setModalState(() {
+                                selectedDate = picked;
+                                isFormValid = valorController.text
+                                    .trim()
+                                    .isNotEmpty &&
+                                    selectedDate != null;
+                              });
                             }
                           },
                           child: Container(
@@ -106,12 +132,16 @@ Future<void> showAddOrEditAporteDialog({
                             alignment: Alignment.centerLeft,
                             child: Text(
                               DateFormat('dd/MM/yyyy').format(selectedDate),
-                              style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal),
+                              style: estiloFonteMonospace.copyWith(
+                                fontWeight: FontWeight.normal,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 24),
+
+                      // Botão Salvar
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: finBuddyLime,
@@ -120,17 +150,27 @@ Future<void> showAddOrEditAporteDialog({
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        onPressed: isLoading ? null : () async {
+                        onPressed: (!isFormValid || isLoading)
+                            ? null
+                            : () async {
                           if (formKey.currentState!.validate()) {
                             setModalState(() => isLoading = true);
                             try {
-                              final valorFinal = double.tryParse(valorController.text.trim().replaceAll(',', '.')) ?? 0.0;
+                              final valorFinal = double.tryParse(
+                                valorController.text
+                                    .trim()
+                                    .replaceAll(',', '.'),
+                              ) ??
+                                  0.0;
+
                               final dataMap = {
                                 'Valor': valorFinal,
-                                'Data_Aporte': Timestamp.fromDate(selectedDate),
+                                'Data_Aporte':
+                                Timestamp.fromDate(selectedDate),
                                 'Deletado': false,
                                 'Data_Atualizacao': Timestamp.now(),
                               };
+
                               final ref = firestore
                                   .collection('users')
                                   .doc(currentUser.uid)
@@ -139,17 +179,24 @@ Future<void> showAddOrEditAporteDialog({
                                   .collection('aportes_meta');
 
                               if (id == null) {
-                                dataMap['Data_Criacao'] = Timestamp.now();
+                                dataMap['Data_Criacao'] =
+                                    Timestamp.now();
                                 await ref.add(dataMap);
                               } else {
                                 await ref.doc(id).update(dataMap);
                               }
+
                               await atualizarValorMeta();
                               if (context.mounted) Navigator.pop(context);
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Erro ao salvar: ${e.toString()}'), backgroundColor: Colors.red),
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'Erro ao salvar: ${e.toString()}'),
+                                    backgroundColor: Colors.red,
+                                  ),
                                 );
                               }
                             } finally {
@@ -163,10 +210,18 @@ Future<void> showAddOrEditAporteDialog({
                             ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
                         )
-                            : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
-                      )
+                            : Text(
+                          'Salvar',
+                          style: estiloFonteMonospace.copyWith(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

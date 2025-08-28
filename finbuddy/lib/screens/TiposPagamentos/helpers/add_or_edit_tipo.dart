@@ -52,18 +52,27 @@ class _TipoDialogContentState extends State<_TipoDialogContent> {
   late bool _isUsaCartao;
   bool _isLoading = false;
 
+  bool _isFormValid = false;
+
   @override
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.nome ?? '');
     _isParcelavel = widget.parcelavel ?? false;
     _isUsaCartao = widget.usaCartao ?? false;
+    _validateForm();
   }
 
   @override
   void dispose() {
     _nomeController.dispose();
     super.dispose();
+  }
+  void _validateForm() {
+    setState(() {
+      _isFormValid =
+          _nomeController.text.trim().isNotEmpty;
+    });
   }
 
   Future<void> _salvarTipo() async {
@@ -159,7 +168,9 @@ class _TipoDialogContentState extends State<_TipoDialogContent> {
                   controller: _nomeController,
                   decoration: inputDecoration,
                   validator: (value) => value == null || value.trim().isEmpty ? 'Obrigatório' : null,
+                  onChanged: (_) => _validateForm(),
                 ),
+
               ),
               _buildDialogRow(
                 'É Parcelável?',
@@ -189,7 +200,7 @@ class _TipoDialogContentState extends State<_TipoDialogContent> {
                   backgroundColor: finBuddyLime,
                   padding: const EdgeInsets.symmetric(vertical: 12)
                 ),
-                onPressed: _isLoading ? null : _salvarTipo,
+                onPressed: (!_isFormValid || _isLoading) ? null : _salvarTipo,
                 child: _isLoading 
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) 
                   : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),

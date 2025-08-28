@@ -58,7 +58,8 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
   void initState() {
     super.initState();
     _nomeController = TextEditingController(text: widget.nome);
-    _valorController = TextEditingController(text: widget.valor?.toStringAsFixed(2).replaceAll('.', ','));
+    _valorController = TextEditingController(
+        text: widget.valor?.toStringAsFixed(2).replaceAll('.', ','));
     _selectedDate = widget.data ?? DateTime.now();
   }
 
@@ -78,8 +79,9 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) throw Exception("Usuário não autenticado.");
 
-      final valor = double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
-      
+      final valor = double.tryParse(
+          _valorController.text.replaceAll(',', '.')) ?? 0.0;
+
       final dataMap = {
         'Nome': _nomeController.text.trim(),
         'Valor': valor,
@@ -102,7 +104,6 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
       }
 
       if (mounted) Navigator.of(context).pop();
-
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -116,7 +117,7 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-  
+
   Widget _buildDialogRow(String label, Widget child) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -125,7 +126,8 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
         children: [
           SizedBox(
             width: 100,
-            child: Text(label, style: estiloFonteMonospace.copyWith(fontSize: 14)),
+            child: Text(
+                label, style: estiloFonteMonospace.copyWith(fontSize: 14)),
           ),
           const SizedBox(width: 10),
           Expanded(child: child),
@@ -138,9 +140,9 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
   Widget build(BuildContext context) {
     final bool isEditing = widget.id != null;
     const inputDecoration = InputDecoration(
-        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        border: OutlineInputBorder(),
-        isDense: true,
+      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      border: OutlineInputBorder(),
+      isDense: true,
     );
 
     return Dialog(
@@ -154,42 +156,114 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  isEditing ? 'Editar Ganho Fixo' : 'Adicionar Ganho Fixo',
-                  textAlign: TextAlign.center,
-                  style: estiloFonteMonospace.copyWith(fontSize: 18),
-                ),
-                const SizedBox(height: 24),
-                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Valor (R\$):', TextFormField(controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Data:', InkWell(
-                  onTap: () async { 
-                    DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime(2000), lastDate: DateTime(2100)); 
-                    if (picked != null) setState(() => _selectedDate = picked);
-                  }, 
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8), 
-                    alignment: Alignment.centerLeft, 
-                    child: Text(
-                      DateFormat('dd/MM/yyyy').format(_selectedDate), 
-                      style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal)
-                    )
-                  )
-                )),
-                
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: finBuddyLime, padding: const EdgeInsets.symmetric(vertical: 12)),
-                  onPressed: _isLoading ? null : _salvarGanho,
-                  child: _isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white)) 
-                    : Text('Salvar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
-                ),
-              ],
+            child: StatefulBuilder( // precisa do StatefulBuilder para atualizar dentro do dialog
+              builder: (context, setDialogState) {
+                bool _isFormValid = _nomeController.text
+                    .trim()
+                    .isNotEmpty &&
+                    _valorController.text
+                        .trim()
+                        .isNotEmpty &&
+                    _selectedDate != null;
+
+                void _validateForm() {
+                  setDialogState(() {});
+                }
+
+                // adiciona listeners
+                _nomeController.addListener(_validateForm);
+                _valorController.addListener(_validateForm);
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      isEditing ? 'Editar Ganho Fixo' : 'Adicionar Ganho Fixo',
+                      textAlign: TextAlign.center,
+                      style: estiloFonteMonospace.copyWith(fontSize: 18),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Nome
+                    _buildDialogRow(
+                      'Nome:',
+                      TextFormField(
+                        controller: _nomeController,
+                        decoration: inputDecoration,
+                        validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                      ),
+                    ),
+
+                    // Valor
+                    _buildDialogRow(
+                      'Valor (R\$):',
+                      TextFormField(
+                        controller: _valorController,
+                        decoration: inputDecoration,
+                        keyboardType: TextInputType.number,
+                        validator: (v) => v!.isEmpty ? 'Obrigatório' : null,
+                      ),
+                    ),
+
+                    // Data
+                    _buildDialogRow(
+                      'Data:',
+                      InkWell(
+                        onTap: () async {
+                          DateTime? picked = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate,
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
+                          );
+                          if (picked != null) {
+                            setDialogState(() {
+                              _selectedDate = picked;
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            DateFormat('dd/MM/yyyy').format(_selectedDate),
+                            style: estiloFonteMonospace.copyWith(
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Botão salvar
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: finBuddyLime,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: (!_isFormValid || _isLoading)
+                          ? null
+                          : _salvarGanho,
+                      child: _isLoading
+                          ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                          : Text(
+                        'Salvar',
+                        style: estiloFonteMonospace.copyWith(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
