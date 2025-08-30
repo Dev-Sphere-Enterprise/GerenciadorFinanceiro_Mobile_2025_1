@@ -3,22 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../shared/constants/style_constants.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../viewmodel/aportes_viewmodel.dart';
+import '../../../shared/core/models/aporte_meta_model.dart';
+import '../../../shared/constants/style_constants.dart';
 
 Future<void> showAddOrEditAporteDialog({
   required BuildContext context,
-  required FirebaseFirestore firestore,
-  required User currentUser,
-  required String metaId,
-  required Future<void> Function() atualizarValorMeta,
-  String? id,
-  double? valor,
-  DateTime? data,
+  AporteMetaModel? aporte,
 }) async {
+  final viewModel = Provider.of<AportesViewModel>(context, listen: false);
+
+  final isEditing = aporte != null;
   final valorController = TextEditingController(
-    text: valor?.toString().replaceAll('.', ',') ?? '',
+    text: isEditing ? aporte.valor.toString().replaceAll('.', ',') : '',
   );
-  DateTime selectedDate = data ?? DateTime.now();
-  final isEditing = id != null;
+  DateTime selectedDate = isEditing ? aporte.dataAporte : DateTime.now();
   final formKey = GlobalKey<FormState>();
 
   await showDialog(
@@ -63,19 +65,17 @@ Future<void> showAddOrEditAporteDialog({
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-              side: const BorderSide(color: finBuddyBlue, width: 2),
+            borderRadius: BorderRadius.circular(8.0),
+            side: const BorderSide(color: finBuddyBlue, width: 2),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Form(
                 key: formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                     Text(
                         isEditing ? 'Editar Aporte' : 'Adicionar Aporte',
                         textAlign: TextAlign.center,
                         style: estiloFonteMonospace.copyWith(fontSize: 18),
@@ -127,89 +127,35 @@ Future<void> showAddOrEditAporteDialog({
                         ),
                       ),
                       const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: isLoading ? null : () async {
+                        if (formKey.currentState!.validate()) {
+                          setModalState(() => isLoading = true);
 
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: finBuddyLime,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                        onPressed: (!isFormValid || isLoading)
-                            ? null
-                            : () async {
-                          if (formKey.currentState!.validate()) {
-                            setModalState(() => isLoading = true);
-                            try {
-                              final valorFinal = double.tryParse(
-                                valorController.text
-                                    .trim()
-                                    .replaceAll(',', '.'),
-                              ) ??
-                                  0.0;
+                          final valorFinal = double.tryParse(
+                            valorController.text.trim().replaceAll(',', '.'),
+                          ) ?? 0.0;
 
-                              final dataMap = {
-                                'Valor': valorFinal,
-                                'Data_Aporte':
-                                Timestamp.fromDate(selectedDate),
-                                'Deletado': false,
-                                'Data_Atualizacao': Timestamp.now(),
-                              };
+                          final sucesso = await viewModel.salvarAporte(
+                            id: isEditing ? aporte.id : null,
+                            valor: valorFinal,
+                            data: selectedDate,
+                          );
 
-                              final ref = firestore
-                                  .collection('users')
-                                  .doc(currentUser.uid)
-                                  .collection('metas')
-                                  .doc(metaId)
-                                  .collection('aportes_meta');
-
-                              if (id == null) {
-                                dataMap['Data_Criacao'] =
-                                    Timestamp.now();
-                                await ref.add(dataMap);
-                              } else {
-                                await ref.doc(id).update(dataMap);
-                              }
-
-                              await atualizarValorMeta();
-                              if (context.mounted) Navigator.pop(context);
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Erro ao salvar: ${e.toString()}'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            } finally {
-                              if (context.mounted) {
-                                setModalState(() => isLoading = false);
-                              }
-                            }
+                          setModalState(() => isLoading = false);
+                          
+                          if (sucesso && context.mounted) {
+                            Navigator.pop(context);
+                          } else if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Erro ao salvar o aporte"), backgroundColor: Colors.red),
+                            );
                           }
-                        },
-                        child: isLoading
-                            ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: Colors.white,
-                          ),
-                        )
-                            : Text(
-                          'Salvar',
-                          style: estiloFonteMonospace.copyWith(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        }
+                      },
+                      child: isLoading ? const CircularProgressIndicator() : const Text('Salvar'),
+                    ),
+                  ],
                 ),
               ),
             ),

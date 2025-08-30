@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../shared/core/models/aporte_meta_model.dart';
 
-Future<void> atualizarValorMeta({
+Future<void> atualizarValorMetaComModel({
   required FirebaseFirestore firestore,
   required User currentUser,
   required String metaId,
@@ -15,11 +16,12 @@ Future<void> atualizarValorMeta({
       .where('Deletado', isEqualTo: false)
       .get();
 
-  double total = 0;
-  for (var doc in snapshot.docs) {
-    total += (doc['Valor'] ?? 0).toDouble();
-  }
+  final aportes = snapshot.docs.map((doc) {
+    return AporteMetaModel.fromMap(doc.id, doc.data());
+  }).toList();
 
+  double total = aportes.fold(0.0, (somaAnterior, aporte) => somaAnterior + aporte.valor);
+  
   await firestore
       .collection('users')
       .doc(currentUser.uid)
