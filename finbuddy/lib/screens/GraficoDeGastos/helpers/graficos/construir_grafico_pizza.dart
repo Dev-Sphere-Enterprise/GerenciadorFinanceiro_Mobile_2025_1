@@ -1,22 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-
-const Color finBuddyDark = Color(0xFF212121);
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
-
-const List<Color> _chartColors = [
-  Colors.blueAccent,
-  Colors.greenAccent,
-  Colors.orangeAccent,
-  Colors.purpleAccent,
-  Colors.redAccent,
-  Colors.cyanAccent,
-];
-// ------------------------------------
+import '../../../../../shared/constants/style_constants.dart';
 
 Widget construirGraficoPizza(
   List<MapEntry<String, double>> categoriasComGasto,

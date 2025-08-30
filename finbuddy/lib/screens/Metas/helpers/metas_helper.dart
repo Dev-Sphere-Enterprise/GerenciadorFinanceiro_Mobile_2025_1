@@ -2,16 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '/../../shared/constants/style_constants.dart';
 
 class MetasHelper {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -67,7 +58,6 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
     );
     _selectedDate = widget.dataLimite ?? DateTime.now();
 
-    // Adiciona listeners para validar formulário em tempo real
     _nomeController.addListener(_validateForm);
     _valorObjetivoController.addListener(_validateForm);
 
@@ -190,7 +180,6 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
                 ),
                 const SizedBox(height: 24),
 
-                // Nome
                 _buildDialogRow(
                   'Nome:',
                   TextFormField(
@@ -200,7 +189,6 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
                   ),
                 ),
 
-                // Valor Objetivo
                 _buildDialogRow(
                   'Objetivo (R\$):',
                   TextFormField(
@@ -211,7 +199,6 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
                   ),
                 ),
 
-                // Data Limite
                 _buildDialogRow(
                   'Data Limite:',
                   InkWell(
@@ -244,7 +231,6 @@ class _MetaDialogContentState extends State<_MetaDialogContent> {
 
                 const SizedBox(height: 24),
 
-                // Botão Salvar
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: finBuddyLime,

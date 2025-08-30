@@ -1,23 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:async/async.dart';
-
+import '../../../shared/constants/style_constants.dart';
 import 'helpers/add_or_edit_tipo.dart';
 import 'helpers/delete_tipo.dart';
 import 'helpers/get_tipos_gerais.dart';
 import 'helpers/get_tipos_usuario.dart';
 
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0x8BFAF3DD);
-const Color corItem = Color(0x89B9CD67);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
 
 class TiposPagamentosScreen extends StatefulWidget {
   const TiposPagamentosScreen({super.key});
@@ -154,15 +142,14 @@ class _TiposPagamentosScreenState extends State<TiposPagamentosScreen> {
               ),
             ),
           ),
-          // Adiciona um SizedBox fixo para garantir a mesma largura para todos os itens
           SizedBox(
-            width: 96, // Largura total dos botões ou do espaço vazio
+            width: 96, 
             child: isGeneral
-                ? const SizedBox.shrink() // Usa um espaço vazio de 0x0
+                ? const SizedBox.shrink() 
                 : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(width: 8), // Pequeno espaçamento
+                const SizedBox(width: 8), 
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
                   onPressed: () async {

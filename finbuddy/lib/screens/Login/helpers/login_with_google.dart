@@ -16,7 +16,6 @@ Future<void> loginWithGoogle({
     );
 
     await _auth.signInWithCredential(credential);
-    // navegue para a Home
   } catch (e) {
     setErrorMessage('Erro ao logar com Google: $e');
   }

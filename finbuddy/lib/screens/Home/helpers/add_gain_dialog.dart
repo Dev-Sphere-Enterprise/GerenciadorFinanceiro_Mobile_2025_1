@@ -1,17 +1,7 @@
-// lib/dialogs/add_gain_dialog.dart
-
+import '../../../../shared/constants/style_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'transaction_service.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
 
 Future<void> showAddGainDialog(BuildContext context) async {
   final TransactionService transactionService = TransactionService();

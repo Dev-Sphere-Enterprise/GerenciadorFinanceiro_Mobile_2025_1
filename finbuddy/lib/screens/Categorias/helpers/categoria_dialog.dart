@@ -1,17 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
-// ---------------------------------------------------
+import '../../../shared/constants/style_constants.dart';
 
 Future<void> showCategoriaDialog(BuildContext context, {String? id, String? nome}) async {
   final formKey = GlobalKey<FormState>();

@@ -2,17 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-// Constantes de estilo - Inclua estas constantes no mesmo arquivo ou em um arquivo de estilos compartilhado.
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '../../../shared/constants/style_constants.dart';
 
 Future<void> showAddOrEditAporteDialog({
   required BuildContext context,
@@ -40,7 +30,6 @@ Future<void> showAddOrEditAporteDialog({
           bool isFormValid =
               valorController.text.trim().isNotEmpty && selectedDate != null;
 
-          // Listener para atualizar a validade do formulário
           valorController.addListener(() {
             setModalState(() {
               isFormValid =
@@ -93,7 +82,6 @@ Future<void> showAddOrEditAporteDialog({
                       ),
                       const SizedBox(height: 24),
 
-                      // Campo Valor
                       buildDialogRow(
                         'Valor',
                         TextFormField(
@@ -106,7 +94,6 @@ Future<void> showAddOrEditAporteDialog({
                       ),
                       const SizedBox(height: 16),
 
-                      // Campo Data
                       buildDialogRow(
                         'Data',
                         InkWell(
@@ -141,7 +128,6 @@ Future<void> showAddOrEditAporteDialog({
                       ),
                       const SizedBox(height: 24),
 
-                      // Botão Salvar
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: finBuddyLime,

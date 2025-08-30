@@ -5,19 +5,7 @@ import 'package:intl/intl.dart';
 import '../Aportes/aportes_screen.dart';
 import 'helpers/metas_helper.dart';
 import 'helpers/metas_delete_helper.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0x8BFAF3DD);
-const Color corItemMeta = Color(0x89B9CD67);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '/../../shared/constants/style_constants.dart';
 
 class MetasScreen extends StatefulWidget {
   const MetasScreen({super.key});

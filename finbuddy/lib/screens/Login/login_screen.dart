@@ -3,10 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../Register/register_screen.dart';
 import 'helpers/login_with_email.dart';
 import 'helpers/login_with_google.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
+import '../../shared/constants/style_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -128,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   setLoading: (value) =>
                       setState(() => isLoading = value),
                 )
-                    : null, // <-- aqui o botão fica desabilitado
+                    : null,
                 child: const Text(
                   'ENTRAR',
                   style: TextStyle(

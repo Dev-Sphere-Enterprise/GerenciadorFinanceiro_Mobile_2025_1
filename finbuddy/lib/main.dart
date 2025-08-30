@@ -2,7 +2,7 @@ import 'package:finbuddy/app.dart';
 import 'package:finbuddy/screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'shared/core/db/firebase_options.dart';
 import 'screens/Login/login_screen.dart';
 import 'screens/Register/register_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';

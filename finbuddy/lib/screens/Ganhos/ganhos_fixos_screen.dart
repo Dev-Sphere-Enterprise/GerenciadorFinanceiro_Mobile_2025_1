@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
+import '../../shared/constants/style_constants.dart';
 import 'helpers/ganhos_fixos_dialog.dart';
 import 'helpers/ganhos_fixos_service.dart';
 
@@ -12,19 +12,6 @@ void main() async {
   await Firebase.initializeApp();
   runApp(const MaterialApp(home: GanhosFixosScreen()));
 }
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0x8BFAF3DD);
-const Color corItemGasto = Color(0x89B9CD67);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
 
 class GanhosFixosScreen extends StatefulWidget {
   const GanhosFixosScreen({super.key});

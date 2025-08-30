@@ -9,19 +9,7 @@ import '../Cartoes/cartoes_screen.dart';
 import '../TiposPagamentos/tipos_pagamentos_screen.dart';
 import '../Categorias/categorias_screen.dart';
 import 'helpers/profile_helpers.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
-const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0x8BFAF3DD);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '/../../shared/constants/style_constants.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

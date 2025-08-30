@@ -5,19 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'helpers/carregar_eventos_calendario.dart';
 import 'helpers/util_cor_evento.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyBlueSelectedday = Color(0x5F3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const Color corFundoScaffold = Color(0xFFF0F4F8);
-const Color corCardPrincipal = Color(0x8BFAF3DD);
-
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '../../shared/constants/style_constants.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});

@@ -10,14 +10,7 @@ import '../helpers/graficos/construir_grafico_coluna.dart';
 import '../helpers/graficos/construir_grafico_pizza.dart';
 import '../helpers/graficos/construir_grafico_linha.dart';
 import '../grafico_de_gastos_screen.dart';
-
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-const TextStyle estiloFonteMonospace = TextStyle(
-  fontFamily: 'monospace',
-  fontWeight: FontWeight.bold,
-  color: finBuddyDark,
-);
+import '../../../../../shared/constants/style_constants.dart';
 
 enum TipoGrafico { pizza, coluna, linha }
 
