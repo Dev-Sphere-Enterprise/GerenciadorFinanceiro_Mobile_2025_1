@@ -20,7 +20,7 @@ class AportesRepository {
         .doc(metaId)
         .collection('aportes_meta')
         .where('Deletado', isEqualTo: false)
-        .orderBy('Data_Aporte', descending: true);
+        // .orderBy('Data_Aporte', descending: true);
 
     return ref.snapshots().map((snapshot) {
       return snapshot.docs
@@ -69,11 +69,13 @@ class AportesRepository {
         .doc(metaId)
         .collection('aportes_meta');
 
-    final data = aporte.toMap(); 
-
+    final data = aporte.toMap();
+    
     if (aporte.id == null) {
+      data['Data_Criacao'] = Timestamp.now();
       await ref.add(data);
     } else {
+      data.remove('Data_Criacao');
       await ref.doc(aporte.id).update(data);
     }
 
