@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../shared/core/models/aporte_meta_model.dart';
 import 'viewmodel/aportes_viewmodel.dart';
+import 'helpers/add_edit_aporte_dialog.dart';
 
 class TelaAportes extends StatelessWidget {
   final String metaId;
@@ -80,9 +81,26 @@ class TelaAportes extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.delete_outline, color: Colors.red),
             onPressed: () async {
-              final confirm = await showDialog<bool>();
+              final confirm = await showDialog<bool>(
+                context: context, 
+                builder: (context) => AlertDialog( 
+                  title: const Text("Confirmar exclusão"),
+                  content: const Text("Você tem certeza que deseja deletar este aporte?"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("Cancelar"),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true), 
+                      child: const Text("Deletar", style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+
               if (confirm == true) {
-                viewModel.excluirAporte(aporte.id!);
+                await viewModel.excluirAporte(aporte.id!); 
               }
             },
           ),

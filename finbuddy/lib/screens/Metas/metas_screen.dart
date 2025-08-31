@@ -186,7 +186,7 @@ class _MetasScreenState extends State<MetasScreen> {
               IconButton(
                 icon: const Icon(Icons.attach_money, color: finBuddyDark),
                 onPressed: () => Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => TelaAportes(metaId: doc.id, valorAtual: valorAtual),
+                  builder: (context) => TelaAportes(metaId: doc.id),
                 )),
               ),
               IconButton(
