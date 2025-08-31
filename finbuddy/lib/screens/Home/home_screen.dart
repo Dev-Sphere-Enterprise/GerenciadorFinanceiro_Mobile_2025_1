@@ -79,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     double totalGanho = 0.0;
     for (var doc in ganhosSnapshot.docs) {
-      // Correção: Converte o valor para double com segurança
       totalGanho += (doc.data()['Valor'] as num).toDouble();
     }
 
