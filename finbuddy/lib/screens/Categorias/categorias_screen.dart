@@ -159,14 +159,13 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
               ),
             ),
           ),
-          // Adiciona um SizedBox fixo para garantir a mesma largura para todos os itens
           SizedBox(
-            width: 96, // Largura total dos botões ou do espaço vazio
+            width: 96,
             child: !isGeneral
                 ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(width: 8), // Pequeno espaçamento
+                const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
                   onPressed: () async {
@@ -202,7 +201,7 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
                 ),
               ],
             )
-                : const SizedBox.shrink(), // Usa um widget invisível que ocupa zero espaço
+                : const SizedBox.shrink(),
           ),
         ],
       ),

@@ -38,6 +38,8 @@ const Color corFundoScaffold = Color(0xFFF0F4F8);
 const Color corCardPrincipal = Color(0x8BFAF3DD);
 const Color corItemGasto = Color(0x89B9CD67);
 const Color corCardSaldo = Color(0x89B9CD67);
+const Color corItemMeta = Color(0x89B9CD67);
+const Color corItem = Color(0x89B9CD67);
 //*DEFAULT COLORS*//
 
 //*GRAFHIC COLORS*//
