@@ -55,7 +55,7 @@ Widget construirGraficoColuna(
       ),
       barGroups: List.generate(categoriasComGasto.length, (index) {
         final valor = categoriasComGasto[index].value;
-        final cor = _barColors[index % _barColors.length];
+        final cor = kBarColors[index % kBarColors.length];
 
         return BarChartGroupData(
           x: index,

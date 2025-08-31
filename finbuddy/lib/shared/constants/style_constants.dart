@@ -43,7 +43,7 @@ const Color corItem = Color(0x89B9CD67);
 //*DEFAULT COLORS*//
 
 //*GRAFHIC COLORS*//
-const List<Color> _barColors = [
+const List<Color> kBarColors = [
   Colors.blueAccent,
   Colors.greenAccent,
   Colors.orangeAccent,
@@ -52,7 +52,7 @@ const List<Color> _barColors = [
   Colors.cyanAccent,
 ];
 
-const List<Color> _chartColors = [
+const List<Color> kChartColors = [
   Colors.blueAccent,
   Colors.greenAccent,
   Colors.orangeAccent,

@@ -27,7 +27,7 @@ Widget construirGraficoPizza(
         final item = categoriasComGasto[index];
         final selecionado = index == indiceSelecionado;
         
-        final cor = _chartColors[index % _chartColors.length];
+        final cor = kChartColors[index % kChartColors.length];
         
         final percentage = totalValue > 0 ? (item.value / totalValue) * 100 : 0;
 
