@@ -19,7 +19,7 @@ class AportesRepository {
         .collection('metas')
         .doc(metaId)
         .collection('aportes_meta')
-        .where('Deletado', isEqualTo: false)
+        .where('Deletado', isEqualTo: false);
         // .orderBy('Data_Aporte', descending: true);
 
     return ref.snapshots().map((snapshot) {
