@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../../../lib/shared/core/models/aporte_meta_model.dart';
-import '../viewmodel/aportes_viewmodel.dart';
+import '../../shared/core/models/aporte_meta_model.dart';
+import 'viewmodel/aportes_viewmodel.dart';
 
 class TelaAportes extends StatelessWidget {
   final String metaId;

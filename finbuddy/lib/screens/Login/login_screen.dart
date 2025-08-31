@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../Register/register_screen.dart';
 import 'helpers/login_with_email.dart';
 import 'helpers/login_with_google.dart';
-import '../../shared/constants/style_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

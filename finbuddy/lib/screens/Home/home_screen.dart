@@ -58,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     double totalGasto = 0.0;
     for (var doc in gastosSnapshot.docs) {
-      // Correção: Converte o valor para double com segurança
       totalGasto += (doc.data()['Valor'] as num).toDouble();
     }
 
@@ -108,7 +107,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     double totalGasto = 0.0;
     for (var doc in gastosSnapshot.docs) {
-      // Correção: Converte o valor para double com segurança
       totalGasto += (doc.data()['Valor'] as num).toDouble();
     }
 
