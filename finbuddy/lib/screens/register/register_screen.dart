@@ -29,7 +29,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    // Listeners extras para garantir revalidação a cada mudança
     nameController.addListener(_validateForm);
     dobController.addListener(_validateForm);
     emailController.addListener(_validateForm);
@@ -261,7 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (picked != null) {
       dobController.text =
       "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
-      _validateForm(); // garante revalidação imediata após escolher a data
+      _validateForm();
     }
   }
 
