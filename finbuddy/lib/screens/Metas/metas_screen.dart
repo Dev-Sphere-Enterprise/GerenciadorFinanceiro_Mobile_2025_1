@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../shared/constants/style_constants.dart';
 import '../../shared/core/models/meta_model.dart';
 import '../Aportes/aportes_screen.dart';
-import 'helpers/add_edit_meta_dialog.dart';
+import 'dialog/add_edit_meta_dialog.dart';
 import 'viewmodel/metas_viewmodel.dart';
 
 class MetasScreen extends StatelessWidget {
