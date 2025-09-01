@@ -11,6 +11,10 @@ import 'helpers/add_expense_dialog.dart';
 import '../GraficoDeGastos/widgets/grafico_de_gastos_widget.dart';
 import '../../../shared/constants/style_constants.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
