@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package.provider/provider.dart';
+import 'package:provider/provider.dart';
 import '../../shared/constants/style_constants.dart';
 import '../Categorias/categorias_screen.dart';
 import '../Cartoes/cartoes_screen.dart';
@@ -11,6 +11,10 @@ import '../Metas/metas_screen.dart';
 import '../TiposPagamentos/tipos_pagamentos_screen.dart';
 import 'dialog/edit_profile_dialog.dart';
 import 'viewmodel/profile_viewmodel.dart';
+
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
