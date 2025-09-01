@@ -1,90 +1,49 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
+import 'package.provider/provider.dart';
+import '../../shared/constants/style_constants.dart';
+import '../Categorias/categorias_screen.dart';
+import '../Cartoes/cartoes_screen.dart';
+import '../Gastos/gastos_fixos_screen.dart';
+import '../Ganhos/ganhos_fixos_screen.dart';
 import '../Login/login_screen.dart';
 import '../Metas/metas_screen.dart';
-import '../Ganhos/ganhos_fixos_screen.dart';
-import '../Gastos/gastos_fixos_screen.dart';
-import '../Cartoes/cartoes_screen.dart';
 import '../TiposPagamentos/tipos_pagamentos_screen.dart';
-import '../Categorias/categorias_screen.dart';
-import 'helpers/profile_helpers.dart';
-import '/../../shared/constants/style_constants.dart';
+import 'dialog/edit_profile_dialog.dart';
+import 'viewmodel/profile_viewmodel.dart';
 
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  final user = FirebaseAuth.instance.currentUser;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String? name;
-  String? dob;
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadUserData(
-      auth: FirebaseAuth.instance,
-      firestore: _firestore,
-      setLoading: (val) => setState(() => isLoading = val),
-      setData: (newName, newDob) => setState(() {
-        name = newName;
-        dob = newDob;
-      }),
-    );
-  }
-
-  Widget _buildNavItem({
-    required String title,
-    required IconData icon,
-    VoidCallback? onTap,
-    Color? color,
-  }) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: Icon(icon, color: color ?? finBuddyBlue, size: 28),
-        title: Text(
-          title,
-          style: estiloFonteMonospace.copyWith(fontSize: 16),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: finBuddyDark),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: corFundoScaffold,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: finBuddyLime,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          "Fin_Buddy",
-          style: estiloFonteMonospace.copyWith(
-            color: finBuddyBlue,
-            fontSize: 22,
+    return ChangeNotifierProvider(
+      create: (_) => ProfileViewModel(),
+      child: Scaffold(
+        backgroundColor: corFundoScaffold,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: finBuddyLime,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text(
+            "Fin_Buddy",
+            style: estiloFonteMonospace.copyWith(
+              color: finBuddyBlue,
+              fontSize: 22,
+            ),
           ),
         ),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
+        body: Consumer<ProfileViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
@@ -115,24 +74,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              name ?? "Nome Usuário",
+                              viewModel.user?.nome ?? "Nome Usuário",
                               style: estiloFonteMonospace.copyWith(fontSize: 20),
                             ),
                             const SizedBox(width: 8),
                             InkWell(
-                              onTap: () {
-                                editNameAndDob(
-                                  context: context,
-                                  firestore: _firestore,
-                                  auth: FirebaseAuth.instance,
-                                  currentName: name,
-                                  currentDob: dob,
-                                  onUpdated: (newName, newDob) => setState(() {
-                                    name = newName;
-                                    dob = newDob;
-                                  }),
-                                );
-                              },
+                              onTap: () => showEditProfileDialog(context),
                               child: Icon(
                                 Icons.edit_outlined,
                                 size: 20,
@@ -143,7 +90,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          dob ?? "dd/mm/aaaa",
+                          viewModel.user != null 
+                            ? DateFormat('dd/MM/yyyy').format(viewModel.user!.dataNascimento) 
+                            : "dd/mm/aaaa",
                           style: estiloFonteMonospace.copyWith(
                             fontSize: 14,
                             color: Colors.grey.shade600,
@@ -191,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               context: context,
                               builder: (context) => AlertDialog(
                                 title: const Text("Confirmar Saída"),
-                                content: const Text("Você tem certeza que fazer Logout do aplicativo?"),
+                                content: const Text("Você tem certeza que deseja fazer Logout?"),
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context, false),
@@ -199,27 +148,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   TextButton(
                                     onPressed: () => Navigator.pop(context, true),
-                                    child: const Text(
-                                      "Logout",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
+                                    child: const Text("Logout", style: TextStyle(color: Colors.red)),
                                   ),
                                 ],
                               ),
                             );
 
                             if (confirm == true) {
-                              logoutUser(context);
+                              await viewModel.logout();
+                              if (context.mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                  (route) => false,
+                                );
+                              }
                             }
                           },
                         ),
-
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required String title,
+    required IconData icon,
+    VoidCallback? onTap,
+    Color? color,
+  }) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, color: color ?? finBuddyBlue, size: 28),
+        title: Text(
+          title,
+          style: estiloFonteMonospace.copyWith(fontSize: 16),
+        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: finBuddyDark),
+        onTap: onTap,
+      ),
     );
   }
 }
