@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../shared/constants/style_constants.dart';
 import '../../shared/core/models/categoria_model.dart';
-import 'helpers/categoria_dialog.dart';
+import 'dialog/categoria_dialog.dart';
 import 'viewmodel/categorias_viewmodel.dart';
 
 class CategoriasScreen extends StatelessWidget {
