@@ -72,11 +72,11 @@ class CartaoModel {
       nome: map['Nome'] ?? '',
       valorFaturaAtual: (map['Valor_Fatura_Atual'] ?? 0.0).toDouble(),
       limiteCredito: (map['Limite_Credito'] ?? 0.0).toDouble(),
-      dataFechamento: (map['Data_Fechamento'] as Timestamp).toDate(),
-      dataVencimento: (map['Data_Vencimento'] as Timestamp).toDate(),
+      dataFechamento: (map['Data_Fechamento'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataVencimento: (map['Data_Vencimento'] as Timestamp?)?.toDate() ?? DateTime.now(),
       deletado: map['Deletado'] ?? false,
-      dataCriacao: (map['Data_Criacao'] as Timestamp).toDate(),
-      dataAtualizacao: (map['Data_Atualizacao'] as Timestamp).toDate(),
+      dataCriacao: (map['Data_Criacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataAtualizacao: (map['Data_Atualizacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }
