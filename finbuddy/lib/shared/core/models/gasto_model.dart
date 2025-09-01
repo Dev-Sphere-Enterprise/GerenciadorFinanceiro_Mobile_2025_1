@@ -65,4 +65,35 @@ class GastoModel {
       dataAtualizacao: (map['Data_Atualizacao'] as Timestamp).toDate(),
     );
   }
+  GastoModel copyWith({
+    String? id,
+    String? idUsuario,
+    String? idCartao,
+    String? nome,
+    double? valor,
+    int? parcelas,
+    String? idTipoPagamento,
+    String? idCategoria,
+    DateTime? dataCompra,
+    bool? recorrencia,
+    bool? deletado,
+    DateTime? dataCriacao,
+    DateTime? dataAtualizacao,
+  }) {
+    return GastoModel(
+      id: id ?? this.id,
+      idUsuario: idUsuario ?? this.idUsuario,
+      idCartao: idCartao ?? this.idCartao,
+      nome: nome ?? this.nome,
+      valor: valor ?? this.valor,
+      parcelas: parcelas ?? this.parcelas,
+      idTipoPagamento: idTipoPagamento ?? this.idTipoPagamento,
+      idCategoria: idCategoria ?? this.idCategoria,
+      dataCompra: dataCompra ?? this.dataCompra,
+      recorrencia: recorrencia ?? this.recorrencia,
+      deletado: deletado ?? this.deletado,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+      dataAtualizacao: dataAtualizacao ?? this.dataAtualizacao,
+    );
+  }
 }
