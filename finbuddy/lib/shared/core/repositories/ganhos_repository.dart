@@ -12,7 +12,7 @@ class GanhosRepository {
     if (_currentUser == null) return Stream.value([]);
 
     return _firestore
-        .collection('users').doc(_currentUser!.uid).collection('ganhos')
+        .collection('users').doc(_currentUser!.uid).collection('ganhos_fixos')
         .where('Deletado', isEqualTo: false)
         .where('Recorrencia', isEqualTo: true) 
         .snapshots()
@@ -26,7 +26,7 @@ class GanhosRepository {
   Future<void> addOrEditGanho(GanhoModel ganho) async {
     if (_currentUser == null) return;
     
-    final ref = _firestore.collection('users').doc(_currentUser!.uid).collection('ganhos');
+    final ref = _firestore.collection('users').doc(_currentUser!.uid).collection('ganhos_fixos');
     final data = ganho.toMap();
 
     if (ganho.id == null) {
@@ -41,7 +41,7 @@ class GanhosRepository {
     if (_currentUser == null) return;
     
     await _firestore
-        .collection('users').doc(_currentUser!.uid).collection('ganhos')
+        .collection('users').doc(_currentUser!.uid).collection('ganhos_fixos')
         .doc(ganhoId)
         .update({'Deletado': true, 'Data_Atualizacao': Timestamp.now()});
   }

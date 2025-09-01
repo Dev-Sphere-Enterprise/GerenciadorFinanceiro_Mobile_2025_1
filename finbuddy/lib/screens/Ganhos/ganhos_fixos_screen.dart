@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../shared/constants/style_constants.dart';
 import '../../shared/core/models/ganho_model.dart';
-import 'helpers/ganhos_fixos_dialog.dart';
+import 'dialog/ganhos_fixos_dialog.dart';
 import 'viewmodel/ganhos_viewmodel.dart';
 
 class GanhosFixosScreen extends StatelessWidget {
