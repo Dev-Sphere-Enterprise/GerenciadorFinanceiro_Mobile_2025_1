@@ -57,7 +57,12 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
     
     try {
-      await _repository.signInWithGoogle();
+      await _repository.signInWithGoogle(
+        setErrorMessage: (message) {
+          _errorMessage = message;
+          notifyListeners();
+        },
+      );
       _isLoading = false;
       notifyListeners();
       return true; 

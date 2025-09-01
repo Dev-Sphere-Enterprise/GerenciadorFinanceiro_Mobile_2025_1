@@ -6,6 +6,10 @@ import '../Home/home_screen.dart';
 import '../Register/register_screen.dart';
 import 'viewmodel/login_viewmodel.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
