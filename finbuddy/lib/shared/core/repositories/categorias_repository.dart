@@ -25,6 +25,18 @@ class CategoriasRepository {
     });
   }
 
+  Stream<List<Map<String, dynamic>>> getCategoriasGerais() {
+    return _firestore.collection('categorias_gerais').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'Nome': doc['nome'] ?? '',
+          'isGeneral': true,
+        };
+      }).toList();
+    });
+  }
+
   Stream<List<CategoriaModel>> _getCategoriasUsuarioStream() {
     if (_currentUser == null) return Stream.value([]);
     return _firestore
@@ -33,6 +45,26 @@ class CategoriasRepository {
       return snapshot.docs
           .map((doc) => CategoriaModel.fromMap(doc.id, doc.data()).copyWith(isGeneral: false))
           .toList();
+    });
+  }
+
+  Stream<List<Map<String, dynamic>>> getCategoriasUsuario() {
+    if (_currentUser == null) return Stream.value([]);
+
+    return _firestore
+        .collection('users')
+        .doc(user.uid)
+        .collection('categorias')
+        .where('Deletado', isEqualTo: false)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'Nome': doc['Nome'] ?? '',
+          'isGeneral': false,
+        };
+      }).toList();
     });
   }
 
