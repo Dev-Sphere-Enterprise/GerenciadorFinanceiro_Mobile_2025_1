@@ -18,20 +18,20 @@ class CalendarRepository {
     final cartoesSnap = await _firestore.collection('users').doc(userId).collection('cartoes').where('Deletado', isEqualTo: false).get();
     for (var doc in cartoesSnap.docs) {
       final cartao = CartaoModel.fromMap(doc.id, doc.data());
-      todosEventos.add(CalendarEventModel(descricao: '${cartao.nome} (Vencimento)', valor: cartao.valorFaturaAtual, tipo: EventType.cartao, data: cartao.dataVencimento));
-      todosEventos.add(CalendarEventModel(descricao: '${cartao.nome} (Fechamento)', valor: 0, tipo: EventType.cartao, data: cartao.dataFechamento));
+      todosEventos.add(CalendarEventModel.withDefaultColor(descricao: '${cartao.nome} (Vencimento)', valor: cartao.valorFaturaAtual, tipo: EventType.cartao, data: cartao.dataVencimento));
+      todosEventos.add(CalendarEventModel.withDefaultColor(descricao: '${cartao.nome} (Fechamento)', valor: 0, tipo: EventType.cartao, data: cartao.dataFechamento));
     }
 
-    final gastosSnap = await _firestore.collection('users').doc(userId).collection('gastos').where('Deletado', isEqualTo: false).get();
+    final gastosSnap = await _firestore.collection('users').doc(userId).collection('gastos_fixos').where('Deletado', isEqualTo: false).get();
     for (var doc in gastosSnap.docs) {
       final gasto = GastoModel.fromMap(doc.id, doc.data());
-      todosEventos.add(CalendarEventModel(descricao: gasto.nome, valor: gasto.valor, tipo: EventType.gasto, data: gasto.dataCompra));
+      todosEventos.add(CalendarEventModel.withDefaultColor(descricao: gasto.nome, valor: gasto.valor, tipo: EventType.gasto, data: gasto.dataCompra));
     }
     
-    final ganhosSnap = await _firestore.collection('users').doc(userId).collection('ganhos').where('Deletado', isEqualTo: false).get();
+    final ganhosSnap = await _firestore.collection('users').doc(userId).collection('ganhos_fixos').where('Deletado', isEqualTo: false).get();
     for (var doc in ganhosSnap.docs) {
       final ganho = GanhoModel.fromMap(doc.id, doc.data());
-      todosEventos.add(CalendarEventModel(descricao: ganho.nome, valor: ganho.valor, tipo: EventType.ganho, data: ganho.dataRecebimento));
+      todosEventos.add(CalendarEventModel.withDefaultColor(descricao: ganho.nome, valor: ganho.valor, tipo: EventType.ganho, data: ganho.dataRecebimento));
     }
 
     return todosEventos;
