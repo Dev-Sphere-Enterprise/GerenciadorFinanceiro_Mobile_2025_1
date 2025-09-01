@@ -14,7 +14,7 @@ class GastosRepository {
   Stream<List<GastoModel>> getGastosFixosStream() {
     if (_currentUser == null) return Stream.value([]);
     return _firestore
-        .collection('users').doc(_currentUser!.uid).collection('gastos')
+        .collection('users').doc(_currentUser!.uid).collection('gastos_fixos')
         .where('Deletado', isEqualTo: false)
         .where('Recorrencia', isEqualTo: true)
         .snapshots()
@@ -23,7 +23,7 @@ class GastosRepository {
 
   Future<void> addOrEditGasto(GastoModel gasto) async {
     if (_currentUser == null) return;
-    final ref = _firestore.collection('users').doc(_currentUser!.uid).collection('gastos');
+    final ref = _firestore.collection('users').doc(_currentUser!.uid).collection('gastos_fixos');
     final data = gasto.toMap();
     if (gasto.id == null) {
       await ref.add(data);
@@ -35,7 +35,7 @@ class GastosRepository {
 
   Future<void> deleteGasto(String gastoId) async {
     if (_currentUser == null) return;
-    await _firestore.collection('users').doc(_currentUser!.uid).collection('gastos')
+    await _firestore.collection('users').doc(_currentUser!.uid).collection('gastos_fixos')
         .doc(gastoId).update({'Deletado': true, 'Data_Atualizacao': Timestamp.now()});
   }
 

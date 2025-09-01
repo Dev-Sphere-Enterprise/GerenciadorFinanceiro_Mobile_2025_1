@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
 import '../../../shared/core/models/gasto_model.dart';
 import '../viewmodel/gastos_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> showAddOrEditGastoDialog({required BuildContext context, GastoModel? gasto}) async {
   final viewModel = Provider.of<GastosViewModel>(context, listen: false);
@@ -60,7 +61,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
 
   void _validateForm() {
     final tipoAtual = _selectedTipo != null ? widget.viewModel.tiposPagamento.firstWhere((t) => t.id == _selectedTipo) : null;
-    final exigeCartao = tipoAtual?.usaCartao ?? false;
+    final bool exigeCartao = tipoAtual?.usaCartao ?? false;
 
     final isValid = _nomeController.text.trim().isNotEmpty &&
                     _valorController.text.trim().isNotEmpty &&
@@ -90,11 +91,25 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   Future<void> _salvarGasto() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
-
+    final currentUser = FirebaseAuth.instance.currentUser;
     final valorFinal = double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
-    
+
+    if (currentUser == null) {
+      debugPrint("Erro: Usuário não está logado!");
+      setState(() => _isLoading = false);
+      // Opcional: mostrar uma mensagem de erro para o usuário
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor, faça o login novamente.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final gasto = GastoModel(
       id: widget.gasto?.id,
+      idUsuario: currentUser.uid,
       nome: _nomeController.text.trim(),
       valor: valorFinal,
       dataCompra: _selectedDate,
