@@ -24,11 +24,11 @@ class UsuarioModel {
   Map<String, dynamic> toMap() {
     return {
       'Nome': nome,
-      'Data_Nascimento': Timestamp.fromDate(dataNascimento),
+      'dob': Timestamp.fromDate(dataNascimento),
       'Email': email,
       'Senha': senha,
       'Deletado': deletado,
-      'Data_Criacao': Timestamp.fromDate(dataCriacao),
+      'createdAt': Timestamp.fromDate(dataCriacao),
       'Data_Atualizacao': Timestamp.fromDate(dataAtualizacao),
     };
   }
@@ -37,12 +37,33 @@ class UsuarioModel {
     return UsuarioModel(
       id: id,
       nome: map['Nome'] ?? '',
-      dataNascimento: (map['Data_Nascimento'] as Timestamp).toDate(),
+      dataNascimento: (map['dob'] as Timestamp).toDate(),
       email: map['Email'] ?? '',
       senha: map['Senha'] ?? '',
       deletado: map['Deletado'] ?? false,
-      dataCriacao: (map['Data_Criacao'] as Timestamp).toDate(),
+      dataCriacao: (map['createdAt'] as Timestamp).toDate(),
       dataAtualizacao: (map['Data_Atualizacao'] as Timestamp).toDate(),
+    );
+  }
+  UsuarioModel copyWith({
+    String? id,
+    String? nome,
+    DateTime? dataNascimento,
+    String? email,
+    String? senha,
+    bool? deletado,
+    DateTime? dataCriacao,
+    DateTime? dataAtualizacao,
+  }) {
+    return UsuarioModel(
+      id: id ?? this.id,
+      nome: nome ?? this.nome,
+      dataNascimento: dataNascimento ?? this.dataNascimento,
+      email: email ?? this.email,
+      senha: senha ?? this.senha,
+      deletado: deletado ?? this.deletado,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+      dataAtualizacao: dataAtualizacao ?? this.dataAtualizacao,
     );
   }
 }
