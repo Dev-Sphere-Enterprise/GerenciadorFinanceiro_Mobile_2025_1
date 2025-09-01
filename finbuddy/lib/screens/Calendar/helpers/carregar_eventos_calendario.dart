@@ -14,7 +14,6 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
 
   Map<DateTime, List<Map<String, dynamic>>> eventos = {};
 
-  // Cartões
   final cartoesSnapshot = await firestore
       .collection('users')
       .doc(userId)
@@ -41,7 +40,6 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     adicionarEvento(vencimento, '(Vencimento)');
   }
 
-  // Gastos Fixos
   final gastosFixos = await firestore
       .collection('users')
       .doc(userId)
@@ -63,7 +61,6 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     });
   }
 
-  // Gastos Momentâneos
   final gastosMomentaneos = await firestore
       .collection('users')
       .doc(userId)
@@ -86,7 +83,6 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     });
   }
 
-  // Ganhos Fixos
   final ganhosFixos = await firestore
       .collection('users')
       .doc(userId)
@@ -108,7 +104,6 @@ Future<Map<DateTime, List<Map<String, dynamic>>>> carregarEventosCalendario({
     });
   }
 
-  // Ganhos Momentâneos
   final ganhosMomentaneos = await firestore
       .collection('users')
       .doc(userId)

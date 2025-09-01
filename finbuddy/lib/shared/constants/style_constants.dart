@@ -61,6 +61,19 @@ const List<Color> kChartColors = [
   Colors.cyanAccent,
 ];
 
+Color corDoEvento(String tipo) {
+  switch (tipo) {
+    case 'cartao':
+      return Colors.amber;
+    case 'gasto':
+      return Colors.red;
+    case 'ganho':
+      return Colors.green;
+    default:
+      return Colors.grey;
+  }
+}
+
 //*GRAFHIC COLORS*//
 
 //**TEXT STYLES */

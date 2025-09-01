@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../shared/constants/style_constants.dart';
 import '../../shared/core/models/aporte_meta_model.dart';
 import 'viewmodel/aportes_viewmodel.dart';
-import 'helpers/add_edit_aporte_dialog.dart';
+import 'dialog/add_edit_aporte_dialog.dart';
 
 class TelaAportes extends StatelessWidget {
   final String metaId;
