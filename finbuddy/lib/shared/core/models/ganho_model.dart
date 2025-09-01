@@ -49,4 +49,28 @@ class GanhoModel {
       dataAtualizacao: (map['Data_Atualizacao'] as Timestamp).toDate(),
     );
   }
+
+  GanhoModel copyWith({
+    String? id,
+    String? idUsuario,
+    String? nome,
+    double? valor,
+    DateTime? dataRecebimento,
+    bool? recorrencia,
+    bool? deletado,
+    DateTime? dataCriacao,
+    DateTime? dataAtualizacao,
+  }) {
+    return GanhoModel(
+      id: id ?? this.id,
+      idUsuario: idUsuario ?? this.idUsuario,
+      nome: nome ?? this.nome,
+      valor: valor ?? this.valor,
+      dataRecebimento: dataRecebimento ?? this.dataRecebimento,
+      recorrencia: recorrencia ?? this.recorrencia,
+      deletado: deletado ?? this.deletado,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+      dataAtualizacao: dataAtualizacao ?? this.dataAtualizacao,
+    );
+  }
 }
