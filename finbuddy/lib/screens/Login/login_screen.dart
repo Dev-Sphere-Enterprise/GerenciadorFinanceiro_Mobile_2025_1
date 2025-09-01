@@ -1,173 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+import '../../../shared/constants/style_constants.dart';
+import '../Home/home_screen.dart';
 import '../Register/register_screen.dart';
-import 'helpers/login_with_email.dart';
-import 'helpers/login_with_google.dart';
+import 'viewmodel/login_viewmodel.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  bool isLoading = false;
-  String? errorMessage;
-  bool isFormValid = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    emailController.addListener(_validateForm);
-    passwordController.addListener(_validateForm);
-  }
-
-  void _validateForm() {
-    setState(() {
-      isFormValid =
-          emailController.text.trim().isNotEmpty &&
-              passwordController.text.trim().isNotEmpty;
-    });
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(
-      fontFamily: 'JetBrainsMono',
-      color: finBuddyDark,
-    );
+    return ChangeNotifierProvider(
+      create: (_) => LoginViewModel(),
+      child: Scaffold(
+        backgroundColor: finBuddyLime,
+        body: Consumer<LoginViewModel>(
+          builder: (context, viewModel, child) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Icon(Icons.calculate_rounded, size: 64.0, color: finBuddyDark),
+                    const SizedBox(height: 16),
+                    const Text('FinBuddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
+                    const SizedBox(height: 48),
+                    TextField(
+                      controller: viewModel.emailController,
+                      decoration: _inputDecoration('Email'),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: viewModel.passwordController,
+                      decoration: _inputDecoration('Senha'),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 8),
 
-    return Scaffold(
-      backgroundColor: finBuddyLime,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(
-                Icons.calculate_rounded,
-                size: 64.0,
-                color: finBuddyDark,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'FinBuddy',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: finBuddyDark,
-                ),
-              ),
-              const SizedBox(height: 48),
+                    if (viewModel.errorMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(viewModel.errorMessage!, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'JetBrainsMono', color: Colors.red)),
+                      ),
+                    const SizedBox(height: 24),
 
-              TextField(
-                controller: emailController,
-                decoration: _inputDecoration('Email'),
-                style: textStyle,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                decoration: _inputDecoration('Senha'),
-                obscureText: true,
-                style: textStyle,
-              ),
-              const SizedBox(height: 8),
-
-              if (errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    errorMessage!,
-                    textAlign: TextAlign.center,
-                    style: textStyle.copyWith(color: Colors.red[700]),
-                  ),
-                ),
-              const SizedBox(height: 24),
-
-              isLoading
-                  ? const Center(
-                child: CircularProgressIndicator(color: finBuddyDark),
-              )
-                  : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: finBuddyBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: isFormValid
-                    ? () => loginWithEmail(
-                  context: context,
-                  emailController: emailController,
-                  passwordController: passwordController,
-                  setErrorMessage: (msg) =>
-                      setState(() => errorMessage = msg),
-                  setLoading: (value) =>
-                      setState(() => isLoading = value),
-                )
-                    : null,
-                child: const Text(
-                  'ENTRAR',
-                  style: TextStyle(
-                    fontFamily: 'JetBrainsMono',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                    if (viewModel.isLoading)
+                      const Center(child: CircularProgressIndicator(color: finBuddyDark))
+                    else ...[
+                      ElevatedButton(
+                        style: _buttonStyle(backgroundColor: finBuddyBlue),
+                        onPressed: viewModel.isFormValid ? () async {
+                          final sucesso = await viewModel.loginWithEmail();
+                          if (sucesso && context.mounted) {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                          }
+                        } : null,
+                        child: const Text('ENTRAR', style: TextStyle(fontFamily: 'JetBrainsMono', fontWeight: FontWeight.bold, color: Colors.white)),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton.icon(
+                        style: _buttonStyle(backgroundColor: Colors.white),
+                        onPressed: () async {
+                           final sucesso = await viewModel.loginWithGoogle();
+                           if (sucesso && context.mounted) {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                          }
+                        },
+                        icon: SvgPicture.asset('assets/svg/google.svg', height: 20.0),
+                        label: const Text('Entrar com Google', style: TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen()));
+                      },
+                      child: const Text('Criar conta', style: TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark, decoration: TextDecoration.underline)),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 12),
-              ElevatedButton.icon(
-                style: _buttonStyle(backgroundColor: Colors.white),
-                //onPressed: () => loginWithGoogle(
-                //  setErrorMessage: (msg) => setState(() => errorMessage = msg),
-                //),
-                onPressed: null,
-                icon: SvgPicture.asset(
-                  'assets/svg/google.svg',
-                  height: 20.0,
-                ),
-                label: Text(
-                  'Entrar com Google',
-                  style: textStyle.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
-                },
-                child: Text(
-                  'Criar conta',
-                  style: textStyle.copyWith(
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -176,20 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(
-        fontFamily: 'JetBrainsMono',
-        color: finBuddyDark,
-      ),
+      labelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark),
       filled: true,
       fillColor: Colors.white.withOpacity(0.8),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: finBuddyDark, width: 2),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: finBuddyDark, width: 2)),
     );
   }
 
@@ -197,9 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return ElevatedButton.styleFrom(
       backgroundColor: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     );
   }
 }
