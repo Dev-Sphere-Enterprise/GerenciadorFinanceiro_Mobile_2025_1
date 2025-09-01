@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/aporte_meta_model.dart';
-import 'metas_repository.dart'; 
-
+import 'metas_repository.dart';
 class AportesRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -23,13 +22,42 @@ class AportesRepository {
         .collection('metas')
         .doc(metaId)
         .collection('aportes_meta')
-        .where('Deletado', isEqualTo: false)
+        .where('Deletado', isEqualTo: false);
         // .orderBy('Data_Aporte', descending: true);
 
     return ref.snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => AporteMetaModel.fromMap(doc.id, doc.data()))
           .toList();
+    });
+  }
+
+  Future<void> recalcularEAtualizarValorMeta (String metaId) async {
+    if (_currentUser == null) return;
+    final currentUser = _currentUser!;
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('metas')
+        .doc(metaId)
+        .collection('aportes_meta')
+        .where('Deletado', isEqualTo: false)
+        .get();
+
+    double total = snapshot.docs.fold(0.0, (somaAnterior, doc) {
+      final aporte = AporteMetaModel.fromMap(doc.id, doc.data());
+      return somaAnterior + aporte.valor;
+    });
+
+    await _firestore
+        .collection('users')
+        .doc(currentUser.uid)
+        .collection('metas')
+        .doc(metaId)
+        .update({
+      'Valor_Atual': total,
+      'Data_Atualizacao': Timestamp.now(),
     });
   }
 
