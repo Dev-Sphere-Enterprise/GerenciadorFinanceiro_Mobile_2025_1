@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package.cloud_firestore/cloud_firestore.dart';
 
 class CategoriaModel {
   final String? id;
@@ -6,6 +6,7 @@ class CategoriaModel {
   final bool deletado;
   final DateTime dataCriacao;
   final DateTime dataAtualizacao;
+  final bool isGeneral;
 
   CategoriaModel({
     this.id,
@@ -13,7 +14,19 @@ class CategoriaModel {
     this.deletado = false,
     required this.dataCriacao,
     required this.dataAtualizacao,
+    this.isGeneral = false, 
   });
+
+  CategoriaModel copyWith({bool? isGeneral}) {
+    return CategoriaModel(
+      id: id,
+      nome: nome,
+      deletado: deletado,
+      dataCriacao: dataCriacao,
+      dataAtualizacao: dataAtualizacao,
+      isGeneral: isGeneral ?? this.isGeneral,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -27,10 +40,10 @@ class CategoriaModel {
   factory CategoriaModel.fromMap(String id, Map<String, dynamic> map) {
     return CategoriaModel(
       id: id,
-      nome: map['Nome'] ?? '',
+      nome: map['Nome'] ?? map['nome'] ?? '', 
       deletado: map['Deletado'] ?? false,
-      dataCriacao: (map['Data_Criacao'] as Timestamp).toDate(),
-      dataAtualizacao: (map['Data_Atualizacao'] as Timestamp).toDate(),
+      dataCriacao: (map['Data_Criacao'] as Timestamp? ?? Timestamp.now()).toDate(),
+      dataAtualizacao: (map['Data_Atualizacao'] as Timestamp? ?? Timestamp.now()).toDate(),
     );
   }
 }
