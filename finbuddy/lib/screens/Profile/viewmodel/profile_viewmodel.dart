@@ -18,17 +18,20 @@ class ProfileViewModel extends ChangeNotifier {
   Future<void> loadUserProfile() async {
     _isLoading = true;
     notifyListeners();
-
-    _user = await _repository.getCurrentUserProfile();
-
-    _isLoading = false;
-    notifyListeners();
+    try {
+      _user = await _repository.getCurrentUserProfile();
+    } catch (e) {
+      debugPrint("Erro ao carregar perfil do usuário: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<bool> updateUserProfile(String newName, DateTime newDob) async {
     try {
       await _repository.updateUserProfile(newName, newDob);
-      _user = _user?.copyWith(nome: newName, dataNascimento: newDob);
+      _user = _user?.copyWith(nome: newName, dob: newDob);
       notifyListeners();
       return true;
     } catch (e) {

@@ -74,7 +74,7 @@ class RegisterViewModel extends ChangeNotifier {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
         nome: nameController.text.trim(),
-        dataNascimento: _selectedDate!,
+        dob: _selectedDate!,
       );
       _isLoading = false;
       notifyListeners();

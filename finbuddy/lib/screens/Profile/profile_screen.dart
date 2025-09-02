@@ -94,8 +94,8 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          viewModel.user != null 
-                            ? DateFormat('dd/MM/yyyy').format(viewModel.user!.dataNascimento) 
+                          viewModel.user?.dob != null
+                            ? DateFormat('dd/MM/yyyy').format(viewModel.user!.dob!)
                             : "dd/mm/aaaa",
                           style: estiloFonteMonospace.copyWith(
                             fontSize: 14,

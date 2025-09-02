@@ -10,8 +10,14 @@ Future<void> showEditProfileDialog(BuildContext context) async {
     context: context,
     builder: (context) {
       final nameController = TextEditingController(text: viewModel.user?.nome ?? '');
-      final dobController = TextEditingController(text: DateFormat('dd/MM/yyyy').format(viewModel.user!.dataNascimento));
-      DateTime selectedDate = viewModel.user!.dataNascimento;
+      final DateTime? dataNascimentoUsuario = viewModel.user?.dob;
+      final dobController = TextEditingController(
+        text: dataNascimentoUsuario != null
+            ? DateFormat('dd/MM/yyyy').format(dataNascimentoUsuario)
+            : '',
+      );
+
+      DateTime selectedDate = dataNascimentoUsuario ?? DateTime.now();
 
       return AlertDialog(
         title: const Text('Editar Perfil'),
