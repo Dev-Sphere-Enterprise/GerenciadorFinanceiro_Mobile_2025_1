@@ -5,7 +5,9 @@ import '../../../shared/constants/style_constants.dart';
 import '../Home/home_screen.dart';
 import '../Login/login_screen.dart';
 import 'viewmodel/register_viewmodel.dart';
-
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 

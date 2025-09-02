@@ -11,6 +11,10 @@ import '../Gastos/viewmodel/gastos_viewmodel.dart';
 import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'viewmodel/home_viewmodel.dart';
 
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
