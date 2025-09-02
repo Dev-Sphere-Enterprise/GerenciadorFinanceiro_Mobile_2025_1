@@ -10,6 +10,9 @@ import '../../../shared/core/repositories/tipos_pagamento_repository.dart';
 
 class GastosViewModel extends ChangeNotifier {
   final GastosRepository _repository = GastosRepository();
+  final CategoriasRepository _categoriasRepository = CategoriasRepository();
+  final CartoesRepository _cartoesRepository = CartoesRepository();
+  final TipoPagamentoRepository _tipoPagamentoRepository = TipoPagamentoRepository();
 
   late Stream<List<GastoModel>> gastosStream;
 
@@ -27,9 +30,9 @@ class GastosViewModel extends ChangeNotifier {
     notifyListeners();
     
     final results = await Future.wait([
-      _repository.getCategorias(),
-      _repository.getCartoes(),
-      _repository.getTiposPagamento(),
+      _categoriasRepository.getCategorias(),
+      _cartoesRepository.getCartoes(),
+      _tipoPagamentoRepository.getTiposPagamento(),
     ]);
 
     categorias = results[0] as List<CategoriaModel>;
