@@ -6,7 +6,7 @@ class TipoPagamentoModel {
   final bool usaCartao;
   final bool parcelavel;
   final bool deletado;
-  final DateTime dataCriacao;
+  final DateTime? dataCriacao;
   final DateTime dataAtualizacao;
 
   TipoPagamentoModel({
@@ -15,7 +15,7 @@ class TipoPagamentoModel {
     this.usaCartao = false,
     this.parcelavel = false,
     this.deletado = false,
-    required this.dataCriacao,
+    this.dataCriacao,
     required this.dataAtualizacao,
   });
 
@@ -25,7 +25,7 @@ class TipoPagamentoModel {
       'Usa_Cartao': usaCartao,
       'Parcelavel': parcelavel,
       'Deletado': deletado,
-      'Data_Criacao': Timestamp.fromDate(dataCriacao),
+      if (dataCriacao != null) 'Data_Criacao': Timestamp.fromDate(dataCriacao!),
       'Data_Atualizacao': Timestamp.fromDate(dataAtualizacao),
     };
   }
@@ -37,28 +37,10 @@ class TipoPagamentoModel {
       usaCartao: map['Usa_Cartao'] as bool? ?? false,
       parcelavel: map['Parcelavel'] as bool? ?? false,
       deletado: map['Deletado'] as bool? ?? false,
-      dataCriacao: (map['Data_Criacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataCriacao: (map['Data_Criacao'] as Timestamp?)?.toDate(),
       dataAtualizacao: (map['Data_Atualizacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
-  TipoPagamentoModel copyWith({
-    String? id,
-    String? nome,
-    bool? usaCartao,
-    bool? parcelavel,
-    bool? deletado,
-    DateTime? dataCriacao,
-    DateTime? dataAtualizacao,
-  }) {
-    return TipoPagamentoModel(
-      id: id ?? this.id,
-      nome: nome ?? this.nome,
-      usaCartao: usaCartao ?? this.usaCartao,
-      parcelavel: parcelavel ?? this.parcelavel,
-      deletado: deletado ?? this.deletado,
-      dataCriacao: dataCriacao ?? this.dataCriacao,
-      dataAtualizacao: dataAtualizacao ?? this.dataAtualizacao,
-    );
-  }
+  bool get isFixo => dataCriacao == null;
 }
