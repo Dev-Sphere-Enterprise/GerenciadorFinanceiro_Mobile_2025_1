@@ -34,19 +34,31 @@ class TiposPagamentosScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Tipos de Pagamento', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 24)),
-                      const SizedBox(height: 20),
+                      Text(
+                        'Tipos de pagamento',
+                        style: estiloFonteMonospace.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
                       Expanded(
                         child: StreamBuilder<List<TipoPagamentoModel>>(
-                          stream: viewModel.tiposStream,
+                          stream: viewModel.tiposUsuarioStream,
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                            if (!snapshot.hasData || snapshot.data!.isEmpty) return const Center(child: Text('Nenhum tipo disponível.', style: estiloFonteMonospace));
-                            
-                            final tipos = snapshot.data!;
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            // Combine as duas listas: tipos gerais primeiro, depois os do usuário.
+                            final List<TipoPagamentoModel> tiposCombinados = [
+                              ...viewModel.tiposGerais,
+                              ...snapshot.data ?? [],
+                            ];
+
+                            if (tiposCombinados.isEmpty) {
+                              return const Center(child: Text('Nenhum tipo disponível.'));
+                            }
+
                             return ListView.builder(
-                              itemCount: tipos.length,
-                              itemBuilder: (context, index) => _buildTipoItem(context, viewModel, tipos[index]),
+                              itemCount: tiposCombinados.length,
+                              itemBuilder: (context, index) => _buildTipoItem(context, viewModel, tiposCombinados[index]),
                             );
                           },
                         ),
@@ -86,7 +98,7 @@ class TiposPagamentosScreen extends StatelessWidget {
           ),
           SizedBox(
             width: 96,
-            child: tipo.isGeneral
+            child: tipo.isFixo
                 ? const SizedBox.shrink()
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.center,

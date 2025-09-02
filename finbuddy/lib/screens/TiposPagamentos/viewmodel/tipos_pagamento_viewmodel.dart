@@ -3,12 +3,24 @@ import '../../../shared/core/models/tipo_pagamento_model.dart';
 import '../../../shared/core/repositories/tipos_pagamento_repository.dart';
 
 class TiposPagamentoViewModel extends ChangeNotifier {
-  final TiposPagamentoRepository _repository = TiposPagamentoRepository();
+  final TipoPagamentoRepository _repository = TipoPagamentoRepository();
 
-  late Stream<List<TipoPagamentoModel>> tiposStream;
+  late Stream<List<TipoPagamentoModel>> tiposUsuarioStream;
+  List<TipoPagamentoModel> _tiposGerais = [];
+  List<TipoPagamentoModel> get tiposGerais => _tiposGerais;
 
   TiposPagamentoViewModel() {
-    tiposStream = _repository.getTiposStream();
+    tiposUsuarioStream = _repository.getTiposStream();
+    _loadTiposGerais();
+  }
+
+  Future<void> _loadTiposGerais() async {
+    try {
+      _tiposGerais = await _repository.getTiposGerais();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Erro ao carregar tipos gerais: $e");
+    }
   }
 
   Future<void> excluirTipo(String tipoId) async {
