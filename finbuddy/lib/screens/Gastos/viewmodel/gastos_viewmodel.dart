@@ -4,6 +4,9 @@ import '../../../shared/core/models/categoria_model.dart';
 import '../../../shared/core/models/gasto_model.dart';
 import '../../../shared/core/models/tipo_pagamento_model.dart';
 import '../../../shared/core/repositories/gastos_repository.dart';
+import '../../../shared/core/repositories/categorias_repository.dart';
+import '../../../shared/core/repositories/cartoes_repository.dart';
+import '../../../shared/core/repositories/tipos_pagamento_repository.dart';
 
 class GastosViewModel extends ChangeNotifier {
   final GastosRepository _repository = GastosRepository();

@@ -88,4 +88,15 @@ class CategoriasRepository {
         .collection('users').doc(_currentUser!.uid).collection('categorias')
         .doc(categoriaId).update({'Deletado': true});
   }
+
+  Future<List<CategoriaModel>> getCategorias() async {
+    if (_currentUser == null) return [];
+    final userCatSnap = await _firestore.collection('users').doc(_currentUser!.uid).collection('categorias').where('Deletado', isEqualTo: false).get();
+    final geraisCatSnap = await _firestore.collection('categorias_gerais').get();
+    
+    final userCategorias = userCatSnap.docs.map((d) => CategoriaModel.fromMap(d.id, d.data())).toList();
+    final geraisCategorias = geraisCatSnap.docs.map((d) => CategoriaModel.fromMap(d.id, d.data())).toList();
+    
+    return [...userCategorias, ...geraisCategorias];
+  }
 }

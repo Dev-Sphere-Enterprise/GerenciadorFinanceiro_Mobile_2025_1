@@ -1,175 +1,112 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../Profile/profile_screen.dart';
-import '../Calendar/calendar_screen.dart';
-import 'helpers/notification_service.dart';
-import 'helpers/transaction_service.dart';
-import 'helpers/add_gain_dialog.dart';
-import 'helpers/add_expense_dialog.dart';
-import '../GraficoDeGastos/widgets/grafico_de_gastos_widget.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
+import '../Calendar/calendar_screen.dart';
+import '../Gastos/dialog/gastos_fixos_dialog.dart';
+import '../Ganhos/dialog/ganhos_fixos_dialog.dart';
+import '../GraficoDeGastos/widgets/grafico_de_gastos_widget.dart';
+import '../Profile/profile_screen.dart';
+import '../Gastos/viewmodel/gastos_viewmodel.dart';
+import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
+import 'viewmodel/home_viewmodel.dart';
 
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => GanhosViewModel()),
+        ChangeNotifierProvider(create: (_) => GastosViewModel()),
+      ],
+      child: Consumer<HomeViewModel>(
+        builder: (context, viewModel, child) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (viewModel.pendingAction != null) {
+              if (viewModel.pendingAction == 'add_gain') {
+                _onAddGanhoPressed(context);
+              }
+              if (viewModel.pendingAction == 'add_expense') {
+                _onAddGastoPressed(context);
+              }
+              viewModel.clearPendingAction();
+            }
+          });
 
-class _HomeScreenState extends State<HomeScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final NotificationService _notificationService = NotificationService();
-  final TransactionService _transactionService = TransactionService();
-
-  bool _isBalanceVisibleSaldo = false;
-  bool _isBalanceVisibleGasto = false;
-  late Future<Map<String, double>> _balanceData;
-
-  @override
-  void initState() {
-    super.initState();
-    _balanceData = _fetchBalanceData();
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPendingAction();
-    });
-    _initAndCheckServices();
-  }
-  
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<double> getGastosTotais() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      return 0.0;
-    }
-
-    final gastosSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid)
-        .collection('gastos_fixos')
-        .where('Deletado', isEqualTo: false)
-        .get();
-
-    double totalGasto = 0.0;
-    for (var doc in gastosSnapshot.docs) {
-      totalGasto += (doc.data()['Valor'] as num).toDouble();
-    }
-
-    return totalGasto;
-  }
-
-  Future<double> getSaldo() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      return 0.0;
-    }
-
-    final ganhosSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid)
-        .collection('ganhos_fixos')
-        .where('Deletado', isEqualTo: false)
-        .get();
-
-    double totalGanho = 0.0;
-    for (var doc in ganhosSnapshot.docs) {
-      totalGanho += (doc.data()['Valor'] as num).toDouble();
-    }
-
-    return totalGanho;
-  }
-
-  Future<double> getGasto() async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) {
-      return 0.0;
-    }
-
-    final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
-    final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
-
-    final gastosSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUser.uid)
-        .collection('gastos_fixos')
-        .where('Data_Compra', isGreaterThanOrEqualTo: startOfMonth)
-        .where('Data_Compra', isLessThanOrEqualTo: endOfMonth)
-        .where('Deletado', isEqualTo: false)
-        .get();
-
-    double totalGasto = 0.0;
-    for (var doc in gastosSnapshot.docs) {
-      totalGasto += (doc.data()['Valor'] as num).toDouble();
-    }
-
-    return totalGasto;
-  }
-
-  Future<Map<String, double>> _fetchBalanceData() async {
-    final totalGanho = await getSaldo();
-    final totalGasto = await getGasto();
-    final totalGastosTotais = await getGastosTotais();
-
-    final saldoFinal = totalGanho - totalGastosTotais;
-
-    return {
-      'saldo': saldoFinal,
-      'gastos': totalGasto,
-    };
-  }
-
-  Future<void> _checkPendingAction() async {
-    final prefs = await SharedPreferences.getInstance();
-    final action = prefs.getString('pending_action') ?? '';
-    if (action.isNotEmpty) {
-      prefs.remove('pending_action');
-      if (action == 'add_gain') showAddGainDialog(context);
-      else if (action == 'add_expense') showAddExpenseDialog(context);
-    }
-  }
-
-  Future<void> _initAndCheckServices() async {
-    await _notificationService.initNotifications();
-    await _transactionService.processarParcelasPendentes();
-    await _transactionService.atualizarGanhosFixosVencidos();
-    await _transactionService.atualizarDatasCartoesVencidos();
-    await _notificationService.checkNotifications();
+          return Scaffold(
+            backgroundColor: corFundoScaffold,
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _showAddOptions(context),
+              backgroundColor: finBuddyBlue,
+              child: const Icon(Icons.add, color: Colors.white, size: 30),
+            ),
+            body: viewModel.isLoading
+                ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
+                : Column(
+                    children: [
+                      _buildHeader(context),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: _buildBalanceCard(context, viewModel),
+                      ),
+                      const Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                           child: GraficoDeGastosWidget(limiteCategorias: 3),
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
+    );
   }
 
   void _showAddOptions(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (ctx) {
-        return Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.trending_up, color: Colors.green),
-              title: const Text('Adicionar Ganho'),
-              onTap: () { Navigator.of(ctx).pop(); showAddGainDialog(context); },
-            ),
-            ListTile(
-              leading: const Icon(Icons.trending_down, color: Colors.red),
-              title: const Text('Adicionar Gasto'),
-              onTap: () { Navigator.of(ctx).pop(); showAddExpenseDialog(context); },
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => Wrap(
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.trending_up, color: Colors.green),
+            title: const Text('Adicionar Ganho'),
+            onTap: () {
+              Navigator.of(ctx).pop();
+              _onAddGanhoPressed(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.trending_down, color: Colors.red),
+            title: const Text('Adicionar Gasto'),
+            onTap: () {
+              Navigator.of(ctx).pop();
+              _onAddGastoPressed(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildHeader() {
+  Future<void> _onAddGanhoPressed(BuildContext context) async {
+      await showAddOrEditGanhoDialog(context: context);
+      Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
+  }
+
+  Future<void> _onAddGastoPressed(BuildContext context) async {
+    final gastosViewModel = Provider.of<GastosViewModel>(context, listen: false);
+    await gastosViewModel.loadDialogDependencies();
+    if (context.mounted) {
+      await showAddOrEditGastoDialog(context: context);
+      Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
+    }
+  }
+
+  Widget _buildHeader(BuildContext context) {
     return Container(
       color: finBuddyLime,
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, bottom: 10, left: 16, right: 16),
@@ -193,105 +130,50 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBalanceCard() {
-    return FutureBuilder<Map<String, double>>(
-      future: _balanceData,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: SizedBox(height: 60, child: CircularProgressIndicator()));
-        }
-        if (snapshot.hasError) {
-          return const Center(child: Text('Erro ao carregar saldo', style: estiloFonteMonospace));
-        }
-        
-        final saldo = snapshot.data?['saldo'] ?? 0.0;
-        final gastos = snapshot.data?['gastos'] ?? 0.0;
+  Widget _buildBalanceCard(BuildContext context, HomeViewModel viewModel) {
+    final saldo = viewModel.balanceData['saldo'] ?? 0.0;
+    final gastos = viewModel.balanceData['gastos'] ?? 0.0;
+    final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: corCardSaldo,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: corCardSaldo,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Saldo atual: ${_isBalanceVisibleSaldo ? "R\$ ${saldo.toStringAsFixed(2)}" : "R\$ ---"}',
-                    style: estiloFonteMonospace.copyWith(fontSize: 16),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: Icon(_isBalanceVisibleSaldo ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
-                    onPressed: () => setState(() => _isBalanceVisibleSaldo = !_isBalanceVisibleSaldo),
-                  )
-                ],
+              Text(
+                'Saldo atual: ${viewModel.isBalanceVisibleSaldo ? formatador.format(saldo) : "R\$ ---"}',
+                style: estiloFonteMonospace.copyWith(fontSize: 16),
               ),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Gastos do mês: ${_isBalanceVisibleGasto ? "R\$ ${gastos.toStringAsFixed(2)}" : "R\$ ---"}',
-                    style: estiloFonteMonospace.copyWith(fontSize: 16),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: Icon(
-                      _isBalanceVisibleGasto
-                          ? Icons.visibility_off_outlined
-                          : Icons.visibility_outlined,
-                      color: finBuddyDark,
-                    ),
-                    onPressed: () => setState(
-                          () => _isBalanceVisibleGasto = !_isBalanceVisibleGasto,
-                    ),
-                  ),
-                ],
-              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(viewModel.isBalanceVisibleSaldo ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
+                onPressed: viewModel.toggleSaldoVisibility,
+              )
             ],
           ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: corFundoScaffold,
-      resizeToAvoidBottomInset: false, 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddOptions(context),
-        backgroundColor: finBuddyBlue,
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-      body: Column(
-        children: [
-          _buildHeader(),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: _buildBalanceCard(),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: corCardPrincipal,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const SingleChildScrollView(
-                  child: GraficoDeGastosWidget(limiteCategorias: 3),
-                ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Gastos do mês: ${viewModel.isBalanceVisibleGasto ? formatador.format(gastos) : "R\$ ---"}',
+                style: estiloFonteMonospace.copyWith(fontSize: 16),
               ),
-            ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: Icon(viewModel.isBalanceVisibleGasto ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: finBuddyDark),
+                onPressed: viewModel.toggleGastosVisibility,
+              ),
+            ],
           ),
         ],
       ),

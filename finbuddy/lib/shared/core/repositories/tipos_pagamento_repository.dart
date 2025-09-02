@@ -58,4 +58,10 @@ class TipoPagamentoModel {
       dataAtualizacao: dataAtualizacao,
     );
   }
+
+   Future<List<TipoPagamentoModel>> getTiposPagamento() async {
+     if (_currentUser == null) return [];
+    final snap = await _firestore.collection('users').doc(_currentUser!.uid).collection('tipos_pagamento').where('Deletado', isEqualTo: false).get();
+    return snap.docs.map((d) => TipoPagamentoModel.fromMap(d.id, d.data())).toList();
+  }
 }

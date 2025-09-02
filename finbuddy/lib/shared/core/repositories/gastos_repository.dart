@@ -39,26 +39,8 @@ class GastosRepository {
         .doc(gastoId).update({'Deletado': true, 'Data_Atualizacao': Timestamp.now()});
   }
 
-  Future<List<CategoriaModel>> getCategorias() async {
-    if (_currentUser == null) return [];
-    final userCatSnap = await _firestore.collection('users').doc(_currentUser!.uid).collection('categorias').where('Deletado', isEqualTo: false).get();
-    final geraisCatSnap = await _firestore.collection('categorias_gerais').get();
-    
-    final userCategorias = userCatSnap.docs.map((d) => CategoriaModel.fromMap(d.id, d.data())).toList();
-    final geraisCategorias = geraisCatSnap.docs.map((d) => CategoriaModel.fromMap(d.id, d.data())).toList();
-    
-    return [...userCategorias, ...geraisCategorias];
-  }
-
-  Future<List<CartaoModel>> getCartoes() async {
-    if (_currentUser == null) return [];
-    final snap = await _firestore.collection('users').doc(_currentUser!.uid).collection('cartoes').where('Deletado', isEqualTo: false).get();
-    return snap.docs.map((d) => CartaoModel.fromMap(d.id, d.data())).toList();
-  }
-
-  Future<List<TipoPagamentoModel>> getTiposPagamento() async {
-     if (_currentUser == null) return [];
-    final snap = await _firestore.collection('users').doc(_currentUser!.uid).collection('tipos_pagamento').where('Deletado', isEqualTo: false).get();
-    return snap.docs.map((d) => TipoPagamentoModel.fromMap(d.id, d.data())).toList();
+  Future<void> addGastoPontual(GastoModel gasto) async {
+    final gastoNaoRecorrente = gasto.copyWith(recorrencia: false);
+    await addOrEditGasto(gastoNaoRecorrente);
   }
 }

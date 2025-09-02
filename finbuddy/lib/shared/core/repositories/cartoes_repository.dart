@@ -48,4 +48,10 @@ class CartoesRepository {
         .doc(cartaoId)
         .update({'Deletado': true, 'Data_Atualizacao': Timestamp.now()});
   }
+
+  Future<List<CartaoModel>> getCartoes() async {
+    if (_currentUser == null) return [];
+    final snap = await _firestore.collection('users').doc(_currentUser!.uid).collection('cartoes').where('Deletado', isEqualTo: false).get();
+    return snap.docs.map((d) => CartaoModel.fromMap(d.id, d.data())).toList();
+  }
 }

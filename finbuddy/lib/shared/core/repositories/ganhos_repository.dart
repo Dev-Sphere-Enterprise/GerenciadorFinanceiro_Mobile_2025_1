@@ -45,4 +45,9 @@ class GanhosRepository {
         .doc(ganhoId)
         .update({'Deletado': true, 'Data_Atualizacao': Timestamp.now()});
   }
+
+  Future<void> addGanhoPontual(GanhoModel ganho) async {
+    final ganhoNaoRecorrente = ganho.copyWith(recorrencia: false);
+    await addOrEditGanho(ganhoNaoRecorrente);
+  }
 }
