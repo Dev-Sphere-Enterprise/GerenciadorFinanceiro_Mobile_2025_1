@@ -1,4 +1,4 @@
-import 'package.flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -6,7 +6,7 @@ import '../../../../shared/constants/style_constants.dart';
 import '../graficos/construir_grafico_coluna.dart';
 import '../graficos/construir_grafico_linha.dart';
 import '../graficos/construir_grafico_pizza.dart';
-import '../models/grafico_model.dart';
+import '../../../../shared/core/models/grafico_model.dart';
 import '../viewmodel/graficos_viewmodel.dart';
 import '../grafico_de_gastos_screen.dart';
 
@@ -74,7 +74,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChartAndSummary(BuildContext context, GraficosViewModel viewModel, GraficoData dados) {
+  Widget _buildChartAndSummary(BuildContext context, GraficosViewModel viewModel, GraficoModel dados) {
     final itemCount = limiteCategorias != null
         ? (dados.categoriasComGasto.length > limiteCategorias! ? limiteCategorias! : dados.categoriasComGasto.length)
         : dados.categoriasComGasto.length;
@@ -143,7 +143,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedChart(GraficosViewModel viewModel, GraficoData dados) {
+  Widget _buildSelectedChart(GraficosViewModel viewModel, GraficoModel dados) {
     final iconesCategorias = _getIconesCategorias();
     switch (viewModel.tipoSelecionado) {
       case TipoGrafico.pizza:

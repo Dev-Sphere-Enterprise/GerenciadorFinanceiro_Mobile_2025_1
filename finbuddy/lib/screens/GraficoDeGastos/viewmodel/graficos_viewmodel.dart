@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/grafico_data.dart';
+import '../../../shared/core/models/grafico_model.dart';
 import '../../../shared/core/repositories/graficos_repository.dart';
 
 enum TipoGrafico { pizza, coluna, linha }
@@ -9,9 +9,9 @@ class GraficosViewModel extends ChangeNotifier {
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
-  
-  GraficoData? _chartData;
-  GraficoData? get chartData => _chartData;
+
+  GraficoModel? _chartData;
+  GraficoModel? get chartData => _chartData;
 
   int _anoSelecionado = DateTime.now().year;
   int get anoSelecionado => _anoSelecionado;

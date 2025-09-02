@@ -1,9 +1,8 @@
 import 'categoria_expense_model.dart';
-
 class GraficoModel{
   final List<MapEntry<String, double>> categoriasComGasto;
   
-  final Map<String, CategoriaExpenseData> gastosPorCategoria;
+  final Map<String, CategoriaExpenseModel> gastosPorCategoria;
   
   final Map<String, String> nomesCategorias;
   
