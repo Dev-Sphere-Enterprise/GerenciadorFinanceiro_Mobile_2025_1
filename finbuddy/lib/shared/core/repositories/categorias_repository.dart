@@ -53,7 +53,7 @@ class CategoriasRepository {
 
     return _firestore
         .collection('users')
-        .doc(user.uid)
+        .doc(_currentUser?.uid)
         .collection('categorias')
         .where('Deletado', isEqualTo: false)
         .snapshots()
