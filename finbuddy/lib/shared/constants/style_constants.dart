@@ -1,8 +1,3 @@
-// ignore: dangling_library_doc_comments
-///This file should contain all the constants style used in the app
-///like texts, fonts, colors, etc.
-///you should use the standard naming convention for constants like the following:
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -34,6 +29,53 @@ const Color kErrorColor = Colors.redAccent;
 const Color kAlertColor = Colors.orangeAccent;
 //*GENERAL COLORS*//
 
+//*DEFAULT COLORS*//
+const Color finBuddyLime = Color(0xFFC4E03B);
+const Color finBuddyBlue = Color(0xFF3A86E0);
+const Color finBuddyDark = Color(0xFF212121);
+const Color finBuddyBlueSelectedday = Color(0x5F3A86E0);
+const Color corFundoScaffold = Color(0xFFF0F4F8);
+const Color corCardPrincipal = Color(0x8BFAF3DD);
+const Color corItemGasto = Color(0x89B9CD67);
+const Color corCardSaldo = Color(0x89B9CD67);
+const Color corItemMeta = Color(0x89B9CD67);
+const Color corItem = Color(0x89B9CD67);
+//*DEFAULT COLORS*//
+
+//*GRAFHIC COLORS*//
+const List<Color> kBarColors = [
+  Colors.blueAccent,
+  Colors.greenAccent,
+  Colors.orangeAccent,
+  Colors.purpleAccent,
+  Colors.redAccent,
+  Colors.cyanAccent,
+];
+
+const List<Color> kChartColors = [
+  Colors.blueAccent,
+  Colors.greenAccent,
+  Colors.orangeAccent,
+  Colors.purpleAccent,
+  Colors.redAccent,
+  Colors.cyanAccent,
+];
+
+Color corDoEvento(String tipo) {
+  switch (tipo) {
+    case 'cartao':
+      return Colors.amber;
+    case 'gasto':
+      return Colors.red;
+    case 'ganho':
+      return Colors.green;
+    default:
+      return Colors.grey;
+  }
+}
+
+//*GRAFHIC COLORS*//
+
 //**TEXT STYLES */
 const TextStyle kTitle1 = TextStyle(
   fontSize: 28,
@@ -59,4 +101,9 @@ const TextStyle kCaption1 = TextStyle(
 );
 const TextStyle kCaption2 = TextStyle(
   fontSize: 14,
+);
+const TextStyle estiloFonteMonospace = TextStyle(
+  fontFamily: 'monospace',
+  fontWeight: FontWeight.bold,
+  color: finBuddyDark,
 );
