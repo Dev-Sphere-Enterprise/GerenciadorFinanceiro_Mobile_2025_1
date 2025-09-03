@@ -54,6 +54,8 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   table_calendar: ^3.0.9
   fl_chart: ^1.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.7
 
 dev_dependencies:
   flutter_test:

@@ -5,12 +5,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AportesViewModel extends ChangeNotifier {
-  final AportesRepository _repository = AportesRepository();
+  final AportesRepository _repository;
   final String metaId;
 
   late Stream<List<AporteMetaModel>> aportesStream;
 
-  AportesViewModel({required this.metaId}) {
+  AportesViewModel({required this.metaId, required AportesRepository repository})
+      : _repository = repository {
     aportesStream = _repository.getAportesStream(metaId);
   }
 
