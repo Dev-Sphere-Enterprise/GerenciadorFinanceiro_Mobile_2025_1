@@ -73,8 +73,8 @@ void main() {
       // ACT: Preenche o formulário
       // Usamos `find.byWidgetPredicate` para encontrar os TextFormFields de forma mais precisa
       await tester.enterText(find.widgetWithText(TextFormField, 'Nome:'), 'Novo Cartão');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R$):'), '3000,00');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Fatura (R$):'), '150,55');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R\$):'), '3000,00');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Fatura (R\$):'), '150,55');
       
       // Clica no botão Salvar
       await tester.tap(find.text('Salvar'));
@@ -118,7 +118,7 @@ void main() {
       expect(find.text('1500,00'), findsOneWidget); // Limite
 
       // ACT: Altera um campo e salva
-      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R$):'), '2500,00');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R\$):'), '2500,00');
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 
@@ -146,7 +146,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.widgetWithText(TextFormField, 'Nome:'), 'Cartão com Erro');
-      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R$):'), '1000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R\$):'), '1000');
       
       await tester.tap(find.text('Salvar'));
       await tester.pump(); // Usa pump() para avançar um frame e mostrar a SnackBar
@@ -185,7 +185,7 @@ void main() {
       expect(salvarButton2.onPressed, isNull);
 
       // ACT: Preenche o segundo campo obrigatório
-      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R$):'), '1000');
+      await tester.enterText(find.widgetWithText(TextFormField, 'Limite (R\$):'), '1000');
       await tester.pumpAndSettle();
 
       // ASSERT: Botão agora deve estar habilitado
