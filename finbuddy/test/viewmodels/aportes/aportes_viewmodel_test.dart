@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:gerenciador_financeiro_mobile/shared/core/models/aporte_meta_model.dart';
-import 'package:gerenciador_financeiro_mobile/shared/core/repositories/aportes_repository.dart';
-import 'package:gerenciador_financeiro_mobile/screens/Aportes/viewmodel/aportes_viewmodel.dart';
+import 'package:finbuddy/shared/core/models/aporte_meta_model.dart';
+import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
+import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
 import 'aportes_viewmodel_test.mocks.dart';
 
 @GenerateMocks([AportesRepository])

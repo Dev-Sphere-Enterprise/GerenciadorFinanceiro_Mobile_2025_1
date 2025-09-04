@@ -6,7 +6,7 @@ import 'package:finbuddy/shared/core/models/ganho_model.dart';
 import 'package:finbuddy/shared/core/repositories/ganhos_repository.dart';
 import 'package:finbuddy/screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 
-import 'ganhos_viewmodel_test:mocks.dart'; // Arquivo a ser gerado
+import 'ganhos_viewmodel_test.mocks.dart'; // Arquivo a ser gerado
 
 @GenerateMocks([GanhosRepository])
 void main() {

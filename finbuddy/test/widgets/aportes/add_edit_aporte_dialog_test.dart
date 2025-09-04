@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:lib/screens/Aportes/dialog/add_edit_aporte_dialog.dart'; 
-import 'package:lib/screens/Aportes/viewmodel/aportes_viewmodel.dart'; 
-import 'package:lib/shared/core/models/aporte_meta_model.dart'; 
-import 'package:lib/shared/core/repositories/aportes_repository.dart';
+import 'package:finbuddy/screens/Aportes/dialog/add_edit_aporte_dialog.dart';
+import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
+import 'package:finbuddy/shared/core/models/aporte_meta_model.dart';
+import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
 import 'package:provider/provider.dart';
 
 class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {

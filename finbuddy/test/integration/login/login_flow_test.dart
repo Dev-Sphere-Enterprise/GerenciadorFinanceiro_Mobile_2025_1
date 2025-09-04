@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
-import 'package:../lib/screens/Login/login_screen.dart';
-import 'package:../lib/screens/Login/viewmodel/login_viewmodel.dart';
+import 'package:finbuddy/screens/Login/login_screen.dart';
+import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
 
 // Ele nos dá controle total sobre os resultados do login durante o teste.
 class FakeLoginViewModel extends ChangeNotifier implements LoginViewModel {
