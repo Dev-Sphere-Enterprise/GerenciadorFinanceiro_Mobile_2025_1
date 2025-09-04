@@ -150,7 +150,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
         return construirGraficoPizza(
           dados.categoriasComGasto,
           viewModel.indiceSelecionado,
-          (index) => viewModel.onPieSectionTouched(index),
+              (index) => viewModel.onPieSectionTouched(index),
         );
       case TipoGrafico.coluna:
         return construirGraficoColuna(
@@ -159,8 +159,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
           iconesCategorias,
         );
       case TipoGrafico.linha:
-        final anoAtual = DateTime.now().year;
-        final diasNoMes = DateTime(anoAtual, viewModel.mesSelecionado + 1, 0).day;
+        final diasNoMes = dados.diasNoMes;
 
         final List<FlSpot> gastosSpots = dados.gastosAcumuladosPorDia.entries.map((entry) {
           return FlSpot(entry.key.toDouble(), entry.value);
@@ -168,12 +167,12 @@ class GraficoDeGastosWidget extends StatelessWidget {
 
         gastosSpots.sort((a, b) => a.x.compareTo(b.x));
 
-        final double teto = dados.tetoDeGastosTotal; 
+        final double teto = dados.tetoDeGastosTotal;
         final List<FlSpot> tetoSpots = [
           FlSpot(1, teto),
           FlSpot(diasNoMes.toDouble(), teto),
         ];
-        
+
         return construirGraficoLinha(gastosSpots, tetoSpots, diasNoMes);
     }
   }

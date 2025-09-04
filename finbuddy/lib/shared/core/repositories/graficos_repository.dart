@@ -18,6 +18,8 @@ class GraficosRepository {
     final resultados = await Future.wait<dynamic>([
       _carregarGastosPorCategoria(uid, ano, mes),
       _categoriasRepository.getCategoriasStream().first,
+      _carregarTetoDeGastosTotal(uid, ano, mes),
+      _carregarGastosAcumuladosPorDia(uid, ano, mes),
     ]);
 
     final gastosPorCategoria = resultados[0] as Map<String, CategoriaExpenseModel>;
@@ -39,7 +41,16 @@ class GraficosRepository {
     final totalLancamentos = gastosPorCategoria.values
         .fold<int>(0, (sum, item) => sum + item.count);
 
+    final diasNoMes = _getDiasNoMes(ano, mes);
+
+    final tetoDeGastosTotal = resultados[2] as double;
+
+    final gastosAcumuladosPorDia = resultados[3] as Map<int, double>;
+
     return GraficoModel(
+      tetoDeGastosTotal:tetoDeGastosTotal,
+      diasNoMes:diasNoMes,
+      gastosAcumuladosPorDia:gastosAcumuladosPorDia,
       gastosPorCategoria: gastosPorCategoria,
       nomesCategorias: nomesCategorias,
       categoriasComGasto: categoriasComGasto,
@@ -48,6 +59,58 @@ class GraficosRepository {
     );
   }
 
+  Future<Map<int, double>> _carregarGastosAcumuladosPorDia(String uid, int ano, int mes) async {
+    final inicioDoMes = DateTime(ano, mes, 1);
+    final fimDoMes = DateTime(ano, mes + 1, 0);
+
+    final snapshot = await _firestore
+        .collection('usuarios')
+        .doc(uid)
+        .collection('lancamentos')
+        .where('data', isGreaterThanOrEqualTo: inicioDoMes)
+        .where('data', isLessThanOrEqualTo: fimDoMes)
+        .get();
+
+    final Map<int, double> gastosDiarios = {};
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final dia = (data['data'] as Timestamp).toDate().day;
+      final valor = data['valor'] as double;
+      gastosDiarios.update(dia, (valorExistente) => valorExistente + valor, ifAbsent: () => valor);
+    }
+
+    // Acumular os gastos por dia
+    final Map<int, double> gastosAcumulados = {};
+    double acumulado = 0.0;
+    for (var i = 1; i <= _getDiasNoMes(ano, mes); i++) {
+      acumulado += gastosDiarios[i] ?? 0.0;
+      gastosAcumulados[i] = acumulado;
+    }
+
+    return gastosAcumulados;
+  }
+
+  Future<double> _carregarTetoDeGastosTotal(String uid, int ano, int mes) async {
+    final snapshot = await _firestore
+        .collection('usuarios')
+        .doc(uid)
+        .collection('categorias')
+        .get();
+
+    double tetoTotal = 0.0;
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final Map<String, dynamic> tetos = Map.from(data['tetoGastos'] ?? {});
+      final tetoMensal = tetos['$ano-$mes'] ?? 0.0;
+      tetoTotal += tetoMensal;
+    }
+    return tetoTotal;
+  }
+
+  int _getDiasNoMes(int ano, int mes) {
+    final data = DateTime(ano, mes + 1, 0);
+    return data.day;
+  }
   Future<Map<String, CategoriaExpenseModel>> _carregarGastosPorCategoria(
       String uid, int ano, int mes) async {
     final inicioMes = DateTime(ano, mes, 1);

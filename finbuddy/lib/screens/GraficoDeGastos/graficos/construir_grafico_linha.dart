@@ -7,6 +7,7 @@ import '../../../../../shared/constants/style_constants.dart';
 Widget construirGraficoLinha(
     List<FlSpot> gastosSpots,
     List<FlSpot> tetoSpots,
+    int diasNoMes,
     ) {
   final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: '');
 
@@ -18,7 +19,7 @@ Widget construirGraficoLinha(
   final double maxYComRespiro = valorMaximo * 1.2;
 
   Widget EixoY(double value, TitleMeta meta) {
-    if (value == meta.max || value == meta.min) return Container(); 
+    if (value == meta.max || value == meta.min) return Container();
     return Text(
       formatadorMoeda.format(value),
       style: estiloFonteMonospace.copyWith(
@@ -83,7 +84,7 @@ Widget construirGraficoLinha(
       minY: 0,
       maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro,
       minX: 1,
-      maxX: 30,
+      maxX: diasNoMes.toDouble(),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
