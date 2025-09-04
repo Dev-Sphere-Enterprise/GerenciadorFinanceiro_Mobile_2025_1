@@ -159,12 +159,22 @@ class GraficoDeGastosWidget extends StatelessWidget {
           iconesCategorias,
         );
       case TipoGrafico.linha:
-        final List<FlSpot> gastosExemplo = [
-          FlSpot(1, 150), FlSpot(5, 230), FlSpot(10, 200),
-          FlSpot(15, 400), FlSpot(20, 350), FlSpot(25, 500),
+        final anoAtual = DateTime.now().year;
+        final diasNoMes = DateTime(anoAtual, viewModel.mesSelecionado + 1, 0).day;
+
+        final List<FlSpot> gastosSpots = dados.gastosAcumuladosPorDia.entries.map((entry) {
+          return FlSpot(entry.key.toDouble(), entry.value);
+        }).toList();
+
+        gastosSpots.sort((a, b) => a.x.compareTo(b.x));
+
+        final double teto = dados.tetoDeGastosTotal; 
+        final List<FlSpot> tetoSpots = [
+          FlSpot(1, teto),
+          FlSpot(diasNoMes.toDouble(), teto),
         ];
-        final List<FlSpot> tetoExemplo = [FlSpot(1, 600), FlSpot(30, 600)];
-        return construirGraficoLinha(gastosExemplo, tetoExemplo);
+        
+        return construirGraficoLinha(gastosSpots, tetoSpots, diasNoMes);
     }
   }
 
