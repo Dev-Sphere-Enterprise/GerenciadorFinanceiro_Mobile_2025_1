@@ -3,11 +3,12 @@ import '../../../shared/core/models/cartao_model.dart';
 import '../../../shared/core/repositories/cartoes_repository.dart';
 
 class CartoesViewModel extends ChangeNotifier {
-  final CartoesRepository _repository = CartoesRepository();
+  final CartoesRepository _repository;
 
   late Stream<List<CartaoModel>> cartoesStream;
 
-  CartoesViewModel() {
+  CartoesViewModel({CartoesRepository? repository}) 
+      : _repository = repository ?? CartoesRepository() {
     cartoesStream = _repository.getCartoesStream();
   }
 

@@ -6,14 +6,11 @@ import 'package:lib/shared/core/models/aporte_meta_model.dart';
 import 'package:lib/shared/core/repositories/aportes_repository.dart';
 import 'package:provider/provider.dart';
 
-// 1. Crie uma versão "Fake" do seu ViewModel para o teste
 class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {
-  // Variáveis para nos ajudar a verificar se os métodos foram chamados
   bool salvarAporteCalled = false;
   bool _shouldReturnSuccess = true;
   Map<String, dynamic>? capturedData;
 
-  // Método para controlar o resultado do teste
   void setSalvarAporteResult(bool success) {
     _shouldReturnSuccess = success;
   }
@@ -25,7 +22,6 @@ class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {
     return _shouldReturnSuccess;
   }
 
-  // --- Métodos não utilizados no teste, mas necessários pela interface ---
   @override
   late final AportesRepository _repository;
   @override
@@ -39,16 +35,13 @@ class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {
 }
 
 void main() {
-  // Declara o ViewModel que será usado nos testes
   late FakeAportesViewModel fakeViewModel;
 
-  // `setUp` é executado antes de cada teste, garantindo um estado limpo
   setUp(() {
     fakeViewModel = FakeAportesViewModel();
   });
 
   // Função auxiliar para criar o ambiente do teste
-  // Ela cria um app com um botão que abre o nosso dialog
   Widget buildTestableWidget(Widget child) {
     return ChangeNotifierProvider<AportesViewModel>(
       create: (_) => fakeViewModel,

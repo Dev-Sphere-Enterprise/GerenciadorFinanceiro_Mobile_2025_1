@@ -14,14 +14,12 @@ void main() {
 
   setUp(() {
     mockRepository = MockAportesRepository();
-    // Sempre crie uma instância limpa do ViewModel para cada teste
     viewModel = AportesViewModel(metaId: tMetaId, repository: mockRepository);
   });
 
   group('AportesViewModel Tests', () {
 
     test('Construtor deve chamar getAportesStream', () {
-      // Assert: Verifica se o método foi chamado no repositório com o ID correto
       verify(mockRepository.getAportesStream(tMetaId)).called(1);
     });
 
