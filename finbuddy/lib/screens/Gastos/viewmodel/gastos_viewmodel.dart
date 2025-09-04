@@ -45,12 +45,14 @@ class GastosViewModel extends ChangeNotifier {
 
   Future<void> excluirGasto(String gastoId) async {
     await _repository.deleteGasto(gastoId);
+    notifyListeners();
   }
 
   Future<bool> salvarGasto(GastoModel gasto) async {
     try {
       final gastoFixo = gasto.copyWith(recorrencia: true);
       await _repository.addOrEditGasto(gastoFixo);
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Erro ao salvar gasto: $e");

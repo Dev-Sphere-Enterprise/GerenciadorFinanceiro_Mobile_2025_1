@@ -18,6 +18,7 @@ class AportesViewModel extends ChangeNotifier {
   Future<void> excluirAporte(String aporteId) async {
     try {
       await _repository.deleteAporte(metaId, aporteId);
+      notifyListeners();
     } catch (e) {
       debugPrint("Erro ao excluir aporte: $e");
     }
@@ -26,6 +27,7 @@ class AportesViewModel extends ChangeNotifier {
   Future<void> recalcularMeta() async {
     try {
       await _repository.recalcularEAtualizarValorMeta(metaId);
+      notifyListeners();
     } catch (e) {
       debugPrint("Erro ao recalcular meta: $e");
     }
@@ -44,6 +46,7 @@ class AportesViewModel extends ChangeNotifier {
       );
       
       await _repository.addOrEditAporte(metaId, novoAporte);
+      notifyListeners();
       return true; 
     } catch (e) {
       debugPrint("Erro ao salvar o aporte: $e");

@@ -30,6 +30,7 @@ class TiposPagamentoViewModel extends ChangeNotifier {
   Future<bool> salvarTipo(TipoPagamentoModel tipo) async {
     try {
       await _repository.addOrEditTipo(tipo);
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Erro ao salvar tipo de pagamento: $e");

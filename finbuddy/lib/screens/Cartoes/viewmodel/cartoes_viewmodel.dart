@@ -14,6 +14,7 @@ class CartoesViewModel extends ChangeNotifier {
   Future<void> excluirCartao(String cartaoId) async {
     try {
       await _repository.deleteCartao(cartaoId);
+      notifyListeners();
     } catch (e) {
       debugPrint("Erro ao excluir cartão: $e");
     }
@@ -22,6 +23,7 @@ class CartoesViewModel extends ChangeNotifier {
   Future<bool> salvarCartao(CartaoModel cartao) async {
     try {
       await _repository.addOrEditCartao(cartao);
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Erro ao salvar cartão: $e");
