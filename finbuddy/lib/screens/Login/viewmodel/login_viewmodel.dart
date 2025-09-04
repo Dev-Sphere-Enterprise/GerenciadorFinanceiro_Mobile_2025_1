@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../shared/core/repositories/auth_repository.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final AuthRepository _repository = AuthRepository();
+  final AuthRepository _repository;
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -17,7 +17,8 @@ class LoginViewModel extends ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
-  LoginViewModel() {
+  LoginViewModel({AuthRepository? repository})
+      : _repository = repository ?? AuthRepository() {
     emailController.addListener(_validateForm);
     passwordController.addListener(_validateForm);
   }
@@ -42,12 +43,12 @@ class LoginViewModel extends ChangeNotifier {
       );
       _isLoading = false;
       notifyListeners();
-      return true; 
+      return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = e.message; 
+      _errorMessage = e.message;
       _isLoading = false;
       notifyListeners();
-      return false; 
+      return false;
     }
   }
 
@@ -55,7 +56,7 @@ class LoginViewModel extends ChangeNotifier {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
-    
+
     try {
       await _repository.signInWithGoogle(
         setErrorMessage: (message) {
@@ -65,14 +66,14 @@ class LoginViewModel extends ChangeNotifier {
       );
       _isLoading = false;
       notifyListeners();
-      return true; 
+      return true;
     } on FirebaseAuthException catch(e) {
       if (e.code != 'CANCELLED') {
         _errorMessage = 'Ocorreu um erro ao logar com o Google.';
       }
       _isLoading = false;
       notifyListeners();
-      return false; 
+      return false;
     }
   }
 
