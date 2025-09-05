@@ -16,6 +16,24 @@ const Color finBuddyDark = Color(0xFF212121);
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Erro de Autenticação'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
       // O ChangeNotifierProvider foi removido daqui para que a tela

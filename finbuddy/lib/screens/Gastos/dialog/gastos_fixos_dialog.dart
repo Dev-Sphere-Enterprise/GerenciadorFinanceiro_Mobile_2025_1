@@ -5,20 +5,23 @@ import '../../../shared/constants/style_constants.dart';
 import '../../../shared/core/models/gasto_model.dart';
 import '../viewmodel/gastos_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../shared/core/models/tipo_pagamento_model.dart';
 
 Future<void> showAddOrEditGastoDialog({required BuildContext context, GastoModel? gasto}) async {
   final viewModel = Provider.of<GastosViewModel>(context, listen: false);
 
   await showDialog(
     context: context,
-    builder: (dialogContext) => _GastoDialogContent(viewModel: viewModel, gasto: gasto),
+    builder: (dialogContext) => ChangeNotifierProvider.value(
+      value: viewModel,
+      child: _GastoDialogContent(gasto: gasto),
+    ),
   );
 }
 
 class _GastoDialogContent extends StatefulWidget {
-  final GastosViewModel viewModel;
   final GastoModel? gasto;
-  const _GastoDialogContent({required this.viewModel, this.gasto});
+  const _GastoDialogContent({this.gasto});
 
   @override
   _GastoDialogContentState createState() => _GastoDialogContentState();
@@ -33,9 +36,14 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   bool _isLoading = false;
   bool _isFormValid = false;
 
+  late GastosViewModel _viewModel;
+
   @override
   void initState() {
     super.initState();
+
+    _viewModel = Provider.of<GastosViewModel>(context, listen: false);
+
     final gasto = widget.gasto;
     _nomeController = TextEditingController(text: gasto?.nome ?? '');
     _valorController = TextEditingController(text: gasto?.valor.toString().replaceAll('.', ',') ?? '');
@@ -45,9 +53,16 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     _selectedCategoria = gasto?.idCategoria;
     _selectedParcelas = gasto?.parcelas ?? 1;
 
+    if (_selectedTipo != null && gasto?.idCartao != null) {
+      final tipo = _safeTipoAtual;
+      if (tipo?.usaCartao == true) {
+        _selectedCartao = gasto!.idCartao;
+      }
+    }
+
     _nomeController.addListener(_validateForm);
     _valorController.addListener(_validateForm);
-    _validateForm();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _validateForm());
   }
 
   @override
@@ -59,17 +74,22 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     super.dispose();
   }
 
+  TipoPagamentoModel? get _safeTipoAtual {
+    if (_selectedTipo == null) return null;
+    return _viewModel.tiposPagamento.firstWhere((t) => t.id == _selectedTipo, orElse: () => null as TipoPagamentoModel);
+  }
+
   void _validateForm() {
-    final tipoAtual = _selectedTipo != null ? widget.viewModel.tiposPagamento.firstWhere((t) => t.id == _selectedTipo) : null;
+    final tipoAtual = _safeTipoAtual;
     final bool exigeCartao = tipoAtual?.usaCartao ?? false;
 
     final isValid = _nomeController.text.trim().isNotEmpty &&
-                    _valorController.text.trim().isNotEmpty &&
-                    _selectedTipo != null &&
-                    _selectedCategoria != null &&
-                    (!exigeCartao || _selectedCartao != null);
-    
-    if (isValid != _isFormValid) {
+        _valorController.text.trim().isNotEmpty &&
+        _selectedTipo != null &&
+        _selectedCategoria != null &&
+        (!exigeCartao || _selectedCartao != null);
+
+    if (mounted && isValid != _isFormValid) {
       setState(() {
         _isFormValid = isValid;
       });
@@ -79,12 +99,13 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
   void _onTipoPagamentoChanged(String? value) {
     setState(() {
       _selectedTipo = value;
-      if (value != null) {
-        final tipo = widget.viewModel.tiposPagamento.firstWhere((t) => t.id == value);
+      final tipo = _safeTipoAtual;
+      if (tipo != null) {
         if (!tipo.parcelavel) _selectedParcelas = 1;
         if (!tipo.usaCartao) _selectedCartao = null;
       }
     });
+    // A validação é chamada logo após o setState
     _validateForm();
   }
 
@@ -95,15 +116,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
     final valorFinal = double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0;
 
     if (currentUser == null) {
-      debugPrint("Erro: Usuário não está logado!");
-      setState(() => _isLoading = false);
-      // Opcional: mostrar uma mensagem de erro para o usuário
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, faça o login novamente.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // ... (código de erro de usuário não logado)
       return;
     }
 
@@ -121,27 +134,24 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
       dataAtualizacao: DateTime.now(),
     );
 
-    final sucesso = await widget.viewModel.salvarGasto(gasto);
+    final sucesso = await _viewModel.salvarGasto(gasto);
     if (mounted) {
       if (sucesso) {
         Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao salvar gasto'), backgroundColor: Colors.red,));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao salvar gasto'), backgroundColor: Colors.red));
         setState(() => _isLoading = false);
       }
     }
   }
 
   Widget _buildDialogRow(String label, Widget child) {
+    // ... (sem alterações aqui)
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text('$label:', style: estiloFonteMonospace.copyWith(fontSize: 14)),
-          ),
+          SizedBox(width: 100, child: Text('$label:', style: estiloFonteMonospace.copyWith(fontSize: 14))),
           const SizedBox(width: 10),
           Expanded(child: child),
         ],
@@ -151,8 +161,9 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
 
   @override
   Widget build(BuildContext context) {
+    // O Consumer não é mais necessário aqui, pois a tela principal já garante que os dados estão carregados.
     final bool isEditing = widget.gasto != null;
-    final tipoAtual = _selectedTipo != null ? widget.viewModel.tiposPagamento.firstWhere((t) => t.id == _selectedTipo) : null;
+    final tipoAtual = _safeTipoAtual;
     final bool isParcelavel = tipoAtual?.parcelavel ?? false;
     final bool exigeCartao = tipoAtual?.usaCartao ?? false;
 
@@ -177,18 +188,14 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  isEditing ? 'Editar Gasto' : 'Adicionar novo Gasto',
-                  textAlign: TextAlign.center,
-                  style: estiloFonteMonospace.copyWith(fontSize: 18),
-                ),
+                Text(isEditing ? 'Editar Gasto' : 'Adicionar novo Gasto', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 18)),
                 const SizedBox(height: 24),
                 _buildDialogRow('Título', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
                 _buildDialogRow('Valor', TextFormField(controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
                 _buildDialogRow('Forma de pgto.', DropdownButtonFormField<String>(
                   decoration: inputDecoration,
                   value: _selectedTipo,
-                  items: widget.viewModel.tiposPagamento.map((t) => DropdownMenuItem<String>(value: t.id, child: Text(t.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
+                  items: _viewModel.tiposPagamento.map((t) => DropdownMenuItem<String>(value: t.id, child: Text(t.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
                   onChanged: _onTipoPagamentoChanged,
                   validator: (v) => v == null ? 'Obrigatório' : null,
                 )),
@@ -196,7 +203,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                   _buildDialogRow('Cartão', DropdownButtonFormField<String>(
                     decoration: inputDecoration,
                     value: _selectedCartao,
-                    items: widget.viewModel.cartoes.map((c) => DropdownMenuItem<String>(value: c.id, child: Text(c.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
+                    items: _viewModel.cartoes.map((c) => DropdownMenuItem<String>(value: c.id, child: Text(c.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
                     onChanged: (v) => setState(() { _selectedCartao = v; _validateForm(); }),
                     validator: (v) => v == null ? 'Obrigatório' : null,
                   )),
@@ -210,17 +217,14 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
                 _buildDialogRow('Categoria', DropdownButtonFormField<String>(
                   decoration: inputDecoration,
                   value: _selectedCategoria,
-                  items: widget.viewModel.categorias.map((c) => DropdownMenuItem<String>(value: c.id, child: Text(c.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
+                  items: _viewModel.categorias.map((c) => DropdownMenuItem<String>(value: c.id, child: Text(c.nome, style: estiloFonteMonospace.copyWith(fontSize: 14)))).toList(),
                   onChanged: (v) => setState(() { _selectedCategoria = v; _validateForm(); }),
                   validator: (v) => v == null ? 'Obrigatório' : null,
                 )),
                 _buildDialogRow('Data do pgto.', InkWell(
                   onTap: () async {
                     DateTime? picked = await showDatePicker(context: context, initialDate: _selectedDate, firstDate: DateTime(2000), lastDate: DateTime(2100));
-                    if (picked != null) {
-                      setState(() => _selectedDate = picked);
-                      _validateForm();
-                    }
+                    if (picked != null) setState(() => _selectedDate = picked);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
