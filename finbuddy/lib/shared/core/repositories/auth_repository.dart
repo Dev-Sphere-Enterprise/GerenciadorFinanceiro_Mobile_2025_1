@@ -27,8 +27,6 @@ class AuthRepository {
     }
 
     try {
-      // Use .set with merge: true to create the document if it doesn't exist
-      // and use the correct field names.
       await _firestore.collection('users').doc(user.uid).set({
         'nome': newName,
         'dob': Timestamp.fromDate(newDob),

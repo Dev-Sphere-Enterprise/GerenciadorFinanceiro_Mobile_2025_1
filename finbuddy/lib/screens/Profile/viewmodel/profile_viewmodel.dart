@@ -31,8 +31,7 @@ class ProfileViewModel extends ChangeNotifier {
   Future<bool> updateUserProfile(String newName, DateTime newDob) async {
     try {
       await _repository.updateUserProfile(newName, newDob);
-      _user = _user?.copyWith(nome: newName, dob: newDob);
-      notifyListeners();
+      await loadUserProfile();
       return true;
     } catch (e) {
       debugPrint("Erro ao atualizar perfil: $e");
