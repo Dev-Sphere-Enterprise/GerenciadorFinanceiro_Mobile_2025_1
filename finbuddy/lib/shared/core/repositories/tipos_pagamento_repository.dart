@@ -36,7 +36,7 @@ class TipoPagamentoRepository {
     if (tipo.id == null) {
       await ref.add(data);
     } else {
-      data.remove('Data_Criacao'); // não atualiza criação
+      data.remove('Data_Criacao');
       await ref.doc(tipo.id).update(data);
     }
   }
@@ -84,7 +84,7 @@ class TipoPagamentoRepository {
         usaCartao: data['UsaCartao'] ?? false,
         parcelavel: data['Parcelavel'] ?? false,
         deletado: false,
-        dataCriacao: null, // 👈 fixo não tem data de criação
+        dataCriacao: null,
         dataAtualizacao: DateTime.now(),
       );
     }).toList();
