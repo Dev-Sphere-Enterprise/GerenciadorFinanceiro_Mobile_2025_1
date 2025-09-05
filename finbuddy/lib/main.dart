@@ -7,7 +7,9 @@ import 'package:provider/provider.dart';
 import 'screens/GraficoDeGastos/viewmodel/graficos_viewmodel.dart';
 import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
 import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
-
+import 'screens/Home/viewmodel/home_viewmodel.dart';
+import 'screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
+import 'screens/Cartoes/viewmodel/cartoes_viewmodel.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
@@ -19,6 +21,9 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GraficosViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => GanhosViewModel()),
+        ChangeNotifierProvider(create: (_) => CartoesViewModel()),
         Provider<AportesRepository>(
           create: (_) => AportesRepository(),
         ),

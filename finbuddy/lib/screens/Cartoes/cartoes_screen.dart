@@ -11,73 +11,74 @@ class CartoesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => CartoesViewModel(),
-      child: Scaffold(
-        backgroundColor: corFundoScaffold,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: finBuddyLime,
-          title: Text('Fin_Buddy', style: estiloFonteMonospace.copyWith(color: finBuddyBlue, fontSize: 22)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
-            onPressed: () => Navigator.pop(context),
-          ),
+    // O ChangeNotifierProvider foi removido. A tela agora retorna o Scaffold diretamente.
+    return Scaffold(
+      backgroundColor: corFundoScaffold,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: finBuddyLime,
+        title: Text('Fin_Buddy', style: estiloFonteMonospace.copyWith(color: finBuddyBlue, fontSize: 22)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
+          onPressed: () => Navigator.pop(context),
         ),
-        body: Consumer<CartoesViewModel>(
-          builder: (context, viewModel, child) {
-            return SafeArea(
-              child: Padding(
+      ),
+      // O Consumer continua funcionando perfeitamente, pois ele busca o ViewModel
+      // na árvore de widgets acima dele.
+      body: Consumer<CartoesViewModel>(
+        builder: (context, viewModel, child) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(color: corCardPrincipal, borderRadius: BorderRadius.circular(12.0)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Meus Cartões', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 24)),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: StreamBuilder<List<CartaoModel>>(
-                          stream: viewModel.cartoesStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                              return const Center(child: Text('Nenhum cartão cadastrado.', style: estiloFonteMonospace));
-                            }
-                            final cartoes = snapshot.data!;
-                            return ListView.builder(
-                              itemCount: cartoes.length,
-                              itemBuilder: (context, index) {
-                                return _buildCartaoItem(context, viewModel, cartoes[index]);
-                              },
-                            );
-                          },
-                        ),
+                decoration: BoxDecoration(color: corCardPrincipal, borderRadius: BorderRadius.circular(12.0)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Meus Cartões', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 24)),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: StreamBuilder<List<CartaoModel>>(
+                        stream: viewModel.cartoesStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Center(child: Text('Nenhum cartão cadastrado.', style: estiloFonteMonospace));
+                          }
+                          final cartoes = snapshot.data!;
+                          return ListView.builder(
+                            itemCount: cartoes.length,
+                            itemBuilder: (context, index) {
+                              return _buildCartaoItem(context, viewModel, cartoes[index]);
+                            },
+                          );
+                        },
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: finBuddyLime,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () => showAddEditCartaoDialog(context: context),
-                        child: Text('Adicionar Cartão', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: finBuddyLime,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                    ],
-                  ),
+                      onPressed: () => showAddEditCartaoDialog(context: context),
+                      child: Text('Adicionar Cartão', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
+  // Nenhuma alteração necessária nos métodos auxiliares
   Widget _buildCartaoItem(BuildContext context, CartoesViewModel viewModel, CartaoModel cartao) {
     final progresso = cartao.limiteCredito > 0 ? (cartao.valorFaturaAtual / cartao.limiteCredito).clamp(0.0, 1.0) : 0.0;
     final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');

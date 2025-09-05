@@ -20,53 +20,46 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => GanhosViewModel()),
-        ChangeNotifierProvider(create: (_) => GastosViewModel()),
-      ],
-      child: Consumer<HomeViewModel>(
-        builder: (context, viewModel, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (viewModel.pendingAction != null) {
-              if (viewModel.pendingAction == 'add_gain') {
-                _onAddGanhoPressed(context);
-              }
-              if (viewModel.pendingAction == 'add_expense') {
-                _onAddGastoPressed(context);
-              }
-              viewModel.clearPendingAction();
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (viewModel.pendingAction != null) {
+            if (viewModel.pendingAction == 'add_gain') {
+              _onAddGanhoPressed(context);
             }
-          });
+            if (viewModel.pendingAction == 'add_expense') {
+              _onAddGastoPressed(context);
+            }
+            viewModel.clearPendingAction();
+          }
+        });
 
-          return Scaffold(
-            backgroundColor: corFundoScaffold,
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => _showAddOptions(context),
-              backgroundColor: finBuddyBlue,
-              child: const Icon(Icons.add, color: Colors.white, size: 30),
-            ),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
-                : Column(
-                    children: [
-                      _buildHeader(context),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _buildBalanceCard(context, viewModel),
-                      ),
-                      const Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                           child: GraficoDeGastosWidget(limiteCategorias: 3),
-                        ),
-                      ),
-                    ],
-                  ),
-          );
-        },
-      ),
+        return Scaffold(
+          backgroundColor: corFundoScaffold,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showAddOptions(context),
+            backgroundColor: finBuddyBlue,
+            child: const Icon(Icons.add, color: Colors.white, size: 30),
+          ),
+          body: viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
+              : Column(
+            children: [
+              _buildHeader(context),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _buildBalanceCard(context, viewModel),
+              ),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: GraficoDeGastosWidget(limiteCategorias: 3),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

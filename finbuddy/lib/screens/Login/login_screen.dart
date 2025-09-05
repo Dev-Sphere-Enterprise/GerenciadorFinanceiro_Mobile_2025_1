@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
+import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
+import '../Gastos/viewmodel/gastos_viewmodel.dart';
 import '../Home/home_screen.dart';
+import '../Home/viewmodel/home_viewmodel.dart';
 import '../Register/register_screen.dart';
 import 'viewmodel/login_viewmodel.dart';
 
@@ -60,7 +63,10 @@ class LoginScreen extends StatelessWidget {
                onPressed: viewModel.isFormValid ? () async {
                 final sucesso = await viewModel.loginWithEmail();
                 if (sucesso && context.mounted) {
-                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                  // Apenas navegue. Simples assim.
+                  Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (_) => const HomeScreen()
+                  ));
                 }
                } : null,
                child: const Text('ENTRAR', style: TextStyle(fontFamily: 'JetBrainsMono', fontWeight: FontWeight.bold, color: Colors.white)),
@@ -71,7 +77,9 @@ class LoginScreen extends StatelessWidget {
                onPressed: () async {
                 final sucesso = await viewModel.loginWithGoogle();
                 if (sucesso && context.mounted) {
-                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (_) => const HomeScreen()
+                  ));
                 }
                },
                icon: SvgPicture.asset('assets/svg/google.svg', height: 20.0),

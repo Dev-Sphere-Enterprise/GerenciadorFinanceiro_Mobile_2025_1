@@ -11,78 +11,76 @@ class GanhosFixosScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => GanhosViewModel(),
-      child: Scaffold(
-        backgroundColor: corFundoScaffold,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: finBuddyLime,
-          title: Text('Fin_Buddy', style: estiloFonteMonospace.copyWith(color: finBuddyBlue, fontSize: 22)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
-            onPressed: () => Navigator.pop(context),
-          ),
+    return Scaffold(
+      backgroundColor: corFundoScaffold,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: finBuddyLime,
+        title: Text('Fin_Buddy', style: estiloFonteMonospace.copyWith(color: finBuddyBlue, fontSize: 22)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: finBuddyBlue),
+          onPressed: () => Navigator.pop(context),
         ),
-        body: Consumer<GanhosViewModel>(
-          builder: (context, viewModel, child) {
-            return SafeArea(
-              child: Padding(
+      ),
+      body: Consumer<GanhosViewModel>(
+        builder: (context, viewModel, child) {
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Container(
                 padding: const EdgeInsets.all(16.0),
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(color: corCardPrincipal, borderRadius: BorderRadius.circular(12.0)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Ganhos Fixos', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 24)),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: StreamBuilder<List<GanhoModel>>(
-                          stream: viewModel.ganhosStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const Center(child: CircularProgressIndicator());
-                            }
-                            if (snapshot.hasError) {
-                              debugPrint(snapshot.error.toString());
-                              return const Center(child: Text('Ocorreu um erro. Verifique o console.'));
-                            }
-                            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                              return const Center(child: Text('Nenhum ganho cadastrado.', style: estiloFonteMonospace));
-                            }
-                            final ganhos = snapshot.data!;
-                            return ListView.builder(
-                              itemCount: ganhos.length,
-                              itemBuilder: (context, index) {
-                                return _buildGanhoItem(context, viewModel, ganhos[index]);
-                              },
-                            );
-                          },
-                        ),
+                decoration: BoxDecoration(color: corCardPrincipal, borderRadius: BorderRadius.circular(12.0)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('Ganhos Fixos', textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 24)),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: StreamBuilder<List<GanhoModel>>(
+                        stream: viewModel.ganhosStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (snapshot.hasError) {
+                            debugPrint(snapshot.error.toString());
+                            return const Center(child: Text('Ocorreu um erro. Verifique o console.'));
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Center(child: Text('Nenhum ganho cadastrado.', style: estiloFonteMonospace));
+                          }
+                          final ganhos = snapshot.data!;
+                          return ListView.builder(
+                            itemCount: ganhos.length,
+                            itemBuilder: (context, index) {
+                              return _buildGanhoItem(context, viewModel, ganhos[index]);
+                            },
+                          );
+                        },
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: finBuddyLime,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () => showAddOrEditGanhoDialog(context: context),
-                        child: Text('Adicionar Ganho', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: finBuddyLime,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                    ],
-                  ),
+                      onPressed: () => showAddOrEditGanhoDialog(context: context),
+                      child: Text('Adicionar Ganho', style: estiloFonteMonospace.copyWith(fontSize: 16)),
+                    ),
+                  ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget _buildGanhoItem(BuildContext context, GanhosViewModel viewModel, GanhoModel ganho) {
+    // ... NENHUMA MUDANÇA NECESSÁRIA AQUI ...
     final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     final formatadorData = DateFormat('dd');
 

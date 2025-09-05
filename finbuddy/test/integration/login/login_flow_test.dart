@@ -1,138 +1,162 @@
 import 'package:finbuddy/screens/Home/home_screen.dart';
+import 'package:finbuddy/screens/Login/login_screen.dart';
+import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
+import 'package:finbuddy/screens/Home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:finbuddy/screens/Login/login_screen.dart';
-import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../mocks/mocks.mocks.dart';
 
-// Ele nos dá controle total sobre os resultados do login durante o teste.
-class FakeLoginViewModel extends ChangeNotifier implements LoginViewModel {
-  bool _isLoading = false;
-  String? _errorMessage;
-  bool _shouldLoginSucceed = true;
+class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
+  // --- GETTERS ---
+  // Fornecemos valores padrão para os getters.
+  @override
+  bool get isLoading => false; // Começa como 'carregado' para não mostrar um loader infinito.
 
   @override
-  final emailController = TextEditingController();
-  @override
-  final passwordController = TextEditingController();
+  Map<String, double> get balanceData => {'saldo': 0.0, 'gastos': 0.0};
 
-  // Método para o teste controlar se o login deve falhar ou ter sucesso
-  void setLoginOutcome({required bool succeed}) {
-    _shouldLoginSucceed = succeed;
+  @override
+  String? get pendingAction => null;
+
+  @override
+  bool get isBalanceVisibleSaldo => false;
+
+  @override
+  bool get isBalanceVisibleGasto => false;
+
+  // --- MÉTODOS ---
+  // Métodos podem ter corpos vazios, pois só precisam existir para o teste compilar.
+  @override
+  Future<void> initialize() async {
+    // Não faz nada no fake.
   }
 
   @override
-  Future<bool> loginWithEmail() async {
-    _isLoading = true;
-    notifyListeners();
-
-    // Simula uma pequena espera, como uma chamada de rede
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (_shouldLoginSucceed && emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
-      _errorMessage = null;
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } else {
-      _errorMessage = "Email ou senha inválidos";
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
+  void clearPendingAction() {
+    // Não faz nada no fake.
   }
 
-  // --- Implementações necessárias pela interface, mas não usadas neste teste ---
   @override
-  bool get isFormValid => emailController.text.isNotEmpty && passwordController.text.isNotEmpty;
+  void toggleSaldoVisibility() {
+    // Não faz nada no fake.
+  }
+
   @override
-  bool get isLoading => _isLoading;
+  void toggleGastosVisibility() {
+    // Não faz nada no fake.
+  }
+
   @override
-  String? get errorMessage => _errorMessage;
-  @override
-  Future<bool> loginWithGoogle() async => _shouldLoginSucceed;
+  void refreshBalance() {
+    // Não faz nada no fake.
+  }
 }
 
-
 void main() {
-  // Inicializa o binding para testes de integração
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  late FakeLoginViewModel fakeViewModel;
+  late MockAuthRepository mockAuthRepository;
+  late LoginViewModel loginViewModel;
+  late FakeHomeViewModel fakeHomeViewModel;
 
-  // Roda antes de cada teste
   setUp(() {
-    fakeViewModel = FakeLoginViewModel();
+    mockAuthRepository = MockAuthRepository();
+    loginViewModel = LoginViewModel(repository: mockAuthRepository);
+    fakeHomeViewModel = FakeHomeViewModel();
   });
 
-  // Função auxiliar para "inflar" a LoginScreen com o nosso provider falso
   Future<void> pumpLoginScreen(WidgetTester tester) async {
     await tester.pumpWidget(
-      // A LoginScreen precisa de um MaterialApp para funcionar
-      MaterialApp(
-        home: ChangeNotifierProvider<LoginViewModel>.value(
-          value: fakeViewModel,
-          child: const LoginScreen(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LoginViewModel>.value(value: loginViewModel),
+          ChangeNotifierProvider<HomeViewModel>.value(value: fakeHomeViewModel),
+        ],
+        child: MaterialApp(
+          home: const LoginScreen(),
+          routes: {
+            '/home': (_) => const HomeScreen(),
+          },
         ),
-        // Adiciona uma rota para a HomeScreen para que a navegação funcione no teste
-        routes: {
-          '/home': (context) => const HomeScreen(),
-        },
       ),
     );
   }
 
-  group('Fluxo de Login', () {
-
-    testWidgets('Deve logar com sucesso e navegar para a HomeScreen', (WidgetTester tester) async {
+  group('Testes de Fluxo de Login', () {
+    testWidgets('Botão de login deve estar desabilitado inicialmente e habilitar após preenchimento', (tester) async {
       // ARRANGE
-      // Configura o nosso ViewModel falso para retornar sucesso no login
-      fakeViewModel.setLoginOutcome(succeed: true);
       await pumpLoginScreen(tester);
 
-      // ACT
-      // Encontra os campos de texto pelo seu label e insere os dados
-      await tester.enterText(find.widgetWithText(TextField, 'Email'), 'teste@exemplo.com');
-      await tester.enterText(find.widgetWithText(TextField, 'Senha'), '123456');
-      
-      // Aguarda um frame para o ViewModel atualizar o estado do botão
-      await tester.pump(); 
+      // ACT & ASSERT
 
-      // Clica no botão de entrar
-      await tester.tap(find.text('ENTRAR'));
-      
-      // Aguarda todas as animações e chamadas assíncronas terminarem (login e navegação)
+      // 1. Verifica se o botão "ENTRAR" está desabilitado (onPressed == null)
+      ElevatedButton loginButton = tester.widget(find.byKey(const Key('loginButton')));
+      expect(loginButton.onPressed, isNull);
+
+      // 2. Simula o preenchimento do email e senha
+      await tester.enterText(find.byKey(const Key('emailField')), 'teste@email.com');
+      await tester.enterText(find.byKey(const Key('passwordField')), '123456');
+
+      // pump() avança um frame para que o listener do controller atualize o estado
+      await tester.pump();
+
+      // 3. Verifica se o botão agora está habilitado (onPressed != null)
+      loginButton = tester.widget(find.byKey(const Key('loginButton')));
+      expect(loginButton.onPressed, isNotNull);
+    });
+
+    testWidgets('Deve navegar para a HomeScreen em caso de login bem-sucedido', (tester) async {
+      // ARRANGE
+      await pumpLoginScreen(tester);
+      final mockUserCredential = MockUserCredential();
+      when(mockAuthRepository.signInWithEmailAndPassword(any, any))
+          .thenAnswer((_) async => mockUserCredential);
+
+      // ACT
+      await tester.enterText(find.byKey(const Key('emailField')), 'teste@email.com');
+      await tester.enterText(find.byKey(const Key('passwordField')), '123456');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('loginButton')));
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
       await tester.pumpAndSettle();
 
       // ASSERT
-      // Verifica se a tela de Login não está mais visível
       expect(find.byType(LoginScreen), findsNothing);
-      // Verifica se a HomeScreen apareceu na árvore de widgets
       expect(find.byType(HomeScreen), findsOneWidget);
     });
 
-    testWidgets('Deve mostrar uma mensagem de erro em caso de falha no login', (WidgetTester tester) async {
+    testWidgets('Deve exibir mensagem de erro em caso de falha no login', (tester) async {
       // ARRANGE
-      // Configura o nosso ViewModel falso para retornar FALHA no login
-      fakeViewModel.setLoginOutcome(succeed: false);
       await pumpLoginScreen(tester);
+      const errorMessage = 'Email ou senha inválidos.';
+
+      // Configura o mock para lançar uma exceção quando o método for chamado
+      when(mockAuthRepository.signInWithEmailAndPassword(any, any))
+          .thenThrow(FirebaseAuthException(code: 'invalid-credential', message: errorMessage));
 
       // ACT
-      await tester.enterText(find.widgetWithText(TextField, 'Email'), 'email@errado.com');
-      await tester.enterText(find.widgetWithText(TextField, 'Senha'), 'senhaerrada');
+      await tester.enterText(find.byKey(const Key('emailField')), 'errado@email.com');
+      await tester.enterText(find.byKey(const Key('passwordField')), 'senhaerrada');
       await tester.pump();
-      await tester.tap(find.text('ENTRAR'));
-      
-      // Aguarda as chamadas e a atualização da UI (mostrar o erro)
+
+      await tester.tap(find.byKey(const Key('loginButton')));
+
+      // Espera o CircularProgressIndicator aparecer
+      await tester.pump();
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Espera a UI se estabilizar após a falha
       await tester.pumpAndSettle();
 
       // ASSERT
-      // Verifica se a mensagem de erro do nosso FakeViewModel apareceu na tela
-      expect(find.text("Email ou senha inválidos"), findsOneWidget);
-      // Verifica se o app permaneceu na tela de Login
-      expect(find.byType(LoginScreen), findsOneWidget);
-      // Verifica se a HomeScreen NÃO apareceu
+      // Verifica se a mensagem de erro esperada está na tela
+      expect(find.text(errorMessage), findsOneWidget);
+      // Garante que a navegação não ocorreu
       expect(find.byType(HomeScreen), findsNothing);
     });
   });
