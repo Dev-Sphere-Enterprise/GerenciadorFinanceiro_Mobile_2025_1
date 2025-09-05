@@ -30,19 +30,18 @@ void main() {
   late FakeGanhosViewModel fakeViewModel;
 
   Widget createTestableWidget({GanhoModel? ganho}) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Builder(
-          builder: (context) {
-            // O Provider precisa estar acima do context que chama o dialog
-            return ChangeNotifierProvider<GanhosViewModel>.value(
-              value: fakeViewModel,
-              child: ElevatedButton(
+    return ChangeNotifierProvider<GanhosViewModel>.value(
+      value: fakeViewModel,
+      child: MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return ElevatedButton(
                 onPressed: () => showAddOrEditGanhoDialog(context: context, ganho: ganho),
                 child: const Text('Abrir'),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -64,8 +63,25 @@ void main() {
     expect(find.text('Adicionar Ganho Fixo'), findsOneWidget);
 
     // Act
-    await tester.enterText(find.widgetWithText(TextFormField, 'Nome:'), 'Salário');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Valor (R\$):'), '5500,00');
+    await tester.enterText(
+      find.byKey(const Key('nomeField')), 'Salário',
+    );
+    await tester.enterText(
+      find.byKey(const Key('valorField')), '5500.00',
+    );
+
+    // Espera a UI reconstruir com os novos valores
+    await tester.pump();
+
+    final salvarButtonFinder = find.ancestor(
+      of: find.text('Salvar'),
+      matching: find.byType(ElevatedButton),
+    );
+
+    // Verifica se o botão "Salvar" está habilitado antes de prosseguir
+    final salvarButton = tester.widget<ElevatedButton>(salvarButtonFinder);
+    expect(salvarButton.onPressed, isNotNull);
+
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
 

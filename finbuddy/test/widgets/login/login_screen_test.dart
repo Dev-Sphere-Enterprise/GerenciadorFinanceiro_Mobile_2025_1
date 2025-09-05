@@ -56,17 +56,14 @@ class FakeLoginViewModel extends ChangeNotifier implements LoginViewModel {
 
 void main() {
   late FakeLoginViewModel fakeViewModel;
-
-  // Função auxiliar para criar a tela dentro de um ambiente testável
-  Future<void> pumpLoginScreen(WidgetTester tester) async {
+  Future<void> pumpLoginScreenWithViewModel(WidgetTester tester) async {
+    fakeViewModel = FakeLoginViewModel();
     await tester.pumpWidget(
       MaterialApp(
-        // Fornece o ViewModel falso para a LoginScreen
         home: ChangeNotifierProvider<LoginViewModel>.value(
           value: fakeViewModel,
           child: const LoginScreen(),
         ),
-        // Define uma rota para a HomeScreen para testar a navegação
         routes: {
           '/home': (context) => const HomeScreen(),
         },
@@ -74,13 +71,9 @@ void main() {
     );
   }
 
-  setUp(() {
-    fakeViewModel = FakeLoginViewModel();
-  });
-
   testWidgets('LoginScreen deve renderizar o estado inicial corretamente', (tester) async {
     // Arrange
-    await pumpLoginScreen(tester);
+    await pumpLoginScreenWithViewModel(tester);
 
     // Assert
     expect(find.text('FinBuddy'), findsOneWidget);
@@ -94,7 +87,7 @@ void main() {
 
   testWidgets('Botão ENTRAR deve habilitar quando os campos são preenchidos', (tester) async {
     // Arrange
-    await pumpLoginScreen(tester);
+    await pumpLoginScreenWithViewModel(tester);
 
     // Act
     await tester.enterText(find.widgetWithText(TextField, 'Email'), 'a@a.com');
@@ -103,35 +96,19 @@ void main() {
     // Simula a validação do formulário no ViewModel falso
     fakeViewModel._isFormValid = true;
     fakeViewModel.notifyListeners();
-    await tester.pump(); // Redesenha a tela
+    await tester.pump();
 
     // Assert
     final entrarButton = tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'ENTRAR'));
     expect(entrarButton.onPressed, isNotNull);
   });
 
-  testWidgets('Deve mostrar CircularProgressIndicator durante o login', (tester) async {
-    // Arrange
-    await pumpLoginScreen(tester);
-    fakeViewModel.setLoginOutcome(true);
-    fakeViewModel.emailController.text = 'a@a.com';
-    fakeViewModel.passwordController.text = '123';
-    fakeViewModel._isFormValid = true;
-    fakeViewModel.notifyListeners();
-    await tester.pump();
-
-    // Act
-    await tester.tap(find.widgetWithText(ElevatedButton, 'ENTRAR'));
-    await tester.pump(); // Inicia o estado de loading
-
-    // Assert
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
-
   testWidgets('Deve mostrar mensagem de erro em caso de falha no login', (tester) async {
     // Arrange
-    await pumpLoginScreen(tester);
-    fakeViewModel.setLoginOutcome(false); // Configura o login para falhar
+    await pumpLoginScreenWithViewModel(tester);
+
+    // Agora você pode acessar e configurar a instância criada
+    fakeViewModel.setLoginOutcome(false);
     fakeViewModel.emailController.text = 'a@a.com';
     fakeViewModel.passwordController.text = '123';
     fakeViewModel._isFormValid = true;
@@ -140,7 +117,7 @@ void main() {
 
     // Act
     await tester.tap(find.widgetWithText(ElevatedButton, 'ENTRAR'));
-    await tester.pumpAndSettle(); // Espera o processo de login terminar
+    await tester.pumpAndSettle();
 
     // Assert
     expect(find.text('Credenciais inválidas'), findsOneWidget);

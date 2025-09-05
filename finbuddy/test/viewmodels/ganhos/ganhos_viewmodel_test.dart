@@ -21,10 +21,14 @@ void main() {
   group('GanhosViewModel', () {
     final tGanho = GanhoModel(
       id: 'g1',
+      idUsuario: '123456',
       nome: 'Salário',
       valor: 5000.0,
       dataRecebimento: DateTime.now(),
-      recorrencia: false, // O ViewModel deve mudar isso para true
+      recorrencia: false,
+      deletado: false,
+      dataAtualizacao:DateTime.now() ,
+      dataCriacao: DateTime.now()
     );
 
     test('construtor deve chamar getGanhosFixosStream no repositório', () {

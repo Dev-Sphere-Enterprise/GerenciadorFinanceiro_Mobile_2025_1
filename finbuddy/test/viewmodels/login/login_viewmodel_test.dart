@@ -6,13 +6,16 @@ import 'package:finbuddy/shared/core/repositories/auth_repository.dart';
 import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
 import 'login_viewmodel_test.mocks.dart';
 
-@GenerateMocks([AuthRepository])
+// 👇 inclua UserCredential aqui também
+@GenerateMocks([AuthRepository, UserCredential])
 void main() {
   late MockAuthRepository mockAuthRepository;
   late LoginViewModel viewModel;
+  late MockUserCredential mockUserCredential;
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
+    mockUserCredential = MockUserCredential();
     viewModel = LoginViewModel(repository: mockAuthRepository);
   });
 
@@ -35,7 +38,9 @@ void main() {
         // Arrange
         viewModel.emailController.text = 'teste@teste.com';
         viewModel.passwordController.text = '123456';
-        when(mockAuthRepository.signInWithEmailAndPassword(any, any)).thenAnswer((_) async => null);
+
+        when(mockAuthRepository.signInWithEmailAndPassword(any, any))
+            .thenAnswer((_) async => mockUserCredential);
 
         // Act
         final result = await viewModel.loginWithEmail();
@@ -48,10 +53,16 @@ void main() {
 
       test('deve retornar false e definir errorMessage em caso de falha', () async {
         // Arrange
-        final exception = FirebaseAuthException(code: 'user-not-found', message: 'Usuário não encontrado');
+        final exception = FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'Usuário não encontrado',
+        );
+
         viewModel.emailController.text = 'errado@teste.com';
         viewModel.passwordController.text = '123456';
-        when(mockAuthRepository.signInWithEmailAndPassword(any, any)).thenThrow(exception);
+
+        when(mockAuthRepository.signInWithEmailAndPassword(any, any))
+            .thenThrow(exception);
 
         // Act
         final result = await viewModel.loginWithEmail();

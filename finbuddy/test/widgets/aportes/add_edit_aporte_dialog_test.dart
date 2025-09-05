@@ -98,6 +98,8 @@ void main() {
         valor: 150.0,
         dataAporte: DateTime(2025, 9, 3),
         deletado: false,
+        dataAtualizacao:DateTime(2025, 9, 3) ,
+        dataCriacao:DateTime(2025, 9, 3)
       );
       fakeViewModel.setSalvarAporteResult(true);
 

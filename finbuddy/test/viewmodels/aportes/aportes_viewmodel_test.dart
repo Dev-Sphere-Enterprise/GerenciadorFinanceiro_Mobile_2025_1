@@ -30,6 +30,8 @@ void main() {
         valor: 100.0,
         dataAporte: DateTime.now(),
         deletado: false,
+        dataCriacao: DateTime.now(),
+        dataAtualizacao: DateTime.now(),
       );
 
       test('deve retornar true ao salvar um NOVO aporte com sucesso', () async {
