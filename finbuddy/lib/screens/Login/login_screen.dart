@@ -32,13 +32,13 @@ class LoginScreen extends StatelessWidget {
              const SizedBox(height: 16),
              const Text('FinBuddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
              const SizedBox(height: 48),
-             TextField(
+             TextField(key: const Key('emailField'),
               controller: viewModel.emailController,
               decoration: _inputDecoration('Email'),
               keyboardType: TextInputType.emailAddress,
              ),
              const SizedBox(height: 16),
-             TextField(
+             TextField( key: const Key('passwordField'),
               controller: viewModel.passwordController,
               decoration: _inputDecoration('Senha'),
               obscureText: true,
@@ -55,7 +55,7 @@ class LoginScreen extends StatelessWidget {
              if (viewModel.isLoading)
               const Center(child: CircularProgressIndicator(color: finBuddyDark))
              else ...[
-              ElevatedButton(
+              ElevatedButton( key: const Key('loginButton'),
                style: _buttonStyle(backgroundColor: finBuddyBlue),
                onPressed: viewModel.isFormValid ? () async {
                 final sucesso = await viewModel.loginWithEmail();

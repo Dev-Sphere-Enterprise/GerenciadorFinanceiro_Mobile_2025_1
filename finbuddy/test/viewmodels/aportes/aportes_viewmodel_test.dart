@@ -14,6 +14,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockAportesRepository();
+    when(mockRepository.getAportesStream(tMetaId)).thenAnswer((_) => Stream.value([]));
     viewModel = AportesViewModel(metaId: tMetaId, repository: mockRepository);
   });
 

@@ -16,6 +16,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockCartoesRepository();
+    when(mockRepository.getCartoesStream()).thenAnswer((_) => Stream.value([]));
     viewModel = CartoesViewModel(repository: mockRepository);
   });
 

@@ -15,6 +15,7 @@ void main() {
 
   setUp(() {
     mockRepository = MockGanhosRepository();
+    when(mockRepository.getGanhosFixosStream()).thenAnswer((_) => Stream.value([]));
     viewModel = GanhosViewModel(repository: mockRepository);
   });
 
@@ -27,8 +28,8 @@ void main() {
       dataRecebimento: DateTime.now(),
       recorrencia: false,
       deletado: false,
-      dataAtualizacao:DateTime.now() ,
-      dataCriacao: DateTime.now()
+      dataAtualizacao: DateTime.now(),
+      dataCriacao: DateTime.now(),
     );
 
     test('construtor deve chamar getGanhosFixosStream no repositório', () {
