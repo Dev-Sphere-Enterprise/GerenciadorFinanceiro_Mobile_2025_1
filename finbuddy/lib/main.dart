@@ -10,6 +10,7 @@ import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
 import 'screens/Home/viewmodel/home_viewmodel.dart';
 import 'screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'screens/Cartoes/viewmodel/cartoes_viewmodel.dart';
+import 'screens/Login/viewmodel/login_viewmodel.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting();
@@ -24,6 +25,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => GanhosViewModel()),
         ChangeNotifierProvider(create: (_) => CartoesViewModel()),
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
         Provider<AportesRepository>(
           create: (_) => AportesRepository(),
         ),
