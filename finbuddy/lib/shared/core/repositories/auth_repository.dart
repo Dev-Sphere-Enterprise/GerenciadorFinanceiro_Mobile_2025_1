@@ -58,15 +58,12 @@ class AuthRepository {
     return null;
   }
 
-  Future<UserCredential> signInWithGoogle({
-    required Function(String?) setErrorMessage,
-  }) async {
+  Future<UserCredential> signInWithGoogle() async {
     try {
       final googleUser = await GoogleSignIn.instance.authenticate();
 
       if (googleUser == null) {
-        setErrorMessage(null);
-        throw FirebaseAuthException(code: 'user-cancelled-by-user');
+        throw FirebaseAuthException(code: 'CANCELLED');
       }
 
       final googleAuth = await googleUser.authentication;
@@ -75,23 +72,19 @@ class AuthRepository {
       );
       final userCredential = await _auth.signInWithCredential(credential);
 
-      // Check if the user's document exists in Firestore.
       final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
       if (!userDoc.exists) {
-        // If not, create the profile document with a default name, email, and createdAt.
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'nome': userCredential.user!.displayName ?? 'Usuário',
           'email': userCredential.user!.email,
           'createdAt': Timestamp.now(),
-          'dob': null, // 'dob' is nullable, so it can be left blank here.
+          'dob': null,
         });
       }
       return userCredential;
-    } on FirebaseAuthException catch (e) {
-      setErrorMessage('Erro de autenticação: ${e.message}');
+    } on FirebaseAuthException {
       rethrow;
     } catch (e) {
-      setErrorMessage('Erro inesperado: $e');
       throw Exception('Erro inesperado durante o login com Google.');
     }
   }

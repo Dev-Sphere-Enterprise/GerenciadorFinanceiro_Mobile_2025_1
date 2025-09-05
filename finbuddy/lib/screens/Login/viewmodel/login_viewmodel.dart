@@ -31,6 +31,35 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
+  void _setErrorMessageFromCode(String code) {
+    switch (code) {
+      case 'invalid-email':
+        _errorMessage = 'O formato do e-mail é inválido.';
+        break;
+      case 'user-not-found':
+        _errorMessage = 'Nenhum usuário encontrado com este e-mail.';
+        break;
+      case 'wrong-password':
+        _errorMessage = 'Senha incorreta. Por favor, tente novamente.';
+        break;
+      case 'user-disabled':
+        _errorMessage = 'Este usuário foi desativado.';
+        break;
+      case 'too-many-requests':
+        _errorMessage = 'Acesso bloqueado temporariamente. Tente novamente mais tarde.';
+        break;
+      case 'network-request-failed':
+        _errorMessage = 'Erro de conexão. Verifique sua internet.';
+        break;
+      case 'user-cancelled-by-user': // Código antigo, mantido por segurança
+      case 'CANCELLED': // Novo código vindo do repositório
+        _errorMessage = null; // Não mostra erro se o usuário simplesmente fechar a janela
+        break;
+      default:
+        _errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';
+    }
+  }
+
   Future<bool> loginWithEmail() async {
     _isLoading = true;
     _errorMessage = null;
@@ -45,7 +74,7 @@ class LoginViewModel extends ChangeNotifier {
       notifyListeners();
       return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = e.message;
+      _setErrorMessageFromCode(e.code);
       _isLoading = false;
       notifyListeners();
       return false;
@@ -58,19 +87,18 @@ class LoginViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.signInWithGoogle(
-        setErrorMessage: (message) {
-          _errorMessage = message;
-          notifyListeners();
-        },
-      );
+      await _repository.signInWithGoogle();
+
       _isLoading = false;
       notifyListeners();
       return true;
     } on FirebaseAuthException catch(e) {
-      if (e.code != 'CANCELLED') {
-        _errorMessage = 'Ocorreu um erro ao logar com o Google.';
-      }
+      _setErrorMessageFromCode(e.code);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _errorMessage = 'Ocorreu um erro inesperado.';
       _isLoading = false;
       notifyListeners();
       return false;

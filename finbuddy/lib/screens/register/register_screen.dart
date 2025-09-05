@@ -5,11 +5,31 @@ import '../../../shared/constants/style_constants.dart';
 import '../Home/home_screen.dart';
 import '../Login/login_screen.dart';
 import 'viewmodel/register_viewmodel.dart';
+
 const Color finBuddyLime = Color(0xFFC4E03B);
 const Color finBuddyBlue = Color(0xFF3A86E0);
 const Color finBuddyDark = Color(0xFF212121);
+
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
+
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Erro ao Criar Conta'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +40,8 @@ class RegisterScreen extends StatelessWidget {
         body: Consumer<RegisterViewModel>(
           builder: (context, viewModel, child) {
             final passwordsMismatch = viewModel.passwordController.text.trim().isNotEmpty &&
-                                      viewModel.confirmPasswordController.text.trim().isNotEmpty &&
-                                      viewModel.passwordController.text.trim() != viewModel.confirmPasswordController.text.trim();
+                viewModel.confirmPasswordController.text.trim().isNotEmpty &&
+                viewModel.passwordController.text.trim() != viewModel.confirmPasswordController.text.trim();
 
             return SafeArea(
               child: Center(
@@ -43,21 +63,15 @@ class RegisterScreen extends StatelessWidget {
                       TextField(controller: viewModel.passwordController, decoration: _inputDecoration('Senha'), obscureText: true, textInputAction: TextInputAction.next),
                       const SizedBox(height: 16),
                       TextField(controller: viewModel.confirmPasswordController, decoration: _inputDecoration('Confirmar Senha'), obscureText: true),
-                      
+
                       if (passwordsMismatch)
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text('As senhas não coincidem.', style: TextStyle(fontFamily: 'JetBrainsMono', color: Colors.red[700], fontSize: 12)),
                         ),
 
-                      const SizedBox(height: 8),
-                      if (viewModel.errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          child: Text(viewModel.errorMessage!, textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', color: Colors.red[700])),
-                        ),
                       const SizedBox(height: 24),
-                      
+
                       if (viewModel.isLoading)
                         const Center(child: CircularProgressIndicator(color: finBuddyDark))
                       else
@@ -67,11 +81,15 @@ class RegisterScreen extends StatelessWidget {
                             final sucesso = await viewModel.registerWithEmail();
                             if (sucesso && context.mounted) {
                               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
+                            } else if (!sucesso && context.mounted) {
+                              if (viewModel.errorMessage != null) {
+                                _showErrorDialog(context, viewModel.errorMessage!);
+                              }
                             }
                           } : null,
                           child: const Text('CRIAR CONTA', style: TextStyle(fontFamily: 'JetBrainsMono', fontWeight: FontWeight.bold, color: Colors.white)),
                         ),
-                      
+
                       const SizedBox(height: 20),
                       TextButton(
                         onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
@@ -98,7 +116,7 @@ class RegisterScreen extends StatelessWidget {
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: finBuddyDark, width: 2)),
     );
   }
-  
+
   ButtonStyle _buttonStyle(Color backgroundColor) {
     return ElevatedButton.styleFrom(
       backgroundColor: backgroundColor,

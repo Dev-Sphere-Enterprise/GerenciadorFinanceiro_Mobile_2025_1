@@ -11,7 +11,7 @@ class RegisterViewModel extends ChangeNotifier {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  
+
   DateTime? _selectedDate;
 
   bool _isLoading = false;
@@ -28,17 +28,18 @@ class RegisterViewModel extends ChangeNotifier {
     emailController.addListener(_validateForm);
     passwordController.addListener(_validateForm);
     confirmPasswordController.addListener(_validateForm);
+    dobController.addListener(_validateForm);
   }
 
   void _validateForm() {
     final allFilled = nameController.text.trim().isNotEmpty &&
-                      dobController.text.trim().isNotEmpty &&
-                      emailController.text.trim().isNotEmpty &&
-                      passwordController.text.trim().isNotEmpty &&
-                      confirmPasswordController.text.trim().isNotEmpty;
-    
+        dobController.text.trim().isNotEmpty &&
+        emailController.text.trim().isNotEmpty &&
+        passwordController.text.trim().isNotEmpty &&
+        confirmPasswordController.text.trim().isNotEmpty;
+
     final passwordsMatch = passwordController.text.trim() == confirmPasswordController.text.trim();
-    
+
     final nextValidState = allFilled && passwordsMatch;
 
     if (nextValidState != _isFormValid) {
@@ -46,19 +47,40 @@ class RegisterViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> selectDate(BuildContext context) async {
+    final DateTime now = DateTime.now();
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime(2000),
+      initialDate: _selectedDate ?? DateTime(now.year - 18, now.month, now.day), // Sugere 18 anos atrás
       firstDate: DateTime(1925),
-      lastDate: DateTime.now(),
+      lastDate: now,
     );
     if (picked != null) {
       _selectedDate = picked;
       dobController.text = DateFormat('dd/MM/yyyy').format(picked);
-      _validateForm();
       notifyListeners();
+    }
+  }
+
+  // ✅ MÉTODO DE TRADUÇÃO ADICIONADO
+  void _setErrorMessageFromCode(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        _errorMessage = 'Este e-mail já está sendo utilizado por outra conta.';
+        break;
+      case 'invalid-email':
+        _errorMessage = 'O formato do e-mail fornecido é inválido.';
+        break;
+      case 'weak-password':
+        _errorMessage = 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+        break;
+      case 'network-request-failed':
+        _errorMessage = 'Erro de conexão. Verifique sua internet.';
+        break;
+      default:
+        _errorMessage = 'Ocorreu um erro inesperado ao criar a conta.';
     }
   }
 
@@ -78,12 +100,12 @@ class RegisterViewModel extends ChangeNotifier {
       );
       _isLoading = false;
       notifyListeners();
-      return true; 
+      return true;
     } on FirebaseAuthException catch (e) {
-      _errorMessage = e.message;
+      _setErrorMessageFromCode(e.code);
       _isLoading = false;
       notifyListeners();
-      return false; 
+      return false;
     }
   }
 

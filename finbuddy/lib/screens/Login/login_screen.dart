@@ -13,6 +13,24 @@ const Color finBuddyDark = Color(0xFF212121);
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Erro de Autenticação'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -30,7 +48,7 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.calculate_rounded, size: 64.0, color: finBuddyDark),
                     const SizedBox(height: 16),
-                    const Text('FinBuddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
+                    const Text('Fin_Buddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
                     const SizedBox(height: 48),
                     TextField(
                       controller: viewModel.emailController,
@@ -45,11 +63,6 @@ class LoginScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
 
-                    if (viewModel.errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(viewModel.errorMessage!, textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'JetBrainsMono', color: Colors.red)),
-                      ),
                     const SizedBox(height: 24),
 
                     if (viewModel.isLoading)
@@ -61,6 +74,10 @@ class LoginScreen extends StatelessWidget {
                           final sucesso = await viewModel.loginWithEmail();
                           if (sucesso && context.mounted) {
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                          } else if (!sucesso && context.mounted) {
+                            if (viewModel.errorMessage != null) {
+                              _showErrorDialog(context, viewModel.errorMessage!);
+                            }
                           }
                         } : null,
                         child: const Text('ENTRAR', style: TextStyle(fontFamily: 'JetBrainsMono', fontWeight: FontWeight.bold, color: Colors.white)),
@@ -69,9 +86,13 @@ class LoginScreen extends StatelessWidget {
                       ElevatedButton.icon(
                         style: _buttonStyle(backgroundColor: Colors.white),
                         onPressed: () async {
-                           final sucesso = await viewModel.loginWithGoogle();
-                           if (sucesso && context.mounted) {
+                          final sucesso = await viewModel.loginWithGoogle();
+                          if (sucesso && context.mounted) {
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+                          } else if (!sucesso && context.mounted) {
+                            if (viewModel.errorMessage != null) {
+                              _showErrorDialog(context, viewModel.errorMessage!);
+                            }
                           }
                         },
                         icon: SvgPicture.asset('assets/svg/google.svg', height: 20.0),
