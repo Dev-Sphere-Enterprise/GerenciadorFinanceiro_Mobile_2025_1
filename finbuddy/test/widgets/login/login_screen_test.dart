@@ -1,3 +1,5 @@
+// test/integration/login/login_flow_test.dart
+
 import 'package:finbuddy/screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'package:finbuddy/screens/Gastos/viewmodel/gastos_viewmodel.dart';
 import 'package:finbuddy/screens/GraficoDeGastos/viewmodel/graficos_viewmodel.dart';
@@ -46,10 +48,8 @@ class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
 class FakeGanhosViewModel extends ChangeNotifier implements GanhosViewModel {
   @override
   Stream<List<GanhoModel>> ganhosStream = Stream.value(<GanhoModel>[]);
-
   @override
   Future<void> excluirGanho(String ganhoId) async {}
-
   @override
   Future<bool> salvarGanho(GanhoModel ganho) async => true;
 }
@@ -65,7 +65,6 @@ class FakeGastosViewModel extends ChangeNotifier implements GastosViewModel {
   List<TipoPagamentoModel> tiposPagamento = [];
   @override
   bool isDialogLoading = false;
-
   @override
   Future<void> loadDialogDependencies() async {}
   @override
@@ -88,7 +87,6 @@ class FakeGraficosViewModel extends ChangeNotifier
   TipoGrafico get tipoSelecionado => TipoGrafico.coluna;
   @override
   int? get indiceSelecionado => null;
-
   @override
   Future<void> loadChartData() async {}
   @override
@@ -98,7 +96,6 @@ class FakeGraficosViewModel extends ChangeNotifier
   @override
   void onPieSectionTouched(int? index) {}
 }
-
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -137,7 +134,25 @@ void main() {
         ],
         child: MaterialApp(
           home: const LoginScreen(),
-          routes: {'/home': (_) => const HomeScreen()},
+          routes: {
+            '/home': (context) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider.value(
+                  value: context.read<HomeViewModel>(),
+                ),
+                ChangeNotifierProvider.value(
+                  value: context.read<GanhosViewModel>(),
+                ),
+                ChangeNotifierProvider.value(
+                  value: context.read<GastosViewModel>(),
+                ),
+                ChangeNotifierProvider.value(
+                  value: context.read<GraficosViewModel>(),
+                ),
+              ],
+              child: const HomeScreen(),
+            ),
+          },
         ),
       ),
     );
@@ -172,13 +187,13 @@ void main() {
       'Deve navegar para a HomeScreen em caso de login bem-sucedido',
       (tester) async {
         final mockUserCredential = MockUserCredential();
-    
-        await pumpLoginScreen(tester);
-    
+
         when(
           mockAuthRepository.signInWithEmailAndPassword(any, any),
         ).thenAnswer((_) async => mockUserCredential);
-    
+
+        await pumpLoginScreen(tester);
+
         await tester.enterText(
           find.byKey(const Key('emailField')),
           'teste@email.com',
@@ -188,14 +203,14 @@ void main() {
           '123456',
         );
         await tester.pump();
-    
+
         await tester.tap(find.byKey(const Key('loginButton')));
-        await tester.pump(); 
-    
+        await tester.pump();
+
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    
+
         await tester.pumpAndSettle();
-    
+
         expect(find.byType(LoginScreen), findsNothing);
         expect(find.byType(HomeScreen), findsOneWidget);
       },
@@ -208,14 +223,14 @@ void main() {
         code: 'wrong-password',
         message: 'Senha incorreta.',
       );
-
-      const expectedErrorMessage = 'Senha incorreta. Por favor, tente novamente.';
-
-      await pumpLoginScreen(tester);
+      const expectedErrorMessage =
+          'Senha incorreta. Por favor, tente novamente.';
 
       when(
         mockAuthRepository.signInWithEmailAndPassword(any, any),
       ).thenThrow(exception);
+
+      await pumpLoginScreen(tester);
 
       await tester.enterText(
         find.byKey(const Key('emailField')),
@@ -228,7 +243,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump(); 
+      await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 

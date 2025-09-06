@@ -11,10 +11,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../mocks/mocks.mocks.dart';
 
 class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
-  // --- GETTERS ---
-  // Fornecemos valores padrão para os getters.
   @override
-  bool get isLoading => false; // Começa como 'carregado' para não mostrar um loader infinito.
+  bool get isLoading => false;
 
   @override
   Map<String, double> get balanceData => {'saldo': 0.0, 'gastos': 0.0};
@@ -28,32 +26,20 @@ class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
   @override
   bool get isBalanceVisibleGasto => false;
 
-  // --- MÉTODOS ---
-  // Métodos podem ter corpos vazios, pois só precisam existir para o teste compilar.
   @override
-  Future<void> initialize() async {
-    // Não faz nada no fake.
-  }
+  Future<void> initialize() async {}
 
   @override
-  void clearPendingAction() {
-    // Não faz nada no fake.
-  }
+  void clearPendingAction() {}
 
   @override
-  void toggleSaldoVisibility() {
-    // Não faz nada no fake.
-  }
+  void toggleSaldoVisibility() {}
 
   @override
-  void toggleGastosVisibility() {
-    // Não faz nada no fake.
-  }
+  void toggleGastosVisibility() {}
 
   @override
-  void refreshBalance() {
-    // Não faz nada no fake.
-  }
+  void refreshBalance() {}
 }
 
 void main() {
@@ -78,85 +64,101 @@ void main() {
         ],
         child: MaterialApp(
           home: const LoginScreen(),
-          routes: {
-            '/home': (_) => const HomeScreen(),
-          },
+          routes: {'/home': (_) => const HomeScreen()},
         ),
       ),
     );
   }
 
   group('Testes de Fluxo de Login', () {
-    testWidgets('Botão de login deve estar desabilitado inicialmente e habilitar após preenchimento', (tester) async {
-      // ARRANGE
-      await pumpLoginScreen(tester);
+    testWidgets(
+      'Botão de login deve estar desabilitado inicialmente e habilitar após preenchimento',
+      (tester) async {
+        await pumpLoginScreen(tester);
 
-      // ACT & ASSERT
+        ElevatedButton loginButton = tester.widget(
+          find.byKey(const Key('loginButton')),
+        );
+        expect(loginButton.onPressed, isNull);
 
-      // 1. Verifica se o botão "ENTRAR" está desabilitado (onPressed == null)
-      ElevatedButton loginButton = tester.widget(find.byKey(const Key('loginButton')));
-      expect(loginButton.onPressed, isNull);
+        await tester.enterText(
+          find.byKey(const Key('emailField')),
+          'teste@email.com',
+        );
+        await tester.enterText(
+          find.byKey(const Key('passwordField')),
+          '123456',
+        );
+        await tester.pump();
 
-      // 2. Simula o preenchimento do email e senha
-      await tester.enterText(find.byKey(const Key('emailField')), 'teste@email.com');
-      await tester.enterText(find.byKey(const Key('passwordField')), '123456');
+        loginButton = tester.widget(find.byKey(const Key('loginButton')));
+        expect(loginButton.onPressed, isNotNull);
+      },
+    );
 
-      // pump() avança um frame para que o listener do controller atualize o estado
-      await tester.pump();
+    testWidgets(
+      'Deve navegar para a HomeScreen em caso de login bem-sucedido',
+      (tester) async {
+        // ARRANGE
+        final mockUserCredential = MockUserCredential();
+        when(
+          mockAuthRepository.signInWithEmailAndPassword(any, any),
+        ).thenAnswer((_) async => mockUserCredential);
 
-      // 3. Verifica se o botão agora está habilitado (onPressed != null)
-      loginButton = tester.widget(find.byKey(const Key('loginButton')));
-      expect(loginButton.onPressed, isNotNull);
-    });
+        await pumpLoginScreen(tester);
 
-    testWidgets('Deve navegar para a HomeScreen em caso de login bem-sucedido', (tester) async {
-      // ARRANGE
-      await pumpLoginScreen(tester);
-      final mockUserCredential = MockUserCredential();
-      when(mockAuthRepository.signInWithEmailAndPassword(any, any))
-          .thenAnswer((_) async => mockUserCredential);
+        await tester.enterText(
+          find.byKey(const Key('emailField')),
+          'teste@email.com',
+        );
+        await tester.enterText(
+          find.byKey(const Key('passwordField')),
+          '123456',
+        );
+        await tester.pump();
+        await tester.tap(find.byKey(const Key('loginButton')));
 
-      // ACT
-      await tester.enterText(find.byKey(const Key('emailField')), 'teste@email.com');
-      await tester.enterText(find.byKey(const Key('passwordField')), '123456');
-      await tester.pump();
-      await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump();
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-      await tester.pumpAndSettle();
+        await tester.pump();
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // ASSERT
-      expect(find.byType(LoginScreen), findsNothing);
-      expect(find.byType(HomeScreen), findsOneWidget);
-    });
+        await tester.pump(const Duration(seconds: 1));
 
-    testWidgets('Deve exibir mensagem de erro em caso de falha no login', (tester) async {
-      // ARRANGE
-      await pumpLoginScreen(tester);
+        expect(find.byType(LoginScreen), findsNothing);
+        expect(find.byType(HomeScreen), findsOneWidget);
+      },
+    );
+
+    testWidgets('Deve exibir mensagem de erro em caso de falha no login', (
+      tester,
+    ) async {
       const errorMessage = 'Email ou senha inválidos.';
+      when(mockAuthRepository.signInWithEmailAndPassword(any, any)).thenThrow(
+        FirebaseAuthException(
+          code: 'invalid-credential',
+          message: errorMessage,
+        ),
+      );
 
-      // Configura o mock para lançar uma exceção quando o método for chamado
-      when(mockAuthRepository.signInWithEmailAndPassword(any, any))
-          .thenThrow(FirebaseAuthException(code: 'invalid-credential', message: errorMessage));
+      await pumpLoginScreen(tester);
 
-      // ACT
-      await tester.enterText(find.byKey(const Key('emailField')), 'errado@email.com');
-      await tester.enterText(find.byKey(const Key('passwordField')), 'senhaerrada');
+      await tester.enterText(
+        find.byKey(const Key('emailField')),
+        'errado@email.com',
+      );
+      await tester.enterText(
+        find.byKey(const Key('passwordField')),
+        'senhaerrada',
+      );
       await tester.pump();
 
       await tester.tap(find.byKey(const Key('loginButton')));
 
-      // Espera o CircularProgressIndicator aparecer
       await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      // Espera a UI se estabilizar após a falha
       await tester.pumpAndSettle();
 
-      // ASSERT
-      // Verifica se a mensagem de erro esperada está na tela
       expect(find.text(errorMessage), findsOneWidget);
-      // Garante que a navegação não ocorreu
       expect(find.byType(HomeScreen), findsNothing);
     });
   });

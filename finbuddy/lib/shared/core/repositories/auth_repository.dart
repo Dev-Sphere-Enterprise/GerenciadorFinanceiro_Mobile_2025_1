@@ -11,9 +11,15 @@ class AuthRepository {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
+  Future<UserCredential> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
-      return await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     } on FirebaseAuthException {
       rethrow;
     }
@@ -72,7 +78,10 @@ class AuthRepository {
       );
       final userCredential = await _auth.signInWithCredential(credential);
 
-      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
       if (!userDoc.exists) {
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'nome': userCredential.user!.displayName ?? 'Usuário',
@@ -113,7 +122,10 @@ class AuthRepository {
           dataAtualizacao: DateTime.now(),
         );
 
-        await _firestore.collection('users').doc(user.uid).set(novoUsuario.toMap());
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .set(novoUsuario.toMap());
       }
       return userCredential;
     } on FirebaseAuthException {

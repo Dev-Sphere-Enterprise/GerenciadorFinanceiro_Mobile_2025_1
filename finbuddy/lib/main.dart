@@ -1,4 +1,5 @@
 import 'package:finbuddy/app.dart';
+import 'package:finbuddy/shared/core/repositories/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'shared/core/db/firebase_options.dart';
@@ -15,9 +16,7 @@ import 'screens/Login/viewmodel/login_viewmodel.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR', null);
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
     MultiProvider(
@@ -27,12 +26,11 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GanhosViewModel()),
         ChangeNotifierProvider(create: (_) => GastosViewModel()),
         ChangeNotifierProvider(create: (_) => CartoesViewModel()),
-        ChangeNotifierProvider(create: (_) => LoginViewModel()),
-
-        Provider<AportesRepository>(
-          create: (_) => AportesRepository(),
+        ChangeNotifierProvider(
+          create: (_) => LoginViewModel(repository: AuthRepository()),
         ),
 
+        Provider<AportesRepository>(create: (_) => AportesRepository()),
       ],
       child: const App(),
     ),

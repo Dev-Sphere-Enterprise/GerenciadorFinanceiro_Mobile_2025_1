@@ -71,7 +71,32 @@ void main() {
           final result = await viewModel.loginWithEmail();
 
           expect(result, isFalse);
-          expect(viewModel.errorMessage, 'Nenhum usuário encontrado com este e-mail.');
+          expect(
+            viewModel.errorMessage,
+            'Nenhum usuário encontrado com este e-mail.',
+          );
+        },
+      );
+
+      test(
+        'deve definir isLoading como true durante o login e false depois',
+        () async {
+          viewModel.emailController.text = 'teste@teste.com';
+          viewModel.passwordController.text = '123456';
+          when(
+            mockAuthRepository.signInWithEmailAndPassword(any, any),
+          ).thenAnswer((_) async {
+            await Future.delayed(const Duration(milliseconds: 10));
+            return mockUserCredential;
+          });
+
+          final future = viewModel.loginWithEmail();
+
+          expect(viewModel.isLoading, isTrue);
+
+          await future;
+
+          expect(viewModel.isLoading, isFalse);
         },
       );
     });
