@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../shared/core/repositories/auth_repository.dart';
 
 class RegisterViewModel extends ChangeNotifier {
-  final AuthRepository _repository = AuthRepository();
+  final AuthRepository _repository;
 
   final nameController = TextEditingController();
   final dobController = TextEditingController();
@@ -23,12 +23,13 @@ class RegisterViewModel extends ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
-  RegisterViewModel() {
+  RegisterViewModel({AuthRepository? repository})
+      : _repository = repository ?? AuthRepository() {
     nameController.addListener(_validateForm);
+    dobController.addListener(_validateForm);
     emailController.addListener(_validateForm);
     passwordController.addListener(_validateForm);
     confirmPasswordController.addListener(_validateForm);
-    dobController.addListener(_validateForm);
   }
 
   void _validateForm() {
@@ -39,7 +40,6 @@ class RegisterViewModel extends ChangeNotifier {
         confirmPasswordController.text.trim().isNotEmpty;
 
     final passwordsMatch = passwordController.text.trim() == confirmPasswordController.text.trim();
-
     final nextValidState = allFilled && passwordsMatch;
 
     if (nextValidState != _isFormValid) {
@@ -50,10 +50,9 @@ class RegisterViewModel extends ChangeNotifier {
 
   Future<void> selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
-
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate ?? DateTime(now.year - 18, now.month, now.day), // Sugere 18 anos atrás
+      initialDate: _selectedDate ?? DateTime(now.year - 18, now.month, now.day),
       firstDate: DateTime(1925),
       lastDate: now,
     );
@@ -64,7 +63,6 @@ class RegisterViewModel extends ChangeNotifier {
     }
   }
 
-  // ✅ MÉTODO DE TRADUÇÃO ADICIONADO
   void _setErrorMessageFromCode(String code) {
     switch (code) {
       case 'email-already-in-use':

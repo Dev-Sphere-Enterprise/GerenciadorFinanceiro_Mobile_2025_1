@@ -24,7 +24,6 @@ void main() {
       verify(mockRepository.getAportesStream(tMetaId)).called(1);
     });
 
-    // Testes para o método salvarAporte
     group('salvarAporte', () {
       final tAporte = AporteMetaModel(
         idMeta: tMetaId,

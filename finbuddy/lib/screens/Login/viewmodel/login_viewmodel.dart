@@ -51,9 +51,9 @@ class LoginViewModel extends ChangeNotifier {
       case 'network-request-failed':
         _errorMessage = 'Erro de conexão. Verifique sua internet.';
         break;
-      case 'user-cancelled-by-user': // Código antigo, mantido por segurança
-      case 'CANCELLED': // Novo código vindo do repositório
-        _errorMessage = null; // Não mostra erro se o usuário simplesmente fechar a janela
+      case 'user-cancelled-by-user':
+      case 'CANCELLED':
+        _errorMessage = null;
         break;
       default:
         _errorMessage = 'Ocorreu um erro inesperado. Tente novamente.';

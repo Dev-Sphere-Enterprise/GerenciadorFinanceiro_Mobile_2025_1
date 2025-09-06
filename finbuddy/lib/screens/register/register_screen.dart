@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
 import '../Home/home_screen.dart';
 import '../Login/login_screen.dart';
 import 'viewmodel/register_viewmodel.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
@@ -81,7 +76,8 @@ class RegisterScreen extends StatelessWidget {
                             final sucesso = await viewModel.registerWithEmail();
                             if (sucesso && context.mounted) {
                               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomeScreen()), (route) => false);
-                            } else if (!sucesso && context.mounted) {
+                            }
+                            else if (!sucesso && context.mounted) {
                               if (viewModel.errorMessage != null) {
                                 _showErrorDialog(context, viewModel.errorMessage!);
                               }
@@ -110,6 +106,7 @@ class RegisterScreen extends StatelessWidget {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark),
+      floatingLabelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyBlue, fontWeight: FontWeight.bold),
       filled: true,
       fillColor: Colors.white.withOpacity(0.8),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
