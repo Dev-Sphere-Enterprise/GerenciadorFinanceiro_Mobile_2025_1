@@ -92,11 +92,14 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _onAddGastoPressed(BuildContext context) async {
     final gastosViewModel = Provider.of<GastosViewModel>(context, listen: false);
+    final homeViewModel = Provider.of<HomeViewModel>(context, listen: false);
+
     await gastosViewModel.loadDialogDependencies();
-    if (context.mounted) {
-      await showAddOrEditGastoDialog(context: context);
-      Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
-    }
+    
+    if (!context.mounted) return; 
+
+    await showAddOrEditGastoDialog(context: context);
+    homeViewModel.refreshBalance();
   }
 
   Widget _buildHeader(BuildContext context) {

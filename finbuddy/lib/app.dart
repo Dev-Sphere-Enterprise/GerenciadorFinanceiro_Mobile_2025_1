@@ -5,15 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_wrapper.dart';
 import 'package:finbuddy/screens/screens_index.dart';
-// ignore: unused_import
 import 'package:finbuddy/screens/Login/login_screen.dart';
 import 'package:finbuddy/shared/constants/app_theme.dart';
 import 'package:finbuddy/shared/core/navigator.dart';
 import 'screens/splash/splash_screen.dart';
-// ignore: unused_import
 import 'shared/core/features/notifications/notifications_manager.dart';
 import 'package:finbuddy/screens/Home/home_screen.dart';
-
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -34,7 +31,6 @@ class _AppState extends State<App> {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => AppTheme())],
       builder: ((context, child) => MaterialApp(
-            // ignore: deprecated_member_use
             useInheritedMediaQuery: true,
             navigatorObservers: [BotToastNavigatorObserver()],
             onGenerateRoute: (settings) {
