@@ -18,7 +18,6 @@ import 'package:finbuddy/shared/core/models/grafico_model.dart';
 import 'package:finbuddy/shared/core/models/cartao_model.dart';
 import 'package:finbuddy/shared/core/models/categoria_model.dart';
 import 'package:finbuddy/shared/core/models/tipo_pagamento_model.dart';
-
 import '../../mocks/mocks.mocks.dart';
 
 class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
@@ -45,7 +44,6 @@ class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
 }
 
 class FakeGanhosViewModel extends ChangeNotifier implements GanhosViewModel {
-  // CORREÇÃO: Declaramos o campo que a interface exige. Sem @override ou late.
   @override
   Stream<List<GanhoModel>> ganhosStream = Stream.value(<GanhoModel>[]);
 
@@ -100,6 +98,7 @@ class FakeGraficosViewModel extends ChangeNotifier
   @override
   void onPieSectionTouched(int? index) {}
 }
+
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -172,15 +171,14 @@ void main() {
     testWidgets(
       'Deve navegar para a HomeScreen em caso de login bem-sucedido',
       (tester) async {
-        final completer = Completer<UserCredential>();
         final mockUserCredential = MockUserCredential();
-
+    
         await pumpLoginScreen(tester);
-
+    
         when(
           mockAuthRepository.signInWithEmailAndPassword(any, any),
-        ).thenAnswer((_) => completer.future);
-
+        ).thenAnswer((_) async => mockUserCredential);
+    
         await tester.enterText(
           find.byKey(const Key('emailField')),
           'teste@email.com',
@@ -190,16 +188,14 @@ void main() {
           '123456',
         );
         await tester.pump();
-
+    
         await tester.tap(find.byKey(const Key('loginButton')));
-        await tester.pump();
-
+        await tester.pump(); 
+    
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-        completer.complete(mockUserCredential);
-
+    
         await tester.pumpAndSettle();
-
+    
         expect(find.byType(LoginScreen), findsNothing);
         expect(find.byType(HomeScreen), findsOneWidget);
       },
@@ -208,18 +204,18 @@ void main() {
     testWidgets('Deve exibir mensagem de erro em caso de falha no login', (
       tester,
     ) async {
-      final completer = Completer<UserCredential>();
-      const errorMessage = 'Email ou senha inválidos.';
       final exception = FirebaseAuthException(
-        code: 'invalid-credential',
-        message: errorMessage,
+        code: 'wrong-password',
+        message: 'Senha incorreta.',
       );
+
+      const expectedErrorMessage = 'Senha incorreta. Por favor, tente novamente.';
 
       await pumpLoginScreen(tester);
 
       when(
         mockAuthRepository.signInWithEmailAndPassword(any, any),
-      ).thenAnswer((_) => completer.future);
+      ).thenThrow(exception);
 
       await tester.enterText(
         find.byKey(const Key('emailField')),
@@ -232,15 +228,13 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump();
+      await tester.pump(); 
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-      completer.completeError(exception);
-
       await tester.pumpAndSettle();
 
-      expect(find.text(errorMessage), findsOneWidget);
+      expect(find.text(expectedErrorMessage), findsOneWidget);
       expect(find.byType(HomeScreen), findsNothing);
     });
   });

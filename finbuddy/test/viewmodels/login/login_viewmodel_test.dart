@@ -28,7 +28,6 @@ void main() {
       () {
         viewModel.emailController.text = 'teste@teste.com';
         viewModel.passwordController.text = '123456';
-
         expect(viewModel.isFormValid, isTrue);
       },
     );
@@ -72,7 +71,7 @@ void main() {
           final result = await viewModel.loginWithEmail();
 
           expect(result, isFalse);
-          expect(viewModel.errorMessage, 'Usuário não encontrado');
+          expect(viewModel.errorMessage, 'Nenhum usuário encontrado com este e-mail.');
         },
       );
     });
