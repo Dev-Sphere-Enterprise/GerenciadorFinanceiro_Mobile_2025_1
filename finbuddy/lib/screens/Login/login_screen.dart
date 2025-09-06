@@ -45,7 +45,7 @@ class LoginScreen extends StatelessWidget {
             children: [
              const Icon(Icons.calculate_rounded, size: 64.0, color: finBuddyDark),
              const SizedBox(height: 16),
-             const Text('FinBuddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
+             const Text('Fin_Buddy', textAlign: TextAlign.center, style: TextStyle(fontFamily: 'JetBrainsMono', fontSize: 32, fontWeight: FontWeight.bold, color: finBuddyDark)),
              const SizedBox(height: 48),
              TextField(key: const Key('emailField'),
               controller: viewModel.emailController,

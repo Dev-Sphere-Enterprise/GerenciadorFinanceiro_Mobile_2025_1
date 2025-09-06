@@ -6,7 +6,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
 import 'screens/GraficoDeGastos/viewmodel/graficos_viewmodel.dart';
-import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
 import 'screens/Home/viewmodel/home_viewmodel.dart';
 import 'screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'screens/Gastos/viewmodel/gastos_viewmodel.dart';
@@ -26,7 +25,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => GraficosViewModel()),
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => GanhosViewModel()),
-        ChangeNotifierProvider(create: (_) => GastosViewModel()), 
+        ChangeNotifierProvider(create: (_) => GastosViewModel()),
         ChangeNotifierProvider(create: (_) => CartoesViewModel()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
 
@@ -34,13 +33,6 @@ void main() async {
           create: (_) => AportesRepository(),
         ),
 
-        ChangeNotifierProxyProvider<AportesRepository, AportesViewModel>(
-          create: (context) => AportesViewModel(
-            repository: context.read<AportesRepository>(),
-          ),
-          update: (context, repository, previousViewModel) =>
-              AportesViewModel(repository: repository),
-        ),
       ],
       child: const App(),
     ),
