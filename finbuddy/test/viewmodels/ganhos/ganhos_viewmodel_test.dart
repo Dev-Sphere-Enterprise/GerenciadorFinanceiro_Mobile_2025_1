@@ -1,12 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-
 import 'package:finbuddy/shared/core/models/ganho_model.dart';
 import 'package:finbuddy/shared/core/repositories/ganhos_repository.dart';
 import 'package:finbuddy/screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
-
-import 'ganhos_viewmodel_test.mocks.dart'; // Arquivo a ser gerado
+import 'ganhos_viewmodel_test.mocks.dart';
 
 @GenerateMocks([GanhosRepository])
 void main() {
@@ -15,7 +13,9 @@ void main() {
 
   setUp(() {
     mockRepository = MockGanhosRepository();
-    when(mockRepository.getGanhosFixosStream()).thenAnswer((_) => Stream.value([]));
+    when(
+      mockRepository.getGanhosFixosStream(),
+    ).thenAnswer((_) => Stream.value([]));
     viewModel = GanhosViewModel(repository: mockRepository);
   });
 
@@ -37,42 +37,39 @@ void main() {
     });
 
     group('salvarGanho', () {
-      test('deve chamar addOrEditGanho com recorrencia=true e retornar true em caso de sucesso', () async {
-        // Arrange
-        when(mockRepository.addOrEditGanho(any)).thenAnswer((_) async {});
+      test(
+        'deve chamar addOrEditGanho com recorrencia=true e retornar true em caso de sucesso',
+        () async {
+          when(mockRepository.addOrEditGanho(any)).thenAnswer((_) async {});
 
-        // Act
-        final result = await viewModel.salvarGanho(tGanho);
+          final result = await viewModel.salvarGanho(tGanho);
 
-        // Assert
-        expect(result, isTrue);
+          expect(result, isTrue);
 
-        // Captura o argumento para verificar se `recorrencia` foi setado para true
-        final captured = verify(mockRepository.addOrEditGanho(captureAny)).captured;
-        expect(captured.first.recorrencia, isTrue);
-      });
+          final captured = verify(
+            mockRepository.addOrEditGanho(captureAny),
+          ).captured;
+          expect(captured.first.recorrencia, isTrue);
+        },
+      );
 
       test('deve retornar false se o repositório lançar uma exceção', () async {
-        // Arrange
-        when(mockRepository.addOrEditGanho(any)).thenThrow(Exception('Erro de DB'));
+        when(
+          mockRepository.addOrEditGanho(any),
+        ).thenThrow(Exception('Erro de DB'));
 
-        // Act
         final result = await viewModel.salvarGanho(tGanho);
 
-        // Assert
         expect(result, isFalse);
       });
     });
 
     group('excluirGanho', () {
       test('deve chamar deleteGanho no repositório', () async {
-        // Arrange
         when(mockRepository.deleteGanho(any)).thenAnswer((_) async {});
 
-        // Act
         await viewModel.excluirGanho('g1');
 
-        // Assert
         verify(mockRepository.deleteGanho('g1')).called(1);
       });
     });

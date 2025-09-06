@@ -6,7 +6,6 @@ import 'package:finbuddy/shared/core/repositories/auth_repository.dart';
 import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
 import 'login_viewmodel_test.mocks.dart';
 
-// 👇 inclua UserCredential aqui também
 @GenerateMocks([AuthRepository, UserCredential])
 void main() {
   late MockAuthRepository mockAuthRepository;
@@ -24,53 +23,58 @@ void main() {
       expect(viewModel.isFormValid, isFalse);
     });
 
-    test('isFormValid deve se tornar verdadeiro quando ambos os campos são preenchidos', () {
-      // Act
-      viewModel.emailController.text = 'teste@teste.com';
-      viewModel.passwordController.text = '123456';
-
-      // Assert
-      expect(viewModel.isFormValid, isTrue);
-    });
-
-    group('loginWithEmail', () {
-      test('deve retornar true em caso de sucesso', () async {
-        // Arrange
+    test(
+      'isFormValid deve se tornar verdadeiro quando ambos os campos são preenchidos',
+      () {
         viewModel.emailController.text = 'teste@teste.com';
         viewModel.passwordController.text = '123456';
 
-        when(mockAuthRepository.signInWithEmailAndPassword(any, any))
-            .thenAnswer((_) async => mockUserCredential);
+        expect(viewModel.isFormValid, isTrue);
+      },
+    );
 
-        // Act
-        final result = await viewModel.loginWithEmail();
-
-        // Assert
-        expect(result, isTrue);
-        expect(viewModel.errorMessage, isNull);
-        verify(mockAuthRepository.signInWithEmailAndPassword('teste@teste.com', '123456')).called(1);
-      });
-
-      test('deve retornar false e definir errorMessage em caso de falha', () async {
-        // Arrange
-        final exception = FirebaseAuthException(
-          code: 'user-not-found',
-          message: 'Usuário não encontrado',
-        );
-
-        viewModel.emailController.text = 'errado@teste.com';
+    group('loginWithEmail', () {
+      test('deve retornar true em caso de sucesso', () async {
+        viewModel.emailController.text = 'teste@teste.com';
         viewModel.passwordController.text = '123456';
 
-        when(mockAuthRepository.signInWithEmailAndPassword(any, any))
-            .thenThrow(exception);
+        when(
+          mockAuthRepository.signInWithEmailAndPassword(any, any),
+        ).thenAnswer((_) async => mockUserCredential);
 
-        // Act
         final result = await viewModel.loginWithEmail();
 
-        // Assert
-        expect(result, isFalse);
-        expect(viewModel.errorMessage, 'Usuário não encontrado');
+        expect(result, isTrue);
+        expect(viewModel.errorMessage, isNull);
+        verify(
+          mockAuthRepository.signInWithEmailAndPassword(
+            'teste@teste.com',
+            '123456',
+          ),
+        ).called(1);
       });
+
+      test(
+        'deve retornar false e definir errorMessage em caso de falha',
+        () async {
+          final exception = FirebaseAuthException(
+            code: 'user-not-found',
+            message: 'Usuário não encontrado',
+          );
+
+          viewModel.emailController.text = 'errado@teste.com';
+          viewModel.passwordController.text = '123456';
+
+          when(
+            mockAuthRepository.signInWithEmailAndPassword(any, any),
+          ).thenThrow(exception);
+
+          final result = await viewModel.loginWithEmail();
+
+          expect(result, isFalse);
+          expect(viewModel.errorMessage, 'Usuário não encontrado');
+        },
+      );
     });
   });
 }

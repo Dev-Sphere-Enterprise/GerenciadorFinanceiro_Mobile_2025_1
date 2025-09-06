@@ -6,7 +6,6 @@ import 'package:finbuddy/screens/Ganhos/dialog/ganhos_fixos_dialog.dart';
 import 'package:finbuddy/screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'package:finbuddy/shared/core/models/ganho_model.dart';
 
-// Pode reutilizar o FakeViewModel do teste de tela ou criar um novo
 class FakeGanhosViewModel extends ChangeNotifier implements GanhosViewModel {
   bool salvarGanhoCalled = false;
   GanhoModel? capturedGanho;
@@ -37,7 +36,8 @@ void main() {
           body: Builder(
             builder: (context) {
               return ElevatedButton(
-                onPressed: () => showAddOrEditGanhoDialog(context: context, ganho: ganho),
+                onPressed: () =>
+                    showAddOrEditGanhoDialog(context: context, ganho: ganho),
                 child: const Text('Abrir'),
               );
             },
@@ -51,26 +51,19 @@ void main() {
     fakeViewModel = FakeGanhosViewModel();
   });
 
-  testWidgets('Dialog de Adicionar Ganho deve chamar salvarGanho e fechar', (tester) async {
-    // Arrange
+  testWidgets('Dialog de Adicionar Ganho deve chamar salvarGanho e fechar', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestableWidget());
 
-    // Act
     await tester.tap(find.text('Abrir'));
     await tester.pumpAndSettle();
 
-    // Assert: Verifica se o dialog abriu
     expect(find.text('Adicionar Ganho Fixo'), findsOneWidget);
 
-    // Act
-    await tester.enterText(
-      find.byKey(const Key('nomeField')), 'Salário',
-    );
-    await tester.enterText(
-      find.byKey(const Key('valorField')), '5500.00',
-    );
+    await tester.enterText(find.byKey(const Key('nomeField')), 'Salário');
+    await tester.enterText(find.byKey(const Key('valorField')), '5500.00');
 
-    // Espera a UI reconstruir com os novos valores
     await tester.pump();
 
     final salvarButtonFinder = find.ancestor(
@@ -78,17 +71,15 @@ void main() {
       matching: find.byType(ElevatedButton),
     );
 
-    // Verifica se o botão "Salvar" está habilitado antes de prosseguir
     final salvarButton = tester.widget<ElevatedButton>(salvarButtonFinder);
     expect(salvarButton.onPressed, isNotNull);
 
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
 
-    // Assert
     expect(fakeViewModel.salvarGanhoCalled, isTrue);
     expect(fakeViewModel.capturedGanho?.nome, 'Salário');
     expect(fakeViewModel.capturedGanho?.valor, 5500.0);
-    expect(find.text('Adicionar Ganho Fixo'), findsNothing); // Dialog fechou
+    expect(find.text('Adicionar Ganho Fixo'), findsNothing);
   });
 }
