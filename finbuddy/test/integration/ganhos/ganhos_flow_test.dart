@@ -82,9 +82,12 @@ void main() {
       await tester.enterText(find.byKey(const Key('nomeField')), 'Consultoria');
       await tester.enterText(find.byKey(const Key('valorField')), '1500,00');
 
+      await tester.pump();
+
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 
+      // ASSERT
       verify(mockGanhosRepository.addOrEditGanho(any)).called(1);
       expect(find.text('Adicionar Ganho Fixo'), findsNothing);
     });
@@ -103,6 +106,8 @@ void main() {
       expect(find.widgetWithText(TextFormField, 'Salário'), findsOneWidget);
 
       await tester.enterText(find.byKey(const Key('valorField')), '5500,00');
+
+      await tester.pump();
 
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
