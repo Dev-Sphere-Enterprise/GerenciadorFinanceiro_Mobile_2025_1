@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Text(
-                  'From DevSphere v0.5.0_beta',
+                  'From DevSphere v1.0.0',
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
                     fontSize: 14,

@@ -97,34 +97,34 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      key: const Key('googleLoginButton'),
-                      style: _buttonStyle(backgroundColor: Colors.white),
-                      onPressed: () async {
-                        final sucesso = await viewModel.loginWithGoogle();
-                        if (sucesso && context.mounted) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const HomeScreen(),
-                            ),
-                          );
-                        }
-                      },
-                      icon: SvgPicture.asset(
-                        'assets/svg/google.svg',
-                        height: 20.0,
-                      ),
-                      label: const Text(
-                        'Entrar com Google',
-                        style: TextStyle(
-                          fontFamily: 'JetBrainsMono',
-                          color: finBuddyDark,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                    // const SizedBox(height: 12),
+                    // ElevatedButton.icon(
+                    //   key: const Key('googleLoginButton'),
+                    //   style: _buttonStyle(backgroundColor: Colors.white),
+                    //   onPressed: () async {
+                    //     final sucesso = await viewModel.loginWithGoogle();
+                    //     if (sucesso && context.mounted) {
+                    //       Navigator.pushReplacement(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //           builder: (_) => const HomeScreen(),
+                    //         ),
+                    //       );
+                    //     }
+                    //   },
+                    //   icon: SvgPicture.asset(
+                    //     'assets/svg/google.svg',
+                    //     height: 20.0,
+                    //   ),
+                    //   label: const Text(
+                    //     'Entrar com Google',
+                    //     style: TextStyle(
+                    //       fontFamily: 'JetBrainsMono',
+                    //       color: finBuddyDark,
+                    //       fontWeight: FontWeight.bold,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                   const SizedBox(height: 20),
                   TextButton(
