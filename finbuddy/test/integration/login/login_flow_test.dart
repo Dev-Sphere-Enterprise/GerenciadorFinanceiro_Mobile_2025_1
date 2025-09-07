@@ -10,8 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../mocks/mocks.mocks.dart';
 
-// ✨ PASSO 1: Criamos um widget "dublê" para a HomeScreen.
-// Ele não tem NENHUMA dependência e é super leve.
 class FakeHomeScreen extends StatelessWidget {
   const FakeHomeScreen({super.key});
 
@@ -19,7 +17,6 @@ class FakeHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        // Usamos uma Key para que o teste possa encontrá-lo e confirmar a navegação.
         child: Text('Navegou com Sucesso', key: Key('fakeHomeScreen')),
       ),
     );
@@ -39,17 +36,14 @@ void main() {
     mockUserCredential = MockUserCredential();
   });
 
-  // ✨ PASSO 2: Simplificamos drasticamente o ambiente do teste.
   Future<void> pumpLoginScreen(WidgetTester tester) async {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          // Agora só precisamos do Provider para a tela que estamos testando: a LoginScreen.
           ChangeNotifierProvider<LoginViewModel>.value(value: loginViewModel),
         ],
         child: MaterialApp(
           home: const LoginScreen(),
-          // Interceptamos a rota '/home' e fornecemos nosso dublê.
           routes: {'/home': (context) => const FakeHomeScreen()},
         ),
       ),
@@ -85,14 +79,12 @@ void main() {
     testWidgets(
       'Deve navegar para a FakeHomeScreen em caso de login bem-sucedido',
       (tester) async {
-        // ARRANGE
         when(
           mockAuthRepository.signInWithEmailAndPassword(any, any),
         ).thenAnswer((_) async => mockUserCredential);
 
         await pumpLoginScreen(tester);
 
-        // ACT
         await tester.enterText(
           find.byKey(const Key('emailField')),
           'teste@email.com',
@@ -101,16 +93,14 @@ void main() {
           find.byKey(const Key('passwordField')),
           '123456',
         );
-        await tester.pump(); // Garante que o botão seja habilitado
+        await tester.pump();
 
         await tester.tap(find.byKey(const Key('loginButton')));
-        await tester.pump(Duration.zero); // Processa o início do loading
+        await tester.pump(Duration.zero); 
 
-        // ASSERT
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-        await tester.pumpAndSettle(); // Conclui a navegação
+        await tester.pumpAndSettle();
 
-        // Verificamos se a navegação ocorreu para o nosso dublê.
         expect(find.byKey(const Key('fakeHomeScreen')), findsOneWidget);
         expect(find.byType(LoginScreen), findsNothing);
       },
@@ -119,14 +109,12 @@ void main() {
     testWidgets('Deve exibir mensagem de erro em caso de falha no login', (
       tester,
     ) async {
-      // ARRANGE
       when(
         mockAuthRepository.signInWithEmailAndPassword(any, any),
       ).thenThrow(FirebaseAuthException(code: 'invalid-credential'));
 
       await pumpLoginScreen(tester);
 
-      // ACT
       await tester.enterText(
         find.byKey(const Key('emailField')),
         'errado@email.com',
@@ -135,10 +123,10 @@ void main() {
         find.byKey(const Key('passwordField')),
         'senhaerrada',
       );
-      await tester.pump(); // Garante que o botão seja habilitado
+      await tester.pump(); 
 
       await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump(Duration.zero); // Processa o início do loading
+      await tester.pump(Duration.zero); 
 
       // ASSERT
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
