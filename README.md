@@ -38,4 +38,4 @@ Oferecer o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, p
 ### [Firebase](https://firebase.google.com/?hl=pt-br)
 
 ## :construction: Status do Projeto
-Em andamento
+Finalizado
