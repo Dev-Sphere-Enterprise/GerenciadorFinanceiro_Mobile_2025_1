@@ -160,9 +160,9 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
                   style: estiloFonteMonospace.copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 24),
-                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Fatura (R\$):', TextFormField(controller: _valorFaturaController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Limite (R\$):', TextFormField(controller: _limiteController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow('Nome:', TextFormField(key: const Key('nomeField'),controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow('Fatura (R\$):', TextFormField(key: const Key('faturaField'),controller: _valorFaturaController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow('Limite (R\$):', TextFormField(key: const Key('limiteField'),controller: _limiteController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
                 _buildDialogRow('Fechamento:', InkWell(onTap: () async {
                   DateTime? picked = await showDatePicker(context: context, initialDate: _selectedFechamento, firstDate: DateTime(2000), lastDate: DateTime(2100));
                   if (picked != null) setState(() => _selectedFechamento = picked);
@@ -172,7 +172,7 @@ class _CartaoDialogContentState extends State<_CartaoDialogContent> {
                   if (picked != null) setState(() => _selectedVencimento = picked);
                 }, child: Container(padding: const EdgeInsets.symmetric(vertical: 8), alignment: Alignment.centerLeft, child: Text(DateFormat('dd/MM/yyyy').format(_selectedVencimento), style: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal))))),
                 const SizedBox(height: 24),
-                ElevatedButton(
+                ElevatedButton(key: const Key('salvarButton'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: finBuddyLime,
                     padding: const EdgeInsets.symmetric(vertical: 12),

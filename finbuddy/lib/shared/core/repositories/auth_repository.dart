@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/usuario_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -11,9 +12,15 @@ class AuthRepository {
 
   User? get currentUser => _auth.currentUser;
 
-  Future<UserCredential> signInWithEmailAndPassword(String email, String password) async {
+  Future<UserCredential> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
-      return await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     } on FirebaseAuthException {
       rethrow;
     }
@@ -27,15 +34,15 @@ class AuthRepository {
     }
 
     try {
-      // Use .set with merge: true to create the document if it doesn't exist
-      // and use the correct field names.
       await _firestore.collection('users').doc(user.uid).set({
         'nome': newName,
         'dob': Timestamp.fromDate(newDob),
         'dataAtualizacao': Timestamp.now(),
       }, SetOptions(merge: true));
     } catch (e) {
-      print('Erro ao atualizar perfil do usuário: $e');
+      if (kDebugMode) {
+        print('Erro ao atualizar perfil do usuário: $e');
+      }
       throw Exception('Falha ao atualizar o perfil. Tente novamente.');
     }
   }
@@ -54,46 +61,40 @@ class AuthRepository {
         return UsuarioModel.fromMap(doc.id, doc.data()!);
       }
     } catch (e) {
-      print('Erro ao buscar perfil do usuário: $e');
+      if (kDebugMode) {
+        print('Erro ao buscar perfil do usuário: $e');
+      }
     }
 
     return null;
   }
 
-  Future<UserCredential> signInWithGoogle({
-    required Function(String?) setErrorMessage,
-  }) async {
+  Future<UserCredential> signInWithGoogle() async {
     try {
       final googleUser = await GoogleSignIn.instance.authenticate();
 
-      if (googleUser == null) {
-        setErrorMessage(null);
-        throw FirebaseAuthException(code: 'user-cancelled-by-user');
-      }
-
-      final googleAuth = await googleUser.authentication;
+      final googleAuth = googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
       final userCredential = await _auth.signInWithCredential(credential);
 
-      // Check if the user's document exists in Firestore.
-      final userDoc = await _firestore.collection('users').doc(userCredential.user!.uid).get();
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .get();
       if (!userDoc.exists) {
-        // If not, create the profile document with a default name, email, and createdAt.
         await _firestore.collection('users').doc(userCredential.user!.uid).set({
           'nome': userCredential.user!.displayName ?? 'Usuário',
           'email': userCredential.user!.email,
           'createdAt': Timestamp.now(),
-          'dob': null, // 'dob' is nullable, so it can be left blank here.
+          'dob': null,
         });
       }
       return userCredential;
-    } on FirebaseAuthException catch (e) {
-      setErrorMessage('Erro de autenticação: ${e.message}');
+    } on FirebaseAuthException {
       rethrow;
     } catch (e) {
-      setErrorMessage('Erro inesperado: $e');
       throw Exception('Erro inesperado durante o login com Google.');
     }
   }
@@ -122,7 +123,10 @@ class AuthRepository {
           dataAtualizacao: DateTime.now(),
         );
 
-        await _firestore.collection('users').doc(user.uid).set(novoUsuario.toMap());
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .set(novoUsuario.toMap());
       }
       return userCredential;
     } on FirebaseAuthException {

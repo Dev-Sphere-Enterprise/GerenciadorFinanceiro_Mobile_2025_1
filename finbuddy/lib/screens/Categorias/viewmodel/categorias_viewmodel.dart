@@ -14,6 +14,7 @@ class CategoriasViewModel extends ChangeNotifier {
   Future<void> excluirCategoria(String categoriaId) async {
     try {
       await _repository.deleteCategoria(categoriaId);
+      notifyListeners();
     } catch (e) {
       debugPrint("Erro ao excluir categoria: $e");
     }
@@ -22,6 +23,7 @@ class CategoriasViewModel extends ChangeNotifier {
   Future<bool> salvarCategoria(CategoriaModel categoria) async {
     try {
       await _repository.addOrEditCategoria(categoria);
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Erro ao salvar categoria: $e");

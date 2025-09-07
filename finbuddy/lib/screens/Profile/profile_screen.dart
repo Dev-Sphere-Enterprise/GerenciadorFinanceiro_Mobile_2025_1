@@ -12,10 +12,6 @@ import '../TiposPagamentos/tipos_pagamentos_screen.dart';
 import 'dialog/edit_profile_dialog.dart';
 import 'viewmodel/profile_viewmodel.dart';
 
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 

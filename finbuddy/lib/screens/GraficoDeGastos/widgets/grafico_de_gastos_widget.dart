@@ -19,16 +19,23 @@ class GraficoDeGastosWidget extends StatelessWidget {
     return Consumer<GraficosViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator(color: finBuddyDark));
+          return const Center(
+            child: CircularProgressIndicator(color: finBuddyDark),
+          );
         }
         if (viewModel.chartData == null) {
-          return const Center(child: Text('Erro ao carregar dados.', style: estiloFonteMonospace));
+          return const Center(
+            child: Text('Erro ao carregar dados.', style: estiloFonteMonospace),
+          );
         }
 
         final dados = viewModel.chartData!;
         return Column(
           children: [
-            Text('Gráfico de Gastos', style: estiloFonteMonospace.copyWith(fontSize: 20)),
+            Text(
+              'Gráfico de Gastos',
+              style: estiloFonteMonospace.copyWith(fontSize: 20),
+            ),
             const SizedBox(height: 16),
             _buildMonthSelector(context, viewModel),
             const SizedBox(height: 16),
@@ -36,7 +43,10 @@ class GraficoDeGastosWidget extends StatelessWidget {
               const Center(
                 child: Padding(
                   padding: EdgeInsets.all(32.0),
-                  child: Text('Nenhum gasto neste mês.', style: estiloFonteMonospace),
+                  child: Text(
+                    'Nenhum gasto neste mês.',
+                    style: estiloFonteMonospace,
+                  ),
                 ),
               )
             else
@@ -47,8 +57,24 @@ class GraficoDeGastosWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildMonthSelector(BuildContext context, GraficosViewModel viewModel) {
-    const meses = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+  Widget _buildMonthSelector(
+    BuildContext context,
+    GraficosViewModel viewModel,
+  ) {
+    const meses = [
+      'JAN',
+      'FEV',
+      'MAR',
+      'ABR',
+      'MAI',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SET',
+      'OUT',
+      'NOV',
+      'DEZ',
+    ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -64,7 +90,10 @@ class GraficoDeGastosWidget extends StatelessWidget {
                 meses[index],
                 style: estiloFonteMonospace.copyWith(
                   fontSize: 18,
-                  color: selecionado ? finBuddyBlue : finBuddyDark.withOpacity(0.6),
+                  color: selecionado
+                      ? finBuddyBlue
+                      // ignore: deprecated_member_use
+                      : finBuddyDark.withOpacity(0.6),
                 ),
               ),
             ),
@@ -74,9 +103,15 @@ class GraficoDeGastosWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChartAndSummary(BuildContext context, GraficosViewModel viewModel, GraficoModel dados) {
+  Widget _buildChartAndSummary(
+    BuildContext context,
+    GraficosViewModel viewModel,
+    GraficoModel dados,
+  ) {
     final itemCount = limiteCategorias != null
-        ? (dados.categoriasComGasto.length > limiteCategorias! ? limiteCategorias! : dados.categoriasComGasto.length)
+        ? (dados.categoriasComGasto.length > limiteCategorias!
+              ? limiteCategorias!
+              : dados.categoriasComGasto.length)
         : dados.categoriasComGasto.length;
 
     return Column(
@@ -85,7 +120,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
         const SizedBox(height: 16),
         SizedBox(height: 200, child: _buildSelectedChart(viewModel, dados)),
         const SizedBox(height: 24),
-        
+
         _buildSummaryRow(
           icon: Icons.functions,
           title: 'Todos os gastos',
@@ -94,26 +129,38 @@ class GraficoDeGastosWidget extends StatelessWidget {
           percentage: 100.0,
         ),
         const Divider(thickness: 1, color: Colors.black12, height: 20),
-        
+
         ...List.generate(itemCount, (index) {
           final categoriaId = dados.categoriasComGasto[index].key;
           final dadosGasto = dados.gastosPorCategoria[categoriaId];
-          final iconesCategorias = _getIconesCategorias(); 
-          
+          final iconesCategorias = _getIconesCategorias();
+
           return _buildSummaryRow(
             icon: iconesCategorias[categoriaId] ?? Icons.label_outline,
             title: dados.nomesCategorias[categoriaId] ?? 'Desconhecido',
             count: dadosGasto?.count ?? 0,
             value: dadosGasto?.totalValue ?? 0.0,
-            percentage: dados.totalValorGastos > 0 ? ((dadosGasto?.totalValue ?? 0.0) / dados.totalValorGastos) * 100 : 0.0,
+            percentage: dados.totalValorGastos > 0
+                ? ((dadosGasto?.totalValue ?? 0.0) / dados.totalValorGastos) *
+                      100
+                : 0.0,
           );
         }),
 
-        if (limiteCategorias != null && dados.categoriasComGasto.length > limiteCategorias!)
+        if (limiteCategorias != null &&
+            dados.categoriasComGasto.length > limiteCategorias!)
           Center(
             child: TextButton(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const GraficoDeGastosScreen())),
-              child: Text('Ver mais', style: estiloFonteMonospace.copyWith(color: finBuddyBlue)),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const GraficoDeGastosScreen(),
+                ),
+              ),
+              child: Text(
+                'Ver mais',
+                style: estiloFonteMonospace.copyWith(color: finBuddyBlue),
+              ),
             ),
           ),
       ],
@@ -126,19 +173,23 @@ class GraficoDeGastosWidget extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.pie_chart_outline),
-          color: viewModel.tipoSelecionado == TipoGrafico.pizza ? finBuddyBlue : Colors.grey,
+          color: viewModel.tipoSelecionado == TipoGrafico.pizza
+              ? finBuddyBlue
+              : Colors.grey,
           onPressed: () => viewModel.changeChartType(TipoGrafico.pizza),
         ),
         IconButton(
           icon: const Icon(Icons.bar_chart_outlined),
-          color: viewModel.tipoSelecionado == TipoGrafico.coluna ? finBuddyBlue : Colors.grey,
+          color: viewModel.tipoSelecionado == TipoGrafico.coluna
+              ? finBuddyBlue
+              : Colors.grey,
           onPressed: () => viewModel.changeChartType(TipoGrafico.coluna),
         ),
-        IconButton(
-          icon: const Icon(Icons.show_chart_outlined),
-          color: viewModel.tipoSelecionado == TipoGrafico.linha ? finBuddyBlue : Colors.grey,
-          onPressed: () => viewModel.changeChartType(TipoGrafico.linha),
-        ),
+        // IconButton(
+        //   icon: const Icon(Icons.show_chart_outlined),
+        //   color: viewModel.tipoSelecionado == TipoGrafico.linha ? finBuddyBlue : Colors.grey,
+        //   onPressed: () => viewModel.changeChartType(TipoGrafico.linha),
+        // ),
       ],
     );
   }
@@ -159,12 +210,23 @@ class GraficoDeGastosWidget extends StatelessWidget {
           iconesCategorias,
         );
       case TipoGrafico.linha:
-        final List<FlSpot> gastosExemplo = [
-          FlSpot(1, 150), FlSpot(5, 230), FlSpot(10, 200),
-          FlSpot(15, 400), FlSpot(20, 350), FlSpot(25, 500),
+        final diasNoMes = dados.diasNoMes;
+
+        final List<FlSpot> gastosSpots = dados.gastosAcumuladosPorDia.entries
+            .map((entry) {
+              return FlSpot(entry.key.toDouble(), entry.value);
+            })
+            .toList();
+
+        gastosSpots.sort((a, b) => a.x.compareTo(b.x));
+
+        final double teto = dados.tetoDeGastosTotal;
+        final List<FlSpot> tetoSpots = [
+          FlSpot(1, teto),
+          FlSpot(diasNoMes.toDouble(), teto),
         ];
-        final List<FlSpot> tetoExemplo = [FlSpot(1, 600), FlSpot(30, 600)];
-        return construirGraficoLinha(gastosExemplo, tetoExemplo);
+
+        return construirGraficoLinha(gastosSpots, tetoSpots, diasNoMes);
     }
   }
 
@@ -175,7 +237,10 @@ class GraficoDeGastosWidget extends StatelessWidget {
     required double value,
     required double percentage,
   }) {
-    final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final formatadorMoeda = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: 'R\$',
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -190,7 +255,10 @@ class GraficoDeGastosWidget extends StatelessWidget {
                 Text(title, style: estiloFonteMonospace),
                 Text(
                   '$count lançamentos',
-                  style: estiloFonteMonospace.copyWith(fontSize: 12, fontWeight: FontWeight.normal),
+                  style: estiloFonteMonospace.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
               ],
             ),
@@ -201,8 +269,17 @@ class GraficoDeGastosWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(formatadorMoeda.format(value), style: estiloFonteMonospace),
-                Text('${percentage.toStringAsFixed(1)}%', style: estiloFonteMonospace.copyWith(fontSize: 12, fontWeight: FontWeight.normal)),
+                Text(
+                  formatadorMoeda.format(value),
+                  style: estiloFonteMonospace,
+                ),
+                Text(
+                  '${percentage.toStringAsFixed(1)}%',
+                  style: estiloFonteMonospace.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
               ],
             ),
           ),
@@ -210,7 +287,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   Map<String, IconData> _getIconesCategorias() {
     return {
       'UEubVETcFQYF8fch2mNE': Icons.medical_services_outlined,

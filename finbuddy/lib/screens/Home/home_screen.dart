@@ -8,65 +8,53 @@ import '../Ganhos/dialog/ganhos_fixos_dialog.dart';
 import '../GraficoDeGastos/widgets/grafico_de_gastos_widget.dart';
 import '../Profile/profile_screen.dart';
 import '../Gastos/viewmodel/gastos_viewmodel.dart';
-import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'viewmodel/home_viewmodel.dart';
-
-const Color finBuddyLime = Color(0xFFC4E03B);
-const Color finBuddyBlue = Color(0xFF3A86E0);
-const Color finBuddyDark = Color(0xFF212121);
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => HomeViewModel()),
-        ChangeNotifierProvider(create: (_) => GanhosViewModel()),
-        ChangeNotifierProvider(create: (_) => GastosViewModel()),
-      ],
-      child: Consumer<HomeViewModel>(
-        builder: (context, viewModel, child) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (viewModel.pendingAction != null) {
-              if (viewModel.pendingAction == 'add_gain') {
-                _onAddGanhoPressed(context);
-              }
-              if (viewModel.pendingAction == 'add_expense') {
-                _onAddGastoPressed(context);
-              }
-              viewModel.clearPendingAction();
+    return Consumer<HomeViewModel>(
+      builder: (context, viewModel, child) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (viewModel.pendingAction != null) {
+            if (viewModel.pendingAction == 'add_gain') {
+              _onAddGanhoPressed(context);
             }
-          });
+            if (viewModel.pendingAction == 'add_expense') {
+              _onAddGastoPressed(context);
+            }
+            viewModel.clearPendingAction();
+          }
+        });
 
-          return Scaffold(
-            backgroundColor: corFundoScaffold,
-            floatingActionButton: FloatingActionButton(
-              onPressed: () => _showAddOptions(context),
-              backgroundColor: finBuddyBlue,
-              child: const Icon(Icons.add, color: Colors.white, size: 30),
-            ),
-            body: viewModel.isLoading
-                ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
-                : Column(
-                    children: [
-                      _buildHeader(context),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _buildBalanceCard(context, viewModel),
-                      ),
-                      const Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                           child: GraficoDeGastosWidget(limiteCategorias: 3),
-                        ),
-                      ),
-                    ],
-                  ),
-          );
-        },
-      ),
+        return Scaffold(
+          backgroundColor: corFundoScaffold,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _showAddOptions(context),
+            backgroundColor: finBuddyBlue,
+            child: const Icon(Icons.add, color: Colors.white, size: 30),
+          ),
+          body: viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator(color: finBuddyDark))
+              : Column(
+            children: [
+              _buildHeader(context),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: _buildBalanceCard(context, viewModel),
+              ),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: GraficoDeGastosWidget(limiteCategorias: 3),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -98,16 +86,20 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _onAddGanhoPressed(BuildContext context) async {
       await showAddOrEditGanhoDialog(context: context);
+      // ignore: use_build_context_synchronously
       Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
   }
 
   Future<void> _onAddGastoPressed(BuildContext context) async {
     final gastosViewModel = Provider.of<GastosViewModel>(context, listen: false);
+    final homeViewModel = Provider.of<HomeViewModel>(context, listen: false);
+
     await gastosViewModel.loadDialogDependencies();
-    if (context.mounted) {
-      await showAddOrEditGastoDialog(context: context);
-      Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
-    }
+    
+    if (!context.mounted) return; 
+
+    await showAddOrEditGastoDialog(context: context);
+    homeViewModel.refreshBalance();
   }
 
   Widget _buildHeader(BuildContext context) {

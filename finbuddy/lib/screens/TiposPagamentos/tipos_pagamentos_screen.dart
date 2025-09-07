@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
 import '../../../shared/core/models/tipo_pagamento_model.dart';
-import 'dialog/add_or_edit_tipo.dart';
 import 'viewmodel/tipos_pagamento_viewmodel.dart';
 
 class TiposPagamentosScreen extends StatelessWidget {
@@ -11,7 +10,7 @@ class TiposPagamentosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => TiposPagamentoViewModel(),
+      create: (_) => TiposPagamentoViewModel()..loadTiposGerais(),
       child: Scaffold(
         backgroundColor: corFundoScaffold,
         appBar: AppBar(
@@ -35,43 +34,32 @@ class TiposPagamentosScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Tipos de pagamento',
-                        style: estiloFonteMonospace.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                        'Tipos de Pagamento',
+                        textAlign: TextAlign.center,
+                        style: estiloFonteMonospace.copyWith(fontSize: 24, color: finBuddyDark),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       Expanded(
                         child: StreamBuilder<List<TipoPagamentoModel>>(
-                          stream: viewModel.tiposUsuarioStream,
+                          stream: viewModel.tiposCombinadosStream,
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
+                            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
                               return const Center(child: CircularProgressIndicator());
                             }
-                            // Combine as duas listas: tipos gerais primeiro, depois os do usuário.
-                            final List<TipoPagamentoModel> tiposCombinados = [
-                              ...viewModel.tiposGerais,
-                              ...snapshot.data ?? [],
-                            ];
-
-                            if (tiposCombinados.isEmpty) {
-                              return const Center(child: Text('Nenhum tipo disponível.'));
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Erro ao carregar os dados.', style: estiloFonteMonospace));
+                            }
+                            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                              return Center(child: Text('Nenhum tipo disponível.', style: estiloFonteMonospace));
                             }
 
+                            final tipos = snapshot.data!;
                             return ListView.builder(
-                              itemCount: tiposCombinados.length,
-                              itemBuilder: (context, index) => _buildTipoItem(context, viewModel, tiposCombinados[index]),
+                              itemCount: tipos.length,
+                              itemBuilder: (context, index) => _buildTipoItem(context, tipos[index]),
                             );
                           },
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: finBuddyLime,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        onPressed: () => showAddOrEditTipoDialog(context: context),
-                        child: Text("Adicionar", style: estiloFonteMonospace.copyWith(fontSize: 16)),
                       ),
                     ],
                   ),
@@ -84,50 +72,17 @@ class TiposPagamentosScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTipoItem(BuildContext context, TiposPagamentoViewModel viewModel, TipoPagamentoModel tipo) {
+  Widget _buildTipoItem(BuildContext context, TipoPagamentoModel tipo) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-              decoration: BoxDecoration(color: corItem, borderRadius: BorderRadius.circular(8.0)),
-              child: Text(tipo.nome, textAlign: TextAlign.center, style: estiloFonteMonospace.copyWith(fontSize: 16)),
-            ),
-          ),
-          SizedBox(
-            width: 96,
-            child: tipo.isFixo
-                ? const SizedBox.shrink()
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit_outlined, color: finBuddyDark),
-                        onPressed: () => showAddOrEditTipoDialog(context: context, tipo: tipo),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: finBuddyDark),
-                        onPressed: () async {
-                          final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                  title: const Text("Confirmar exclusão"),
-                                  content: Text("Deseja deletar o tipo '${tipo.nome}'?"),
-                                  actions: [
-                                    TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancelar")),
-                                    TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Deletar", style: TextStyle(color: Colors.red))),
-                                  ]));
-                          if (confirm == true) {
-                            await viewModel.excluirTipo(tipo.id!);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(color: corItem, borderRadius: BorderRadius.circular(8.0)),
+        child: Text(
+          tipo.nome,
+          textAlign: TextAlign.center,
+          style: estiloFonteMonospace.copyWith(fontSize: 16),
+        ),
       ),
     );
   }

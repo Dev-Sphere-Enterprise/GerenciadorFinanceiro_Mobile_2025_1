@@ -26,21 +26,29 @@ class GastosViewModel extends ChangeNotifier {
   }
 
   Future<void> loadDialogDependencies() async {
+    if (categorias.isNotEmpty && cartoes.isNotEmpty && tiposPagamento.isNotEmpty) {
+      return;
+    }
+
     isDialogLoading = true;
     notifyListeners();
-    
-    final results = await Future.wait([
-      _categoriasRepository.getCategorias(),
-      _cartoesRepository.getCartoes(),
-      _tipoPagamentoRepository.getTiposPagamento(),
-    ]);
 
-    categorias = results[0] as List<CategoriaModel>;
-    cartoes = results[1] as List<CartaoModel>;
-    tiposPagamento = results[2] as List<TipoPagamentoModel>;
+    try {
+      final results = await Future.wait([
+        _categoriasRepository.getCategorias(),
+        _cartoesRepository.getCartoes(),
+        _tipoPagamentoRepository.getTiposGerais(),
+      ]);
 
-    isDialogLoading = false;
-    notifyListeners();
+      categorias = results[0] as List<CategoriaModel>;
+      cartoes = results[1] as List<CartaoModel>;
+      tiposPagamento = results[2] as List<TipoPagamentoModel>;
+    } catch (e) {
+      debugPrint("Erro ao carregar dependências do dialog: $e");
+    } finally {
+      isDialogLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> excluirGasto(String gastoId) async {

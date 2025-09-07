@@ -136,8 +136,8 @@ class _GanhoDialogContentState extends State<_GanhoDialogContent> {
                   style: estiloFonteMonospace.copyWith(fontSize: 18),
                 ),
                 const SizedBox(height: 24),
-                _buildDialogRow('Nome:', TextFormField(controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
-                _buildDialogRow('Valor (R\$):', TextFormField(controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow('Nome:', TextFormField(key: const Key('nomeField'),controller: _nomeController, decoration: inputDecoration, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
+                _buildDialogRow('Valor (R\$):', TextFormField( key: const Key('valorField'), controller: _valorController, decoration: inputDecoration, keyboardType: TextInputType.number, validator: (v) => v!.isEmpty ? 'Obrigatório' : null)),
                 _buildDialogRow(
                   'Data:',
                   InkWell(

@@ -1,3 +1,5 @@
+// lib/screens/Gastos/gastos_fixos_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -42,9 +44,9 @@ class GastosFixosScreen extends StatelessWidget {
                           stream: viewModel.gastosStream,
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                            if (snapshot.hasError) return const Center(child: Text('Erro ao carregar dados. Verifique o índice do Firestore.'));
+                            if (snapshot.hasError) return const Center(child: Text('Erro ao carregar dados.'));
                             if (!snapshot.hasData || snapshot.data!.isEmpty) return const Center(child: Text('Nenhum gasto fixo cadastrado.', style: estiloFonteMonospace));
-                            
+
                             final gastos = snapshot.data!;
                             return ListView.builder(
                               itemCount: gastos.length,
@@ -66,8 +68,8 @@ class GastosFixosScreen extends StatelessWidget {
                             showAddOrEditGastoDialog(context: context);
                           }
                         },
-                        child: viewModel.isDialogLoading 
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white))
+                        child: viewModel.isDialogLoading
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
                             : Text('Adicionar', style: estiloFonteMonospace.copyWith(fontSize: 16)),
                       ),
                     ],
@@ -84,7 +86,7 @@ class GastosFixosScreen extends StatelessWidget {
   Widget _buildGastoItem(BuildContext context, GastosViewModel viewModel, GastoModel gasto) {
     final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     final formatadorData = DateFormat('dd/MM/yyyy');
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
@@ -128,8 +130,8 @@ class GastosFixosScreen extends StatelessWidget {
                             TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancelar")),
                             TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Deletar", style: TextStyle(color: Colors.red))),
                           ]));
-                  if (confirm == true) {
-                    await viewModel.excluirGasto(gasto.id!);
+                  if (confirm == true && context.mounted) {
+                    await Provider.of<GastosViewModel>(context, listen: false).excluirGasto(gasto.id!);
                   }
                 },
               ),

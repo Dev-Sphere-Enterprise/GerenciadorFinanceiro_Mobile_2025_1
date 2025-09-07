@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../shared/constants/style_constants.dart';
 import '../../shared/core/models/aporte_meta_model.dart';
+import '../../shared/core/repositories/aportes_repository.dart';
 import 'viewmodel/aportes_viewmodel.dart';
 import 'dialog/add_edit_aporte_dialog.dart';
 
@@ -15,7 +16,10 @@ class TelaAportes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AportesViewModel(metaId: metaId),
+      create: (context) {
+        final repository = Provider.of<AportesRepository>(context, listen: false);
+        return AportesViewModel(metaId: metaId, repository: repository);
+      },
       child: Scaffold(
         backgroundColor: corFundoScaffold,
         appBar: AppBar(

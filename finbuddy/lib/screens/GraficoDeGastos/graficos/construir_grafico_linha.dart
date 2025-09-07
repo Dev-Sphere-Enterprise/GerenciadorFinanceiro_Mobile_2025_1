@@ -7,6 +7,7 @@ import '../../../../../shared/constants/style_constants.dart';
 Widget construirGraficoLinha(
     List<FlSpot> gastosSpots,
     List<FlSpot> tetoSpots,
+    int diasNoMes,
     ) {
   final formatadorMoeda = NumberFormat.currency(locale: 'pt_BR', symbol: '');
 
@@ -17,9 +18,9 @@ Widget construirGraficoLinha(
   final double valorMaximo = max(maxGastos, maxTeto);
   final double maxYComRespiro = valorMaximo * 1.2;
 
-  // MUDANÇA AQUI: A função agora retorna apenas o widget Text, sem SideTitleWidget.
+  // ignore: non_constant_identifier_names
   Widget EixoY(double value, TitleMeta meta) {
-    if (value == meta.max || value == meta.min) return Container(); // Esconde o primeiro e último para não sobrepor
+    if (value == meta.max || value == meta.min) return Container();
     return Text(
       formatadorMoeda.format(value),
       style: estiloFonteMonospace.copyWith(
@@ -27,9 +28,8 @@ Widget construirGraficoLinha(
     );
   }
 
-  // MUDANÇA AQUI: A função agora retorna apenas o widget Text, sem SideTitleWidget.
+  // ignore: non_constant_identifier_names
   Widget EixoX(double value, TitleMeta meta) {
-    // Mostra apenas os dias 1, 5, 10, 15, 20, 25, 30
     if (value.toInt() == 1 || value.toInt() % 5 != 0) return Container();
     return Text(
       value.toInt().toString(),
@@ -63,7 +63,6 @@ Widget construirGraficoLinha(
       lineTouchData: LineTouchData(
         handleBuiltInTouches: true,
         touchTooltipData: LineTouchTooltipData(
-          //tooltipBgColor: finBuddyDark,
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final label = spot.barIndex == 0 ? 'Gasto:' : 'Teto:';
@@ -87,25 +86,28 @@ Widget construirGraficoLinha(
       minY: 0,
       maxY: maxYComRespiro == 0 ? 100 : maxYComRespiro,
       minX: 1,
-      maxX: 30,
+      maxX: diasNoMes.toDouble(),
       gridData: FlGridData(
         show: true,
         drawVerticalLine: true,
         drawHorizontalLine: true,
         getDrawingHorizontalLine: (_) =>
+            // ignore: deprecated_member_use
             FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
         getDrawingVerticalLine: (_) =>
+            // ignore: deprecated_member_use
             FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
       ),
       borderData: FlBorderData(
         show: true,
         border: Border(
+          // ignore: deprecated_member_use
           bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
+          // ignore: deprecated_member_use
           left: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
         ),
       ),
       titlesData: FlTitlesData(
-        // MUDANÇA AQUI: A propriedade 'space' foi movida para dentro de SideTitles.
         leftTitles: AxisTitles(
             sideTitles: SideTitles(
                 showTitles: true,

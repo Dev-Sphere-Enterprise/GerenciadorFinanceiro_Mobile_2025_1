@@ -1,14 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../shared/constants/style_constants.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/aportes_viewmodel.dart';
 import '../../../shared/core/models/aporte_meta_model.dart';
-import '../../../shared/constants/style_constants.dart';
 
 Future<void> showAddOrEditAporteDialog({
   required BuildContext context,
@@ -29,13 +24,9 @@ Future<void> showAddOrEditAporteDialog({
       return StatefulBuilder(
         builder: (context, setModalState) {
           bool isLoading = false;
-          bool isFormValid =
-              valorController.text.trim().isNotEmpty && selectedDate != null;
 
           valorController.addListener(() {
             setModalState(() {
-              isFormValid =
-                  valorController.text.trim().isNotEmpty && selectedDate != null;
             });
           });
 
@@ -107,10 +98,6 @@ Future<void> showAddOrEditAporteDialog({
                             if (picked != null) {
                               setModalState(() {
                                 selectedDate = picked;
-                                isFormValid = valorController.text
-                                    .trim()
-                                    .isNotEmpty &&
-                                    selectedDate != null;
                               });
                             }
                           },
@@ -128,6 +115,7 @@ Future<void> showAddOrEditAporteDialog({
                       ),
                       const SizedBox(height: 24),
                     ElevatedButton(
+                      // ignore: dead_code
                       onPressed: isLoading ? null : () async {
                         if (formKey.currentState!.validate()) {
                           setModalState(() => isLoading = true);
