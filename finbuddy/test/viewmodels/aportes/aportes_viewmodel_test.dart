@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:finbuddy/shared/core/models/aporte_meta_model.dart';
 import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
 import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
 import 'aportes_viewmodel_test.mocks.dart';
@@ -26,14 +25,6 @@ void main() {
     });
 
     group('salvarAporte', () {
-      final tAporte = AporteMetaModel(
-        idMeta: tMetaId,
-        valor: 100.0,
-        dataAporte: DateTime.now(),
-        deletado: false,
-        dataCriacao: DateTime.now(),
-        dataAtualizacao: DateTime.now(),
-      );
 
       test('deve retornar true ao salvar um NOVO aporte com sucesso', () async {
         when(

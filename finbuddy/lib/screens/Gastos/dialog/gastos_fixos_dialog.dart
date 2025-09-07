@@ -76,6 +76,7 @@ class _GastoDialogContentState extends State<_GastoDialogContent> {
 
   TipoPagamentoModel? get _safeTipoAtual {
     if (_selectedTipo == null) return null;
+    // ignore: cast_from_null_always_fails
     return _viewModel.tiposPagamento.firstWhere((t) => t.id == _selectedTipo, orElse: () => null as TipoPagamentoModel);
   }
 

@@ -69,9 +69,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "finbuddy/assets/images/finBuddy_icon.jpeg"
-  mockito: ^5.4.0
-  build_runner: ^2.4.0
+  image_path: "assets/images/finBuddy_icon.jpeg" 
 
 #The following section is specific to Flutter packages.
 flutter:

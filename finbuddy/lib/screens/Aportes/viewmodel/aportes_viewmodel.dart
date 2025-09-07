@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../../../shared/core/models/aporte_meta_model.dart';
 import '../../../shared/core/repositories/aportes_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AportesViewModel extends ChangeNotifier {
   final AportesRepository _repository;

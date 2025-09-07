@@ -25,8 +25,6 @@ class FakeCartoesViewModel extends ChangeNotifier implements CartoesViewModel {
   late Stream<List<CartaoModel>> cartoesStream = Stream.value([]);
   @override
   Future<void> excluirCartao(String cartaoId) async {}
-  @override
-  late final _repository;
 }
 
 void main() {

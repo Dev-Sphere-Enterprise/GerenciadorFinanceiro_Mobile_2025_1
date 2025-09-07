@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:finbuddy/screens/Aportes/dialog/add_edit_aporte_dialog.dart';
 import 'package:finbuddy/screens/Aportes/viewmodel/aportes_viewmodel.dart';
 import 'package:finbuddy/shared/core/models/aporte_meta_model.dart';
-import 'package:finbuddy/shared/core/repositories/aportes_repository.dart';
 import 'package:provider/provider.dart';
 
 class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {
@@ -26,8 +25,6 @@ class FakeAportesViewModel extends ChangeNotifier implements AportesViewModel {
     return _shouldReturnSuccess;
   }
 
-  @override
-  late final AportesRepository _repository;
   @override
   late Stream<List<AporteMetaModel>> aportesStream = Stream.value([]);
   @override

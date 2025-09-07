@@ -2,33 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../../shared/constants/style_constants.dart';
-import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
-import '../Gastos/viewmodel/gastos_viewmodel.dart';
 import '../Home/home_screen.dart';
-import '../Home/viewmodel/home_viewmodel.dart';
 import '../Register/register_screen.dart';
 import 'viewmodel/login_viewmodel.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Erro de Autenticação'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('OK'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +162,7 @@ class LoginScreen extends StatelessWidget {
         color: finBuddyDark,
       ),
       filled: true,
+      // ignore: deprecated_member_use
       fillColor: Colors.white.withOpacity(0.8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

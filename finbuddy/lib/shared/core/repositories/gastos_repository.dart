@@ -1,9 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/gasto_model.dart';
-import '../models/categoria_model.dart';
-import '../models/cartao_model.dart';
-import '../models/tipo_pagamento_model.dart';
 
 class GastosRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

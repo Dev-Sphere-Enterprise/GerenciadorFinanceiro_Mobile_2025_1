@@ -21,8 +21,6 @@ class FakeGanhosViewModel extends ChangeNotifier implements GanhosViewModel {
   late Stream<List<GanhoModel>> ganhosStream = Stream.value([]);
   @override
   Future<void> excluirGanho(String ganhoId) async {}
-  @override
-  late final _repository;
 }
 
 void main() {

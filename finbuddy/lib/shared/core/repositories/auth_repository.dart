@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import '../models/usuario_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -39,7 +40,9 @@ class AuthRepository {
         'dataAtualizacao': Timestamp.now(),
       }, SetOptions(merge: true));
     } catch (e) {
-      print('Erro ao atualizar perfil do usuário: $e');
+      if (kDebugMode) {
+        print('Erro ao atualizar perfil do usuário: $e');
+      }
       throw Exception('Falha ao atualizar o perfil. Tente novamente.');
     }
   }
@@ -58,7 +61,9 @@ class AuthRepository {
         return UsuarioModel.fromMap(doc.id, doc.data()!);
       }
     } catch (e) {
-      print('Erro ao buscar perfil do usuário: $e');
+      if (kDebugMode) {
+        print('Erro ao buscar perfil do usuário: $e');
+      }
     }
 
     return null;
@@ -68,11 +73,7 @@ class AuthRepository {
     try {
       final googleUser = await GoogleSignIn.instance.authenticate();
 
-      if (googleUser == null) {
-        throw FirebaseAuthException(code: 'CANCELLED');
-      }
-
-      final googleAuth = await googleUser.authentication;
+      final googleAuth = googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );

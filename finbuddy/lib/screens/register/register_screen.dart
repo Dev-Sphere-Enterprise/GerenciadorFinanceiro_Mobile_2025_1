@@ -71,6 +71,7 @@ class RegisterScreen extends StatelessWidget {
                         const Center(child: CircularProgressIndicator(color: finBuddyDark))
                       else
                         ElevatedButton(
+                          // ignore: deprecated_member_use
                           style: _buttonStyle(viewModel.isFormValid ? finBuddyBlue : finBuddyBlue.withOpacity(0.5)),
                           onPressed: viewModel.isFormValid ? () async {
                             final sucesso = await viewModel.registerWithEmail();
@@ -108,6 +109,7 @@ class RegisterScreen extends StatelessWidget {
       labelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyDark),
       floatingLabelStyle: const TextStyle(fontFamily: 'JetBrainsMono', color: finBuddyBlue, fontWeight: FontWeight.bold),
       filled: true,
+      // ignore: deprecated_member_use
       fillColor: Colors.white.withOpacity(0.8),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
       focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: finBuddyDark, width: 2)),

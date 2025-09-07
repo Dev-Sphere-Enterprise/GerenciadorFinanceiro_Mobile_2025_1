@@ -97,6 +97,7 @@ class CartoesScreen extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight),
                   borderRadius: BorderRadius.circular(12.0),
+                  // ignore: deprecated_member_use
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))]),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

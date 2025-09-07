@@ -13,7 +13,7 @@ class GraficosViewModel extends ChangeNotifier {
   GraficoModel? _chartData;
   GraficoModel? get chartData => _chartData;
 
-  int _anoSelecionado = DateTime.now().year;
+  final int _anoSelecionado = DateTime.now().year;
   int get anoSelecionado => _anoSelecionado;
 
   int _mesSelecionado = DateTime.now().month;

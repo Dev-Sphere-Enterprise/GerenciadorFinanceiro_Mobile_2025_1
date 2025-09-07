@@ -36,9 +36,11 @@ class GraficosRepository {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     final totalValorGastos = gastosPorCategoria.values
+        // ignore: avoid_types_as_parameter_names
         .fold<double>(0.0, (sum, item) => sum + item.totalValue);
 
     final totalLancamentos = gastosPorCategoria.values
+        // ignore: avoid_types_as_parameter_names
         .fold<int>(0, (sum, item) => sum + item.count);
 
     final diasNoMes = _getDiasNoMes(ano, mes);

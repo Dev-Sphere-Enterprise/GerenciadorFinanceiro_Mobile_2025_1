@@ -70,6 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   style: TextStyle(
                     fontFamily: 'JetBrainsMono',
                     fontSize: 14,
+                    // ignore: deprecated_member_use
                     color: finBuddyDark.withOpacity(0.75),
                   ),
                 ),

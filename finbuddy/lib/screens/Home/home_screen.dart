@@ -8,7 +8,6 @@ import '../Ganhos/dialog/ganhos_fixos_dialog.dart';
 import '../GraficoDeGastos/widgets/grafico_de_gastos_widget.dart';
 import '../Profile/profile_screen.dart';
 import '../Gastos/viewmodel/gastos_viewmodel.dart';
-import '../Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'viewmodel/home_viewmodel.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -87,6 +86,7 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _onAddGanhoPressed(BuildContext context) async {
       await showAddOrEditGanhoDialog(context: context);
+      // ignore: use_build_context_synchronously
       Provider.of<HomeViewModel>(context, listen: false).refreshBalance();
   }
 

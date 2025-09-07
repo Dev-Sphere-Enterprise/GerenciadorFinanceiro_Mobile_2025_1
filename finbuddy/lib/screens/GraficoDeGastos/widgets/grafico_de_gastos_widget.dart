@@ -92,6 +92,7 @@ class GraficoDeGastosWidget extends StatelessWidget {
                   fontSize: 18,
                   color: selecionado
                       ? finBuddyBlue
+                      // ignore: deprecated_member_use
                       : finBuddyDark.withOpacity(0.6),
                 ),
               ),

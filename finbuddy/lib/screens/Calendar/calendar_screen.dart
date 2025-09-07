@@ -76,6 +76,7 @@ class CalendarScreen extends StatelessWidget {
         weekendTextStyle: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal, color: finBuddyBlue),
         outsideTextStyle: estiloFonteMonospace.copyWith(fontWeight: FontWeight.normal, color: Colors.grey.shade400),
         todayDecoration: BoxDecoration(
+          // ignore: deprecated_member_use
           color: finBuddyLime.withOpacity(0.5),
           shape: BoxShape.circle,
         ),

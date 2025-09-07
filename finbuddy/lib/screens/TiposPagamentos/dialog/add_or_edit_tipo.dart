@@ -51,8 +51,9 @@ class _TipoDialogContentState extends State<_TipoDialogContent> {
 
     final sucesso = await widget.viewModel.salvarTipo(model);
     if (mounted) {
-      if (sucesso) Navigator.pop(context);
-      else {
+      if (sucesso) {
+        Navigator.pop(context);
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erro ao salvar')));
         setState(() => _isLoading = false);
       }

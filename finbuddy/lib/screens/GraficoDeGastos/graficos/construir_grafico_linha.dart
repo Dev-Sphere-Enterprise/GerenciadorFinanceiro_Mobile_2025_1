@@ -18,6 +18,7 @@ Widget construirGraficoLinha(
   final double valorMaximo = max(maxGastos, maxTeto);
   final double maxYComRespiro = valorMaximo * 1.2;
 
+  // ignore: non_constant_identifier_names
   Widget EixoY(double value, TitleMeta meta) {
     if (value == meta.max || value == meta.min) return Container();
     return Text(
@@ -27,6 +28,7 @@ Widget construirGraficoLinha(
     );
   }
 
+  // ignore: non_constant_identifier_names
   Widget EixoX(double value, TitleMeta meta) {
     if (value.toInt() == 1 || value.toInt() % 5 != 0) return Container();
     return Text(
@@ -90,14 +92,18 @@ Widget construirGraficoLinha(
         drawVerticalLine: true,
         drawHorizontalLine: true,
         getDrawingHorizontalLine: (_) =>
+            // ignore: deprecated_member_use
             FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
         getDrawingVerticalLine: (_) =>
+            // ignore: deprecated_member_use
             FlLine(color: Colors.grey.withOpacity(0.3), strokeWidth: 1),
       ),
       borderData: FlBorderData(
         show: true,
         border: Border(
+          // ignore: deprecated_member_use
           bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
+          // ignore: deprecated_member_use
           left: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2),
         ),
       ),

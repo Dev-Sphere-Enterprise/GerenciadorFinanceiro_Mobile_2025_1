@@ -9,7 +9,6 @@ import 'package:finbuddy/screens/Login/login_screen.dart';
 import 'package:finbuddy/shared/constants/app_theme.dart';
 import 'package:finbuddy/shared/core/navigator.dart';
 import 'screens/splash/splash_screen.dart';
-import 'shared/core/features/notifications/notifications_manager.dart';
 import 'package:finbuddy/screens/Home/home_screen.dart';
 
 class App extends StatefulWidget {
@@ -31,6 +30,7 @@ class _AppState extends State<App> {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => AppTheme())],
       builder: ((context, child) => MaterialApp(
+            // ignore: deprecated_member_use
             useInheritedMediaQuery: true,
             navigatorObservers: [BotToastNavigatorObserver()],
             onGenerateRoute: (settings) {
