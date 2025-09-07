@@ -101,11 +101,9 @@ class LoginScreen extends StatelessWidget {
                           ? () async {
                               final sucesso = await viewModel.loginWithEmail();
                               if (sucesso && context.mounted) {
-                                Navigator.pushReplacement(
+                                Navigator.pushReplacementNamed(
                                   context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HomeScreen(),
-                                  ),
+                                  '/home',
                                 );
                               }
                             }

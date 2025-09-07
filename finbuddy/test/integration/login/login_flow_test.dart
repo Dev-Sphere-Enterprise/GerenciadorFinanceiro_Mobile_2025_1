@@ -1,5 +1,3 @@
-// test/integration/login/login_flow_test.dart
-
 import 'package:finbuddy/screens/Login/login_screen.dart';
 import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +6,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../mocks/mocks.mocks.dart';
+import '../../mocks/login_flow_test.mocks.dart';
 
 class FakeHomeScreen extends StatelessWidget {
   const FakeHomeScreen({super.key});
@@ -96,7 +94,7 @@ void main() {
         await tester.pump();
 
         await tester.tap(find.byKey(const Key('loginButton')));
-        await tester.pump(Duration.zero); 
+        await tester.pump(Duration.zero);
 
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
         await tester.pumpAndSettle();
@@ -123,10 +121,10 @@ void main() {
         find.byKey(const Key('passwordField')),
         'senhaerrada',
       );
-      await tester.pump(); 
+      await tester.pump();
 
       await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump(Duration.zero); 
+      await tester.pump(Duration.zero);
 
       // ASSERT
       expect(find.byType(CircularProgressIndicator), findsOneWidget);

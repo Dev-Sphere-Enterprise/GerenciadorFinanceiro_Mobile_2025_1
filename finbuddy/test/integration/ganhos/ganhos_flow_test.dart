@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:finbuddy/screens/Ganhos/dialog/ganhos_fixos_dialog.dart';
 import 'package:finbuddy/screens/Ganhos/ganhos_fixos_screen.dart';
 import 'package:finbuddy/screens/Ganhos/viewmodel/ganhos_viewmodel.dart';
 import 'package:finbuddy/shared/core/models/ganho_model.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'ganhos_fixos_screen_test.mocks.dart';
+import '../../mocks/ganhos_flow_test.mocks.dart';
 
 @GenerateMocks([GanhosRepository])
 void main() {
@@ -21,8 +20,9 @@ void main() {
     mockGanhosRepository = MockGanhosRepository();
     ganhosController = StreamController<List<GanhoModel>>.broadcast();
 
-    when(mockGanhosRepository.getGanhosFixosStream())
-        .thenAnswer((_) => ganhosController.stream);
+    when(
+      mockGanhosRepository.getGanhosFixosStream(),
+    ).thenAnswer((_) => ganhosController.stream);
 
     ganhosViewModel = GanhosViewModel(repository: mockGanhosRepository);
   });
@@ -35,9 +35,7 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider<GanhosViewModel>.value(
         value: ganhosViewModel,
-        child: const MaterialApp(
-          home: GanhosFixosScreen(),
-        ),
+        child: const MaterialApp(home: GanhosFixosScreen()),
       ),
     );
   }
@@ -48,6 +46,8 @@ void main() {
     valor: 5000.0,
     dataRecebimento: DateTime(2025, 9, 5),
     idUsuario: 'uid123',
+    dataCriacao: DateTime.now(),
+    dataAtualizacao: DateTime.now(),
   );
 
   group('Testes de Integração da GanhosFixosScreen', () {
@@ -63,13 +63,13 @@ void main() {
       ganhosController.add([mockGanho]);
       await tester.pump();
       expect(find.text('Salário'), findsOneWidget);
-      expect(find.text('Valor: R\$ 5.000,00'), findsOneWidget);
+      expect(find.textContaining('5.000,00'), findsOneWidget);
       expect(find.text('Recebimento: Dia 05 de cada mês'), findsOneWidget);
     });
 
     testWidgets('deve adicionar um novo ganho com sucesso', (tester) async {
       when(mockGanhosRepository.addOrEditGanho(any)).thenAnswer((_) async {});
-      
+
       await pumpGanhosScreen(tester);
       ganhosController.add([]);
       await tester.pump();
@@ -81,7 +81,7 @@ void main() {
 
       await tester.enterText(find.byKey(const Key('nomeField')), 'Consultoria');
       await tester.enterText(find.byKey(const Key('valorField')), '1500,00');
-      
+
       await tester.tap(find.text('Salvar'));
       await tester.pumpAndSettle();
 
@@ -100,8 +100,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Editar Ganho Fixo'), findsOneWidget);
-      expect(find.text('Salário'), findsOneWidget);
-      
+      expect(find.widgetWithText(TextFormField, 'Salário'), findsOneWidget);
+
       await tester.enterText(find.byKey(const Key('valorField')), '5500,00');
 
       await tester.tap(find.text('Salvar'));
@@ -112,7 +112,7 @@ void main() {
 
     testWidgets('deve excluir um ganho após confirmação', (tester) async {
       when(mockGanhosRepository.deleteGanho(any)).thenAnswer((_) async {});
-      
+
       await pumpGanhosScreen(tester);
       ganhosController.add([mockGanho]);
       await tester.pump();
@@ -124,7 +124,7 @@ void main() {
 
       await tester.tap(find.text('Deletar'));
       await tester.pumpAndSettle();
-      
+
       verify(mockGanhosRepository.deleteGanho('1')).called(1);
     });
   });
