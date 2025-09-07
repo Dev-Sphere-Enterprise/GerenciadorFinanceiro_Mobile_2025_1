@@ -1,7 +1,7 @@
-// test/integration/login/login_flow_test.dart
-
+import 'package:finbuddy/screens/Home/home_screen.dart';
 import 'package:finbuddy/screens/Login/login_screen.dart';
 import 'package:finbuddy/screens/Login/viewmodel/login_viewmodel.dart';
+import 'package:finbuddy/screens/Home/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -10,17 +10,36 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../mocks/mocks.mocks.dart';
 
-class FakeHomeScreen extends StatelessWidget {
-  const FakeHomeScreen({super.key});
+class FakeHomeViewModel extends ChangeNotifier implements HomeViewModel {
+  @override
+  bool get isLoading => false;
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Navegou com Sucesso', key: Key('fakeHomeScreen')),
-      ),
-    );
-  }
+  Map<String, double> get balanceData => {'saldo': 0.0, 'gastos': 0.0};
+
+  @override
+  String? get pendingAction => null;
+
+  @override
+  bool get isBalanceVisibleSaldo => false;
+
+  @override
+  bool get isBalanceVisibleGasto => false;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  void clearPendingAction() {}
+
+  @override
+  void toggleSaldoVisibility() {}
+
+  @override
+  void toggleGastosVisibility() {}
+
+  @override
+  void refreshBalance() {}
 }
 
 void main() {
@@ -28,12 +47,12 @@ void main() {
 
   late MockAuthRepository mockAuthRepository;
   late LoginViewModel loginViewModel;
-  late MockUserCredential mockUserCredential;
+  late FakeHomeViewModel fakeHomeViewModel;
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     loginViewModel = LoginViewModel(repository: mockAuthRepository);
-    mockUserCredential = MockUserCredential();
+    fakeHomeViewModel = FakeHomeViewModel();
   });
 
   Future<void> pumpLoginScreen(WidgetTester tester) async {
@@ -41,10 +60,11 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<LoginViewModel>.value(value: loginViewModel),
+          ChangeNotifierProvider<HomeViewModel>.value(value: fakeHomeViewModel),
         ],
         child: MaterialApp(
           home: const LoginScreen(),
-          routes: {'/home': (context) => const FakeHomeScreen()},
+          routes: {'/home': (_) => const HomeScreen()},
         ),
       ),
     );
@@ -52,7 +72,7 @@ void main() {
 
   group('Testes de Fluxo de Login', () {
     testWidgets(
-      'Botão de login deve estar desabilitado e habilitar após preenchimento',
+      'Botão de login deve estar desabilitado inicialmente e habilitar após preenchimento',
       (tester) async {
         await pumpLoginScreen(tester);
 
@@ -77,8 +97,10 @@ void main() {
     );
 
     testWidgets(
-      'Deve navegar para a FakeHomeScreen em caso de login bem-sucedido',
+      'Deve navegar para a HomeScreen em caso de login bem-sucedido',
       (tester) async {
+        // ARRANGE
+        final mockUserCredential = MockUserCredential();
         when(
           mockAuthRepository.signInWithEmailAndPassword(any, any),
         ).thenAnswer((_) async => mockUserCredential);
@@ -94,24 +116,28 @@ void main() {
           '123456',
         );
         await tester.pump();
-
         await tester.tap(find.byKey(const Key('loginButton')));
-        await tester.pump(Duration.zero); 
 
+        await tester.pump();
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-        await tester.pumpAndSettle();
 
-        expect(find.byKey(const Key('fakeHomeScreen')), findsOneWidget);
+        await tester.pump(const Duration(seconds: 1));
+
         expect(find.byType(LoginScreen), findsNothing);
+        expect(find.byType(HomeScreen), findsOneWidget);
       },
     );
 
     testWidgets('Deve exibir mensagem de erro em caso de falha no login', (
       tester,
     ) async {
-      when(
-        mockAuthRepository.signInWithEmailAndPassword(any, any),
-      ).thenThrow(FirebaseAuthException(code: 'invalid-credential'));
+      const errorMessage = 'Email ou senha inválidos.';
+      when(mockAuthRepository.signInWithEmailAndPassword(any, any)).thenThrow(
+        FirebaseAuthException(
+          code: 'invalid-credential',
+          message: errorMessage,
+        ),
+      );
 
       await pumpLoginScreen(tester);
 
@@ -123,17 +149,17 @@ void main() {
         find.byKey(const Key('passwordField')),
         'senhaerrada',
       );
-      await tester.pump(); 
+      await tester.pump();
 
       await tester.tap(find.byKey(const Key('loginButton')));
-      await tester.pump(Duration.zero); 
 
-      // ASSERT
+      await tester.pump();
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
       await tester.pumpAndSettle();
 
-      expect(find.text('Email ou senha inválidos.'), findsOneWidget);
-      expect(find.byType(FakeHomeScreen), findsNothing);
+      expect(find.text(errorMessage), findsOneWidget);
+      expect(find.byType(HomeScreen), findsNothing);
     });
   });
 }
