@@ -20,7 +20,7 @@ Oferecer o acesso a um gerenciador financeiro eficiente, intuitivo e gratuito, p
 
 ## :round_pushpin: Documentação
 ### [Apresentação - 1ªVA](https://youtu.be/b-vILmdQqhE)
-### [Apresentação - 2ªVA]([https://youtu.be/b-vILmdQqhE](https://www.canva.com/design/DAGyT7mP66o/uGqO-EF8Mssfr0hnpkfCoQ/edit?ui=eyJIIjp7IkEiOnRydWV9fQ))
+### [Apresentação - 2ªVA](https://www.canva.com/design/DAGyT7mP66o/uGqO-EF8Mssfr0hnpkfCoQ/edit?ui=eyJIIjp7IkEiOnRydWV9fQ)
 ### [Documentação](https://drive.google.com/drive/folders/1BDYb_pvn6g7q761QtnoIvFlAilXBlSeC?usp=drive_link)
 ### [Histórias de Usuário](https://docs.google.com/document/d/13nPxe3BAgEmuCAIT5HY5pnNx5eyVRtkJqHGVblx-dV8/edit?usp=sharing)
 ### [Backlog](https://github.com/orgs/Dev-Sphere-Enterprise/projects/1/views/1)
